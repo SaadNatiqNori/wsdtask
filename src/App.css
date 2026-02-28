@@ -98,6 +98,15 @@
   color: #ECD898 !important;
 }
 
+@keyframes revealUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @keyframes slideUp {
   to {
     opacity: 1;
