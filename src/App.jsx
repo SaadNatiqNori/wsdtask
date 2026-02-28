@@ -92,7 +92,7 @@ function App() {
       )
 
       // Phase 3: Hold 1s with only accent words visible
-      tl.to({}, { duration: 1 })
+      tl.to({}, { duration: 0 })
 
       // Phase 4: Move accent words to card titles
       tl.call(() => {
@@ -103,8 +103,8 @@ function App() {
           if (el) fromRects[card.title] = el.getBoundingClientRect()
         })
 
-        // Hide hero
-        gsap.set(heroEl, { opacity: 0 })
+        // Fade out hero smoothly
+        gsap.to(heroEl, { opacity: 0, duration: 0.5, ease: 'power2.out' })
 
         // Show cards section (content hidden)
         gsap.set(cardsEl, { autoAlpha: 1 })
@@ -124,15 +124,19 @@ function App() {
         // Create floating clones and animate them
         const moveTl = gsap.timeline()
 
-        CARDS.forEach((card) => {
+        CARDS.forEach((card, index) => {
           const from = fromRects[card.title]
           const to = toRects[card.title]
           if (!from || !to) return
 
           const accentEl = accentWordMap.current[card.title]
-          const computedFontSize = window.getComputedStyle(accentEl).fontSize
+          const computedFontSize = parseFloat(window.getComputedStyle(accentEl).fontSize)
           const targetEl = cardTitleRefs.current[card.title]
-          const targetFontSize = window.getComputedStyle(targetEl).fontSize
+          const targetFontSize = parseFloat(window.getComputedStyle(targetEl).fontSize)
+          const fontScale = targetFontSize / computedFontSize
+
+          const dx = to.left - from.left
+          const dy = to.top - from.top
 
           const clone = document.createElement('span')
           clone.textContent = card.title
@@ -142,11 +146,14 @@ function App() {
             top: `${from.top}px`,
             fontFamily: "'Season Mix-TRIAL', serif",
             color: '#ECD898',
-            fontSize: computedFontSize,
+            fontSize: `${computedFontSize}px`,
+            fontWeight: '400',
             lineHeight: '120%',
             letterSpacing: '-0.01em',
             zIndex: '100',
             pointerEvents: 'none',
+            willChange: 'transform',
+            transformOrigin: 'top left',
           })
           document.body.appendChild(clone)
           clones.push(clone)
@@ -154,17 +161,21 @@ function App() {
           moveTl.to(
             clone,
             {
-              left: to.left,
-              top: to.top,
-              fontSize: targetFontSize,
-              duration: 1.2,
-              ease: 'power2.inOut',
+              x: dx,
+              y: dy,
+              scale: fontScale,
+              duration: 1.4,
+              ease: 'power3.inOut',
               onComplete: () => {
-                clone.remove()
                 if (targetEl) gsap.set(targetEl, { opacity: 1 })
+                gsap.to(clone, {
+                  opacity: 0,
+                  duration: 0.15,
+                  onComplete: () => clone.remove(),
+                })
               },
             },
-            0
+            index * 0.08
           )
         })
 
@@ -174,11 +185,11 @@ function App() {
           {
             autoAlpha: 1,
             y: 0,
-            duration: 0.8,
+            duration: 0.9,
             ease: 'power2.out',
-            stagger: 0.05,
+            stagger: 0.08,
           },
-          '-=0.3'
+          '-=0.5'
         )
 
         // Phase 6: Animate left border lines from top to bottom
@@ -186,7 +197,7 @@ function App() {
           lineEls,
           {
             scaleY: 1,
-            duration: 1.2,
+            duration: 1.4,
             ease: 'power2.out',
           },
           '<'
@@ -203,17 +214,17 @@ function App() {
   const words = HERO_TEXT.split(' ')
 
   return (
-    <main className="relative min-h-screen bg-[#161b2b] px-4 pb-8 pt-4 text-[#d6deea] md:px-8 md:pb-12 md:pt-5">
+    <main className="relative flex min-h-screen flex-col bg-[#161b2b] px-4 pb-8 pt-4 text-[#d6deea] md:px-8 md:pb-12 md:pt-5">
       {/* <span className="fixed bottom-4 left-4 z-50 text-[11px] text-white font-['Akkurat_Mono',monospace]">
         Designed with love by Saad Natiq Nori
       </span> */}
-      <header className="mb-[clamp(2rem,6vw,4.5rem)] flex justify-center">
+      <header className="relative z-10 mb-[clamp(2rem,6vw,4.5rem)] flex justify-center">
         <nav
           ref={navbarRef}
-          className="flex w-full items-center gap-4 rounded-[8px] border border-white/10 bg-[rgba(20,25,41,0.42)] px-[0.7rem] py-[0.45rem] backdrop-blur-[2px] md:w-max md:gap-6"
+          className="flex w-full items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-[#1C1F2A] p-2 md:w-max"
           aria-label="Main navigation"
         >
-          <a href="#" className="no-underline">
+          <a href="#" className="flex items-center justify-between p-2 no-underline">
             <img src={logo} alt="Alcove" className="h-[12px] w-auto" />
           </a>
 
@@ -254,14 +265,14 @@ function App() {
 
           <a
             href="#"
-            className="ml-auto whitespace-nowrap rounded-full bg-[#cfd7e1] px-3 py-[0.65rem] font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline md:px-4"
+            className="ml-auto whitespace-nowrap rounded-[22px] bg-[#E2EAF2] px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
           >
             CONTACT
           </a>
         </nav>
       </header>
 
-      <div className="relative mx-auto max-w-[1300px]">
+      <div className="relative mx-auto flex flex-1 items-center max-w-[1300px]">
         {/* Hero Section */}
         <section ref={heroRef} aria-label="Company introduction" id="hero-section">
           <p className="m-0 text-[clamp(2rem,8vw,58px)] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
@@ -277,7 +288,7 @@ function App() {
                         if (isAccent) accentWordMap.current[cleanWord] = el
                       }
                     }}
-                    className={`inline-block ${isAccent ? "text-[#ECD898] font-['Season_Mix-TRIAL',serif]" : ''}`}
+                    className={`inline-block ${isAccent ? "text-[#ECD898] font-['Season_Mix-TRIAL',serif] font-normal tracking-[-0.01em]" : ''}`}
                   >
                     {word}
                   </span>
@@ -291,11 +302,11 @@ function App() {
         {/* Cards Section */}
         <section
           ref={cardsSectionRef}
-          className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:gap-0 md:grid-cols-3"
+          className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3"
           aria-label="Subsidiaries"
         >
           {CARDS.map((card) => (
-            <div key={card.title} className="relative flex min-h-[40vh] flex-col py-0 pl-6 md:min-h-[60vh]">
+            <div key={card.title} className="relative flex min-h-[30vh] flex-col py-0 pl-6 md:min-h-[60vh]">
               {/* Left border line */}
               <div
                 ref={(el) => {
@@ -320,7 +331,7 @@ function App() {
                 ref={(el) => {
                   if (el) cardTitleRefs.current[card.title] = el
                 }}
-                className="m-0 text-[clamp(1.75rem,6vw,48px)] leading-[120%] text-[#ECD898] md:text-[clamp(2rem,4vw,48px)]"
+                className="m-0 text-[clamp(1.75rem,6vw,48px)] font-normal tracking-[-0.01em] leading-[120%] text-[#ECD898] md:text-[clamp(2rem,4vw,48px)]"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
                 {card.title}
@@ -333,12 +344,12 @@ function App() {
                 }}
                 className="mt-auto"
               >
-                <p className="mb-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#d5dee9]/80 md:mb-6 md:text-[16px] md:leading-[100%]">
+                <p className="mb-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#d5dee9]/80 md:mb-6 md:text-[16px] md:leading-[120%]">
                   {card.description}
                 </p>
                 <a
                   href="#"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
+                  className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-[#E2EAF2] px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
                 >
                   DISCOVER{' '}
                   <IoArrowForward className="text-sm" aria-hidden="true" />
