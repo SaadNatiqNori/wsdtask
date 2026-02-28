@@ -203,11 +203,14 @@ function App() {
   const words = HERO_TEXT.split(' ')
 
   return (
-    <main className="min-h-screen bg-[#161b2b] px-8 pb-12 pt-5 text-[#d6deea]">
+    <main className="relative min-h-screen bg-[#161b2b] px-4 pb-8 pt-4 text-[#d6deea] md:px-8 md:pb-12 md:pt-5">
+      <span className="fixed bottom-4 left-4 z-50 text-[11px] text-white font-['Akkurat_Mono',monospace]">
+        Designed with love by Saad Natiq Nori
+      </span>
       <header className="mb-[clamp(2rem,6vw,4.5rem)] flex justify-center">
         <nav
           ref={navbarRef}
-          className="flex w-max items-center gap-6 rounded-[8px] border border-white/10 bg-[rgba(20,25,41,0.42)] px-[0.7rem] py-[0.45rem] backdrop-blur-[2px]"
+          className="flex w-full items-center gap-4 rounded-[8px] border border-white/10 bg-[rgba(20,25,41,0.42)] px-[0.7rem] py-[0.45rem] backdrop-blur-[2px] md:w-max md:gap-6"
           aria-label="Main navigation"
         >
           <a href="#" className="no-underline">
@@ -288,11 +291,11 @@ function App() {
         {/* Cards Section */}
         <section
           ref={cardsSectionRef}
-          className="absolute inset-x-0 top-0 grid grid-cols-1 gap-0 md:grid-cols-3"
+          className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:gap-0 md:grid-cols-3"
           aria-label="Subsidiaries"
         >
           {CARDS.map((card) => (
-            <div key={card.title} className="relative flex min-h-[60vh] flex-col py-0 pl-6">
+            <div key={card.title} className="relative flex min-h-[40vh] flex-col py-0 pl-6 md:min-h-[60vh]">
               {/* Left border line */}
               <div
                 ref={(el) => {
@@ -317,7 +320,7 @@ function App() {
                 ref={(el) => {
                   if (el) cardTitleRefs.current[card.title] = el
                 }}
-                className="m-0 text-[clamp(2rem,4vw,48px)] leading-[120%] text-[#ECD898]"
+                className="m-0 text-[clamp(1.75rem,6vw,48px)] leading-[120%] text-[#ECD898] md:text-[clamp(2rem,4vw,48px)]"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
                 {card.title}
@@ -330,7 +333,7 @@ function App() {
                 }}
                 className="mt-auto"
               >
-                <p className="mb-6 text-[16px] font-normal leading-[100%] tracking-[0] text-[#d5dee9]/80">
+                <p className="mb-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#d5dee9]/80 md:mb-6 md:text-[16px] md:leading-[100%]">
                   {card.description}
                 </p>
                 <a
