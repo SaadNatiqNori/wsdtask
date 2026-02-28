@@ -1,6 +1,9 @@
+body {
+  overscroll-behavior: none;
+}
 .page {
   min-height: 100vh;
-  background: #161b2b;
+  background: #1C1F2A;
   color: #d6deea;
   padding: 1.25rem 2rem 3rem;
 }
