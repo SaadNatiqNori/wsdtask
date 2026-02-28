@@ -1,6 +1,7 @@
 body {
   overscroll-behavior: none;
   background: #161b2b;
+  overflow-x: hidden;
 }
 .page {
   min-height: 100vh;

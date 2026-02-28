@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { IoChevronDownOutline, IoArrowForward } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
@@ -24,7 +24,34 @@ const CARDS = [
   },
 ]
 
+function useScale(referenceWidth = 1440) {
+  const [scale, setScale] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const width = window.innerWidth
+      return width >= 768 ? width / referenceWidth : 1
+    }
+    return 1
+  })
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth
+      if (width >= 768) {
+        setScale(width / referenceWidth)
+      } else {
+        setScale(1)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [referenceWidth])
+
+  return scale
+}
+
 function App() {
+  const scale = useScale()
   const navbarRef = useRef(null)
   const wordRefs = useRef([])
   const accentWordMap = useRef({})
@@ -43,6 +70,8 @@ function App() {
     const navbarEl = navbarRef.current
     const heroEl = heroRef.current
     const cardsEl = cardsSectionRef.current
+
+    // Stabilize refs before filtering
     const allWordEls = wordRefs.current.filter(Boolean)
     const accentEls = Object.values(accentWordMap.current).filter(Boolean)
     const nonAccentEls = allWordEls.filter((el) => !accentEls.includes(el))
@@ -154,6 +183,7 @@ function App() {
             pointerEvents: 'none',
             willChange: 'transform',
             transformOrigin: 'top left',
+            transform: `scale(${scale})`,
           })
           document.body.appendChild(clone)
           clones.push(clone)
@@ -163,7 +193,7 @@ function App() {
             {
               x: dx,
               y: dy,
-              scale: fontScale,
+              scale: fontScale * scale,
               duration: 1.4,
               ease: 'power3.inOut',
               onComplete: () => {
@@ -214,152 +244,161 @@ function App() {
   const words = HERO_TEXT.split(' ')
 
   return (
-    <main className="relative flex min-h-screen flex-col bg-[#161b2b] px-4 pb-8 pt-4 text-[#d6deea] md:px-8 md:pb-12 md:pt-5">
-      {/* <span className="fixed bottom-4 left-4 z-50 text-[11px] text-white font-['Akkurat_Mono',monospace]">
+    <div
+      style={{
+        transform: `scale(${scale})`,
+        transformOrigin: 'top center',
+        width: scale > 1 ? '100%' : `${100 / scale}%`,
+        height: '100%',
+      }}
+    >
+      <main className="relative max-w-[1440px] mx-auto flex flex-col bg-[#161b2b] px-4 pb-8 pt-4 text-[#d6deea] md:px-8 md:pb-12 md:pt-5">
+        {/* <span className="fixed bottom-4 left-4 z-50 text-[11px] text-white font-['Akkurat_Mono',monospace]">
         Designed with love by Saad Natiq Nori
       </span> */}
-      <header className="relative z-10 mb-[clamp(2rem,6vw,4.5rem)] flex justify-center">
-        <nav
-          ref={navbarRef}
-          className="flex w-full items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-[#1C1F2A] p-2 md:w-max"
-          aria-label="Main navigation"
-        >
-          <a href="#" className="flex items-center justify-between p-2 no-underline">
-            <img src={logo} alt="Alcove" className="h-[12px] w-auto" />
-          </a>
-
-          <ul className="ml-[0.55rem] hidden list-none items-center gap-6 p-0 md:flex">
-            <li>
-              <a
-                href="#"
-                className="inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none text-[#d5dee9] no-underline"
-              >
-                ABOUT
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none text-[#d5dee9] no-underline"
-              >
-                SUBSIDIARIES{' '}
-                <IoChevronDownOutline
-                  className="translate-y-[0.5px] text-[0.9em] leading-none"
-                  aria-hidden="true"
-                />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none text-[#d5dee9] no-underline"
-              >
-                PROJECTS{' '}
-                <IoChevronDownOutline
-                  className="translate-y-[0.5px] text-[0.9em] leading-none"
-                  aria-hidden="true"
-                />
-              </a>
-            </li>
-          </ul>
-
-          <a
-            href="#"
-            className="ml-auto whitespace-nowrap rounded-[22px] bg-[#E2EAF2] px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
+        <header className="relative z-10 mb-[clamp(2rem,6vw,4.5rem)] flex justify-center">
+          <nav
+            ref={navbarRef}
+            className="flex w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-[#1C1F2A] p-2 md:w-max"
+            aria-label="Main navigation"
           >
-            CONTACT
-          </a>
-        </nav>
-      </header>
+            <a href="#" className="flex items-center justify-between p-2 no-underline">
+              <img src={logo} alt="Alcove" className="h-[12px] w-auto" />
+            </a>
 
-      <div className="relative mx-auto flex flex-1 items-center max-w-[1300px]">
-        {/* Hero Section */}
-        <section ref={heroRef} aria-label="Company introduction" id="hero-section">
-          <p className="m-0 text-[clamp(2rem,8vw,58px)] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
-            {words.map((word, i) => {
-              const cleanWord = word.replace(/[.,]/g, '')
-              const isAccent = ACCENT_WORDS.has(cleanWord)
-              return (
-                <span key={i} className="inline-block overflow-hidden">
-                  <span
-                    ref={(el) => {
-                      if (el) {
-                        wordRefs.current.push(el)
-                        if (isAccent) accentWordMap.current[cleanWord] = el
-                      }
-                    }}
-                    className={`inline-block ${isAccent ? "text-[#ECD898] font-['Season_Mix-TRIAL',serif] font-normal tracking-[-0.01em]" : ''}`}
-                  >
-                    {word}
-                  </span>
-                  {i < words.length - 1 && '\u00A0'}
-                </span>
-              )
-            })}
-          </p>
-        </section>
-
-        {/* Cards Section */}
-        <section
-          ref={cardsSectionRef}
-          className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3"
-          aria-label="Subsidiaries"
-        >
-          {CARDS.map((card) => (
-            <div key={card.title} className="relative flex min-h-[30vh] flex-col py-0 pl-6 md:min-h-[60vh]">
-              {/* Left border line */}
-              <div
-                ref={(el) => {
-                  if (el) cardLineRefs.current.push(el)
-                }}
-                className="absolute left-0 top-0 h-full w-[0.5px] bg-[#ECD898]"
-              />
-
-              {/* ALCOVE label */}
-              <p
-                ref={(el) => {
-                  if (el) cardContentRefs.current.push(el)
-                }}
-                className="mb-1 text-[clamp(1rem,2vw,1.4rem)] leading-none tracking-[-0.01em] text-[#ECD898]"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-              >
-                ALCOVE
-              </p>
-
-              {/* Card title (accent word destination) */}
-              <h3
-                ref={(el) => {
-                  if (el) cardTitleRefs.current[card.title] = el
-                }}
-                className="m-0 text-[clamp(1.75rem,6vw,48px)] font-normal tracking-[-0.01em] leading-[120%] text-[#ECD898] md:text-[clamp(2rem,4vw,48px)]"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-              >
-                {card.title}
-              </h3>
-
-              {/* Bottom content */}
-              <div
-                ref={(el) => {
-                  if (el) cardContentRefs.current.push(el)
-                }}
-                className="mt-auto"
-              >
-                <p className="mb-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#d5dee9]/80 md:mb-6 md:text-[16px] md:leading-[120%]">
-                  {card.description}
-                </p>
+            <ul className="ml-[0.55rem] hidden list-none items-center gap-6 p-0 md:flex">
+              <li>
                 <a
                   href="#"
-                  className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-[#E2EAF2] px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
+                  className="inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none text-[#d5dee9] no-underline"
                 >
-                  DISCOVER{' '}
-                  <IoArrowForward className="text-sm" aria-hidden="true" />
+                  ABOUT
                 </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none text-[#d5dee9] no-underline"
+                >
+                  SUBSIDIARIES{' '}
+                  <IoChevronDownOutline
+                    className="translate-y-[0.5px] text-[0.9em] leading-none"
+                    aria-hidden="true"
+                  />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none text-[#d5dee9] no-underline"
+                >
+                  PROJECTS{' '}
+                  <IoChevronDownOutline
+                    className="translate-y-[0.5px] text-[0.9em] leading-none"
+                    aria-hidden="true"
+                  />
+                </a>
+              </li>
+            </ul>
+
+            <a
+              href="#"
+              className="ml-3 whitespace-nowrap rounded-[22px] bg-[#E2EAF2] px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
+            >
+              CONTACT
+            </a>
+          </nav>
+        </header>
+
+        <div className="relative mx-auto flex flex-1 items-center max-w-[1300px]">
+          {/* Hero Section */}
+          <section ref={heroRef} aria-label="Company introduction" id="hero-section">
+            <p className="m-0 text-[clamp(2rem,8vw,58px)] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
+              {words.map((word, i) => {
+                const cleanWord = word.replace(/[.,]/g, '')
+                const isAccent = ACCENT_WORDS.has(cleanWord)
+                return (
+                  <span key={i} className="inline-block overflow-hidden">
+                    <span
+                      ref={(el) => {
+                        if (el) {
+                          wordRefs.current.push(el)
+                          if (isAccent) accentWordMap.current[cleanWord] = el
+                        }
+                      }}
+                      className={`inline-block ${isAccent ? "text-[#ECD898] font-['Season_Mix-TRIAL',serif] font-normal tracking-[-0.01em]" : ''}`}
+                    >
+                      {word}
+                    </span>
+                    {i < words.length - 1 && '\u00A0'}
+                  </span>
+                )
+              })}
+            </p>
+          </section>
+
+          {/* Cards Section */}
+          <section
+            ref={cardsSectionRef}
+            className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3"
+            aria-label="Subsidiaries"
+          >
+            {CARDS.map((card) => (
+              <div key={card.title} className="relative flex min-h-[30vh] flex-col py-0 pl-6 md:min-h-[50vh]">
+                {/* Left border line */}
+                <div
+                  ref={(el) => {
+                    if (el) cardLineRefs.current.push(el)
+                  }}
+                  className="absolute left-0 top-0 h-full w-[0.5px] bg-[#ECD898]"
+                />
+
+                {/* ALCOVE label */}
+                <p
+                  ref={(el) => {
+                    if (el) cardContentRefs.current.push(el)
+                  }}
+                  className="mb-1 text-[clamp(1rem,2vw,1.4rem)] leading-none tracking-[-0.01em] text-[#ECD898]"
+                  style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                >
+                  ALCOVE
+                </p>
+
+                {/* Card title (accent word destination) */}
+                <h3
+                  ref={(el) => {
+                    if (el) cardTitleRefs.current[card.title] = el
+                  }}
+                  className="m-0 text-[clamp(1.75rem,6vw,48px)] font-normal tracking-[-0.01em] leading-[120%] text-[#ECD898] md:text-[clamp(2rem,4vw,48px)]"
+                  style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                >
+                  {card.title}
+                </h3>
+
+                {/* Bottom content */}
+                <div
+                  ref={(el) => {
+                    if (el) cardContentRefs.current.push(el)
+                  }}
+                  className="mt-auto"
+                >
+                  <p className="mb-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#d5dee9]/80 md:mb-6 md:text-[16px] md:leading-[120%]">
+                    {card.description}
+                  </p>
+                  <a
+                    href="#"
+                    className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-[#E2EAF2] px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
+                  >
+                    DISCOVER{' '}
+                    <IoArrowForward className="text-sm" aria-hidden="true" />
+                  </a>
+                </div>
               </div>
-            </div>
-          ))}
-        </section>
-      </div>
-    </main>
+            ))}
+          </section>
+        </div>
+      </main>
+    </div>
   )
 }
 
