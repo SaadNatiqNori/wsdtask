@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Akkurat Mono';
+  src: url('/fonts/AkkuratMono-Regular.ttf') format('truetype');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Season Mix-TRIAL';
+  src: url('/fonts/SeasonMix-TRIAL-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Season Sans-TRIAL';
+  src: local('Season Sans TRIAL'),
+    url('/fonts/SeasonSans-TRIAL-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Season Sans-TRIAL';
+  src: local('Season Sans TRIAL Medium'),
+    url('/fonts/SeasonSans-TRIAL-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Season Sans-TRIAL';
+  src: local('Season Sans TRIAL SemiBold'),
+    url('/fonts/SeasonSans-TRIAL-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Season Sans-TRIAL';
+  src: local('Season Sans TRIAL Bold'),
+    url('/fonts/SeasonSans-TRIAL-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  :root {
+    font-family: 'Season Sans-TRIAL', 'Inter', 'Avenir Next', 'Segoe UI',
+      sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #root {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  a,
+  li,
+  button,
+  input,
+  textarea,
+  select,
+  label {
+    font-family: 'Season Sans-TRIAL', 'Inter', 'Avenir Next', 'Segoe UI',
+      sans-serif;
+  }
+}
