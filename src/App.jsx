@@ -204,9 +204,9 @@ function App() {
 
   return (
     <main className="relative min-h-screen bg-[#161b2b] px-4 pb-8 pt-4 text-[#d6deea] md:px-8 md:pb-12 md:pt-5">
-      <span className="fixed bottom-4 left-4 z-50 text-[11px] text-white font-['Akkurat_Mono',monospace]">
+      {/* <span className="fixed bottom-4 left-4 z-50 text-[11px] text-white font-['Akkurat_Mono',monospace]">
         Designed with love by Saad Natiq Nori
-      </span>
+      </span> */}
       <header className="mb-[clamp(2rem,6vw,4.5rem)] flex justify-center">
         <nav
           ref={navbarRef}
