@@ -1,8 +1,9 @@
 body {
   overscroll-behavior: none;
-  background: #161b2b;
+  background: #1C1F2A;
   overflow-x: hidden;
 }
+
 .page {
   min-height: 100vh;
   background: #1C1F2A;
@@ -107,6 +108,7 @@ body {
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0);
   }
@@ -145,6 +147,6 @@ body {
   }
 
   .hero-line {
-    font-size: clamp(2rem, 8vw, 58px);
+    font-size: 32px;
   }
 }
