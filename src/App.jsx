@@ -408,7 +408,7 @@ function App() {
                     className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-[#E2EAF2] px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
                   >
                     <p className="relative top-[0.5px]">DISCOVER</p>{' '}
-                    <IoArrowForward className="text-sm" aria-hidden="true" />
+                    <IoArrowForward className="text-sm relative top-[0.5px]" aria-hidden="true" />
                   </a>
                 </div>
               </div>
