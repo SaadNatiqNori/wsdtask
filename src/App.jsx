@@ -300,7 +300,7 @@ function App() {
                 >
                   SUBSIDIARIES{' '}
                   <IoChevronDownOutline
-                    className="translate-y-[0.5px] text-[0.9em] leading-none"
+                    className="translate-y-[-1px] text-[0.9em] leading-none"
                     aria-hidden="true"
                   />
                 </a>
@@ -312,7 +312,7 @@ function App() {
                 >
                   PROJECTS{' '}
                   <IoChevronDownOutline
-                    className="translate-y-[0.5px] text-[0.9em] leading-none"
+                    className="translate-y-[-1px] text-[0.9em] leading-none"
                     aria-hidden="true"
                   />
                 </a>
@@ -323,7 +323,7 @@ function App() {
               href="#"
               className="ml-3 whitespace-nowrap rounded-[22px] bg-[#E2EAF2] px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
             >
-              CONTACT
+              <p className="font-['Akkurat_Mono',monospace] relative top-[1px]">CONTACT</p>
             </a>
           </nav>
         </header>
