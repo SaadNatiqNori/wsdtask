@@ -277,14 +277,14 @@ function App() {
         <header className="relative z-10 mb-[32px] md:mb-[72px] flex justify-center">
           <nav
             ref={navbarRef}
-            className="flex w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-[#1C1F2A] p-2 md:w-max"
+            className="flex h-[52px] w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-[#1C1F2A] px-2 md:w-max"
             aria-label="Main navigation"
           >
             <a href="#" className="flex items-center justify-between p-2 no-underline">
               <img src={logo} alt="Alcove" className="h-[12px] w-auto" />
             </a>
 
-            <ul className="ml-[0.55rem] hidden list-none items-center gap-6 p-0 md:flex">
+            <ul className="ml-[0.55rem] hidden list-none items-center gap-6 p-0 md:flex relative -top-[2px]">
               <li>
                 <a
                   href="#"
@@ -407,7 +407,7 @@ function App() {
                     href="#"
                     className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-[#E2EAF2] px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
                   >
-                    DISCOVER{' '}
+                    <p className="relative top-[0.5px]">DISCOVER</p>{' '}
                     <IoArrowForward className="text-sm" aria-hidden="true" />
                   </a>
                 </div>
