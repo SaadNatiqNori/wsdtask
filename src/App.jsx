@@ -358,7 +358,7 @@ function App() {
           {/* Cards Section */}
           <section
             ref={cardsSectionRef}
-            className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3 mt-14"
+            className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3 mt-4 md:mt-14"
             aria-label="Subsidiaries"
           >
             {CARDS.map((card) => (
@@ -379,7 +379,7 @@ function App() {
                   className="mb-3 text-[16px] leading-none tracking-[-0.01em] text-[#ECD898] md:text-[22.4px]"
                   style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                 >
-                  <img src={logoYellow} alt="Alcove" className="w-auto h-[24px]" />
+                  <img src={logoYellow} alt="Alcove" className="w-auto h-[14px] md:h-[24px]" />
                 </p>
 
                 {/* Card title (accent word destination) */}
