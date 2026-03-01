@@ -400,7 +400,7 @@ function App() {
                   }}
                   className="mt-auto"
                 >
-                  <p className="mb-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#d5dee9]/80 md:mb-6 md:text-[16px] md:leading-[120%]">
+                  <p className="mb-4 w-[80%] pe-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#E2EAF2] md:mb-6 md:text-[16px] md:leading-[120%]">
                     {card.description}
                   </p>
                   <a
