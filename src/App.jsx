@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { IoChevronDownOutline, IoArrowForward } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
+import logoYellow from './assets/LogoYellow.svg'
 import './App.css'
 
 const ACCENT_WORDS = new Set(['Development', 'Properties', 'Construction'])
@@ -327,7 +328,7 @@ function App() {
           </nav>
         </header>
 
-        <div className="relative mx-auto flex flex-1 items-center max-w-[1300px]">
+        <div className="relative mx-auto flex flex-1 items-center max-w-[1440px]">
           {/* Hero Section */}
           <section ref={heroRef} aria-label="Company introduction" id="hero-section">
             <p className="m-0 text-[32px] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
@@ -357,7 +358,7 @@ function App() {
           {/* Cards Section */}
           <section
             ref={cardsSectionRef}
-            className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3"
+            className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3 mt-14"
             aria-label="Subsidiaries"
           >
             {CARDS.map((card) => (
@@ -375,10 +376,10 @@ function App() {
                   ref={(el) => {
                     if (el) cardContentRefs.current.push(el)
                   }}
-                  className="mb-1 text-[16px] leading-none tracking-[-0.01em] text-[#ECD898] md:text-[22.4px]"
+                  className="mb-3 text-[16px] leading-none tracking-[-0.01em] text-[#ECD898] md:text-[22.4px]"
                   style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                 >
-                  ALCOVE
+                  <img src={logoYellow} alt="Alcove" className="w-auto h-[24px]" />
                 </p>
 
                 {/* Card title (accent word destination) */}
