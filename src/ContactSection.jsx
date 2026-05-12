@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
+import logo from './assets/Logo.svg'
 import { cubicEase } from './easings'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -97,7 +98,7 @@ function ContactSection() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#1C1F2A] px-4 pb-0 pt-[140px] text-[#E2EAF2] md:px-8 md:pt-[180px]">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#1C1F2A] px-4 pb-[40px] pt-[140px] text-[#E2EAF2] md:px-8 md:pb-[64px] md:pt-[180px]">
           <div className="flex flex-col items-center text-center gap-6">
             <div className="overflow-hidden">
               <h2
@@ -132,15 +133,23 @@ function ContactSection() {
           </div>
 
           <div className="relative mt-auto">
-            <div className="overflow-hidden leading-none">
-              <h3
-                ref={alcoveRef}
-                className="m-0 text-[140px] md:text-[400px] font-normal leading-[0.85] tracking-[-0.04em] text-[#ECD898] text-center whitespace-nowrap"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-              >
-                ALCOVE
-              </h3>
-            </div>
+            <div
+              ref={alcoveRef}
+              className="w-full aspect-[64/13]"
+              style={{
+                WebkitMaskImage: `url(${logo})`,
+                maskImage: `url(${logo})`,
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskSize: 'contain',
+                maskSize: 'contain',
+                WebkitMaskPosition: 'center',
+                maskPosition: 'center',
+                backgroundColor: '#ECD898',
+              }}
+              role="img"
+              aria-label="Alcove"
+            />
           </div>
         </main>
       </div>

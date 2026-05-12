@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useLayoutEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
@@ -8,24 +9,28 @@ gsap.registerPlugin(ScrollTrigger)
 
 const PROJECTS = [
   {
+    slug: 'erbil-avenue',
     title: 'Erbil Avenue',
     description:
       'Erbil Avenue is a premium mixed-use development, offering a unique blend of luxury living, world-class retail, gourmet dining, and diverse leisure experiences. This project sets a new benchmark for excellence in the region.',
     illustration: 0,
   },
   {
+    slug: '2nd-avenue',
     title: '2nd Avenue',
     description:
       'Second Avenue is an elegant commercial development, designed as a destination for luxury shopping, premium dining, and lifestyle experiences. Featuring global trademarks and international restaurants, it sets a new standard for sophistication in Erbil.',
     illustration: 1,
   },
   {
+    slug: 'youth-hub',
     title: 'Youth Hub',
     description:
       'Youth Hub is the largest and most advanced youth center in the Kurdistan Region and Iraq — an inclusive destination for youth and beyond. With modern facilities and diverse opportunities, it is a vibrant space that inspires creativity and sparks collaboration.',
     illustration: 2,
   },
   {
+    slug: 'avenue-square',
     title: 'Avenue Square',
     description:
       'Avenue Square is a premium residential community, situated in one of the most exclusive and serene areas of Erbil. Designed for elegance, privacy, and comfort, it combines luxury villas with integrated retail and lifestyle amenities.',
@@ -376,13 +381,13 @@ function PortfolioSlider() {
                   <ProjectIllustration variant={project.illustration} />
                 </div>
 
-                <a
-                  href="#"
+                <Link
+                  to={`/projects/${project.slug}`}
                   className="inline-flex w-fit items-center gap-[5px] rounded-[48px] border-[0.5px] border-[#E2EAF2] px-[14px] py-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
                 >
                   <span className="relative top-[0.5px]">DISCOVER</span>
                   <IoArrowForward className="text-sm relative top-[0.5px]" aria-hidden="true" />
-                </a>
+                </Link>
               </article>
             ))}
           </div>
