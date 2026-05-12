@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
+import logo from './assets/Logo.svg'
 import { cubicEase } from './easings'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -102,7 +103,7 @@ function HeroSustainable() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E6EBF0] px-4 pb-0 pt-[88px] text-[#1C2D4F] md:px-8 md:pt-[128px]">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E6EBF0] px-4 pb-[24px] pt-[88px] text-[#1C2D4F] md:px-8 md:pb-[40px] md:pt-[128px]">
           <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 md:gap-8">
             <h1
               ref={headlineRef}
@@ -126,19 +127,27 @@ function HeroSustainable() {
           </div>
 
           <div className="relative mt-auto">
-            <div className="leading-none">
-              <h2
-                ref={alcoveRef}
-                className="m-0 text-[140px] md:text-[400px] font-normal leading-[0.85] tracking-[-0.04em] text-[#1C2D4F] text-center whitespace-nowrap"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-              >
-                ALCOVE
-              </h2>
-            </div>
+            <div
+              ref={alcoveRef}
+              className="w-full aspect-[64/13]"
+              style={{
+                WebkitMaskImage: `url(${logo})`,
+                maskImage: `url(${logo})`,
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskSize: 'contain',
+                maskSize: 'contain',
+                WebkitMaskPosition: 'center',
+                maskPosition: 'center',
+                backgroundColor: '#1C2D4F',
+              }}
+              role="img"
+              aria-label="Alcove"
+            />
 
             <div
               ref={cardRef}
-              className="absolute right-4 md:right-[48px] -top-2 md:top-[-12px] w-[180px] md:w-[230px] rounded-[8px] p-4 shadow-[0_10px_30px_rgba(28,45,79,0.12)]"
+              className="absolute right-4 md:right-[48px] -top-2 md:top-[-20px] w-[200px] md:w-[260px] rounded-[10px] p-4 md:p-5 shadow-[0_10px_30px_rgba(28,45,79,0.12)]"
               style={{
                 background:
                   'linear-gradient(135deg, #DCE2EA 0%, #C6CFDC 60%, #B7C2D1 100%)',
@@ -149,13 +158,13 @@ function HeroSustainable() {
                   <span className="inline-block w-[6px] h-[6px] rounded-full bg-[#1C2D4F]" />
                   RECENT PROJECTS
                 </p>
-                <div className="w-[22px] h-[22px] rounded-full border border-[#1C2D4F66] flex items-center justify-center">
-                  <IoArrowForward className="text-[10px] text-[#1C2D4F]" aria-hidden="true" />
+                <div className="w-[26px] h-[26px] rounded-full border border-[#1C2D4F66] flex items-center justify-center">
+                  <IoArrowForward className="text-[11px] text-[#1C2D4F]" aria-hidden="true" />
                 </div>
               </div>
 
               <h3
-                className="m-0 mt-3 text-[28px] md:text-[32px] font-normal leading-none tracking-[-0.01em] text-[#1C2D4F]"
+                className="m-0 mt-5 text-[30px] md:text-[34px] font-normal leading-none tracking-[-0.01em] text-[#1C2D4F]"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
                 YouthHub
