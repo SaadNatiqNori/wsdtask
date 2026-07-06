@@ -77,7 +77,7 @@ function ProjectsDropdown({ open, onClose }) {
           <Link
             to={`/projects/${PROJECTS[0]?.slug ?? ''}`}
             onClick={() => onClose()}
-            className="mt-10 inline-flex w-[48px] h-[48px] items-center justify-center rounded-full border border-[#E2EAF2]/30 text-[#E2EAF2] no-underline"
+            className="mt-10 inline-flex w-fit self-start items-center justify-center rounded-full border border-[#E2EAF2]/30 text-[#E2EAF2] no-underline px-6 py-4"
             aria-label="See all projects"
           >
             <IoArrowForward className="text-[14px]" aria-hidden="true" />
@@ -92,17 +92,12 @@ function ProjectsDropdown({ open, onClose }) {
               onClick={() => onClose()}
               className="group flex flex-col text-inherit no-underline"
             >
-              <div className="flex items-start justify-between gap-3">
-                <h4
-                  className="m-0 text-[26px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.01em] text-[#E2EAF2]"
-                  style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-                >
-                  {project.title}
-                </h4>
-                <span className="inline-flex shrink-0 w-[32px] h-[32px] items-center justify-center rounded-full border border-[#E2EAF2]/25 text-[#E2EAF2] transition-colors duration-200 group-hover:border-[#E2EAF2]">
-                  <IoArrowForward className="text-[11px]" aria-hidden="true" />
-                </span>
-              </div>
+              <h4
+                className="m-0 text-[26px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.01em] text-[#E2EAF2]"
+                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+              >
+                {project.title}
+              </h4>
               <p className="mt-4 text-[13px] leading-[150%] tracking-[0] text-[#9AA3B2]">
                 {project.description}
               </p>
@@ -162,14 +157,14 @@ function Navbar() {
 
         <ul className="ml-[0.55rem] hidden list-none items-center gap-6 p-0 md:flex relative -top-[2px]">
           <li>
-            <a
-              href="#"
-              className={`inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none no-underline transition-opacity duration-200 ${
+            <Link
+              to="/about"
+              className={`inline-flex items-center whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none no-underline transition-opacity duration-200 ${
                 projectsOpen ? 'text-[#d5dee9] opacity-30' : 'text-[#d5dee9]'
               }`}
             >
               ABOUT
-            </a>
+            </Link>
           </li>
           <li>
             <Link

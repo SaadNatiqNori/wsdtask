@@ -131,8 +131,8 @@ function HeroSustainable() {
               ref={alcoveRef}
               className="w-full aspect-[64/13]"
               style={{
-                WebkitMaskImage: `url(${logo})`,
-                maskImage: `url(${logo})`,
+                WebkitMaskImage: `url("${logo}")`,
+                maskImage: `url("${logo}")`,
                 WebkitMaskRepeat: 'no-repeat',
                 maskRepeat: 'no-repeat',
                 WebkitMaskSize: 'contain',
