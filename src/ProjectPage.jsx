@@ -41,7 +41,7 @@ function ProjectPage() {
 
   if (!project) {
     return (
-      <main className="min-h-screen bg-[#1C1F2A] text-[#E2EAF2] flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-navy text-mist flex flex-col items-center justify-center px-4">
         <h1
           className="text-[42px] md:text-[58px] font-normal leading-none tracking-[-0.01em]"
           style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
@@ -50,7 +50,7 @@ function ProjectPage() {
         </h1>
         <Link
           to="/"
-          className="mt-8 inline-flex items-center gap-2 rounded-[28px] bg-[#E2EAF2] px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#191f2f] no-underline"
+          className="mt-8 inline-flex items-center gap-2 rounded-[28px] bg-mist px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#191f2f] no-underline"
         >
           <IoArrowBack className="text-sm" aria-hidden="true" />
           <span className="relative top-[1px]">BACK HOME</span>
@@ -65,11 +65,11 @@ function ProjectPage() {
 
   return (
     <>
-      <main className="relative min-h-screen bg-[#1C1F2A] text-[#E2EAF2] px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
+      <main className="relative min-h-screen bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
         <div className="max-w-[1440px] mx-auto">
           <Link
             to="/"
-            className="inline-flex items-center gap-[6px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#A8B0BD] no-underline hover:text-[#E2EAF2]"
+            className="inline-flex items-center gap-[6px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#A8B0BD] no-underline hover:text-mist"
           >
             <IoArrowBack className="text-sm" aria-hidden="true" />
             <span className="relative top-[1px]">BACK</span>
@@ -78,7 +78,7 @@ function ProjectPage() {
           <div className="mt-10 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-end">
             <h1
               ref={titleRef}
-              className="m-0 text-[56px] md:text-[120px] font-normal leading-[0.95] tracking-[-0.02em] text-[#E2EAF2]"
+              className="m-0 text-[56px] md:text-[120px] font-normal leading-[0.95] tracking-[-0.02em] text-mist"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
               {project.title}
@@ -97,7 +97,7 @@ function ProjectPage() {
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8 md:gap-20">
             <h2
-              className="m-0 text-[20px] md:text-[26px] font-normal leading-[1.2] tracking-[-0.01em] text-[#E2EAF2]"
+              className="m-0 text-[20px] md:text-[26px] font-normal leading-[1.2] tracking-[-0.01em] text-mist"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
               About the project
@@ -129,12 +129,12 @@ function ProjectPage() {
                 >
                   <div className="flex justify-between items-center">
                     <h3
-                      className="m-0 text-[24px] md:text-[28px] font-normal leading-[1.15] tracking-[-0.01em] text-[#E2EAF2]"
+                      className="m-0 text-[24px] md:text-[28px] font-normal leading-[1.15] tracking-[-0.01em] text-mist"
                       style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                     >
                       {p.title}
                     </h3>
-                    <span className="inline-flex w-[34px] h-[34px] items-center justify-center rounded-full border border-[#E2EAF2]/30 text-[#E2EAF2] transition-colors duration-200 group-hover:border-[#E2EAF2]">
+                    <span className="inline-flex w-[34px] h-[34px] items-center justify-center rounded-full border border-mist/30 text-mist transition-colors duration-200 group-hover:border-mist">
                       <IoArrowForward className="text-[12px]" aria-hidden="true" />
                     </span>
                   </div>

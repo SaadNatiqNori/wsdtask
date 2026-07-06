@@ -350,7 +350,7 @@ function PortfolioSlider() {
               </p>
               <a
                 href="#"
-                className="mt-6 inline-flex w-fit items-center gap-2 rounded-[24px] bg-[#1C1F2A] px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#E2EAF2] no-underline"
+                className="mt-6 inline-flex w-fit items-center gap-2 rounded-[24px] bg-navy px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
               >
                 <span className="relative top-[1px]">CHECK ALL</span>
                 <IoArrowForward className="text-sm" aria-hidden="true" />
@@ -363,11 +363,11 @@ function PortfolioSlider() {
                 ref={(el) => {
                   if (el) cardRefs.current.push(el)
                 }}
-                className="flex-shrink-0 w-[600px] h-[460px] bg-[#1C1F2A] p-8 snap-start flex flex-col text-[#d6deea]"
+                className="flex-shrink-0 w-[600px] h-[460px] bg-navy p-8 snap-start flex flex-col text-[#d6deea]"
               >
                 <div>
                   <h3
-                    className="m-0 text-[36px] font-normal leading-[1.1] tracking-[-0.01em] text-[#E2EAF2]"
+                    className="m-0 text-[36px] font-normal leading-[1.1] tracking-[-0.01em] text-mist"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
                     {project.title}
@@ -383,7 +383,7 @@ function PortfolioSlider() {
 
                 <Link
                   to={`/projects/${project.slug}`}
-                  className="inline-flex w-fit items-center gap-[5px] rounded-[48px] border-[0.5px] border-[#E2EAF2] px-[14px] py-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
+                  className="inline-flex w-fit items-center gap-[5px] rounded-[48px] border-[0.5px] border-mist px-[14px] py-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
                 >
                   <span className="relative top-[0.5px]">DISCOVER</span>
                   <IoArrowForward className="text-sm relative top-[0.5px]" aria-hidden="true" />

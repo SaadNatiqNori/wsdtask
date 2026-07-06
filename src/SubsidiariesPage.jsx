@@ -15,7 +15,7 @@ function ConstructionIcon() {
       viewBox="0 0 80 80"
       className="w-[44px] h-[44px] md:w-[52px] md:h-[52px]"
       fill="none"
-      stroke="#ECD898"
+      stroke="var(--color-gold)"
       strokeWidth="1.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -38,7 +38,7 @@ function DevelopmentIcon() {
       viewBox="0 0 80 80"
       className="w-[44px] h-[44px] md:w-[52px] md:h-[52px]"
       fill="none"
-      stroke="#ECD898"
+      stroke="var(--color-gold)"
       strokeWidth="1.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -74,7 +74,7 @@ function PropertiesIcon() {
       viewBox="0 0 80 80"
       className="w-[44px] h-[44px] md:w-[52px] md:h-[52px]"
       fill="none"
-      stroke="#ECD898"
+      stroke="var(--color-gold)"
       strokeWidth="1.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -102,12 +102,12 @@ function SubsidiaryCard({ icon, title, description }) {
         className="mt-6 h-[18px] md:h-[20px] w-auto"
       />
       <h3
-        className="m-0 mt-2 text-[36px] md:text-[48px] font-normal leading-[1.05] tracking-[-0.02em] text-[#ECD898]"
+        className="m-0 mt-2 text-[36px] md:text-[48px] font-normal leading-[1.05] tracking-[-0.02em] text-gold"
         style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
       >
         {title}
       </h3>
-      <p className="mt-6 text-[14px] md:text-[15px] leading-[150%] tracking-[0] max-w-[320px] text-[#E2EAF2]/85">
+      <p className="mt-6 text-[14px] md:text-[15px] leading-[150%] tracking-[0] max-w-[320px] text-mist/85">
         {description}
       </p>
     </div>
@@ -181,19 +181,19 @@ function SubsidiariesPage() {
 
   return (
     <>
-      <main className="relative min-h-screen bg-[#1C1F2A] text-[#E2EAF2] px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
+      <main className="relative min-h-screen bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
         <div className="max-w-[1280px] mx-auto">
           <div className="text-center">
             <h1
               ref={titleRef}
-              className="m-0 text-[36px] md:text-[48px] font-normal leading-[0.95] tracking-[-0.02em] text-[#ECD898]"
+              className="m-0 text-[36px] md:text-[48px] font-normal leading-[0.95] tracking-[-0.02em] text-gold"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
               Subsidiaries
             </h1>
             <p
               ref={introRef}
-              className="m-0 mt-3 text-[20px] md:text-[36px] leading-[1.3] tracking-[-0.01em] text-[#E2EAF2]"
+              className="m-0 mt-3 text-[20px] md:text-[36px] leading-[1.3] tracking-[-0.01em] text-mist"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
               Alcove operates through three distinct subsidiaries:
@@ -277,10 +277,10 @@ function SubsidiariesPage() {
           </div>
 
           <div className="mt-24 md:mt-[180px] bg-[#22252E] border border-[#FFFFFF0A] p-8 md:p-16 rounded-[6px]">
-            <div className="border-l-2 border-[#ECD898] pl-6 md:pl-8">
+            <div className="border-l-2 border-gold pl-6 md:pl-8">
               <h2
                 ref={whatTitleRef}
-                className="m-0 text-[44px] md:text-[64px] font-normal leading-[1.0] tracking-[-0.02em] text-[#ECD898]"
+                className="m-0 text-[44px] md:text-[64px] font-normal leading-[1.0] tracking-[-0.02em] text-gold"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
                 What
@@ -291,19 +291,19 @@ function SubsidiariesPage() {
             <div className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
               <p
                 ref={whatLeftRef}
-                className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-[#E2EAF2]"
+                className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-mist"
               >
                 ALCOVE is a development company focused on construction and sales.
                 We work on creating projects that are carefully planned, well
                 executed, and positioned to meet both practical and commercial
                 goals. Our role is to turn ideas into developed spaces that offer{' '}
-                <span className="text-[#ECD898]">quality, function, and value.</span>{' '}
+                <span className="text-gold">quality, function, and value.</span>{' '}
                 Our work is built on a combination of development expertise and
                 market understanding.
               </p>
               <p
                 ref={whatRightRef}
-                className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-[#E2EAF2]"
+                className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-mist"
               >
                 On the construction side, we focus on delivering strong, reliable,
                 and high-standard projects. On the sales side, we work to ensure

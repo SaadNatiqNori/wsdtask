@@ -163,7 +163,7 @@ function CardsSection() {
             left: `${from.left}px`,
             top: `${from.top}px`,
             fontFamily: "'Season Mix-TRIAL', serif",
-            color: '#ECD898',
+            color: 'var(--color-gold)',
             fontSize: `${computedFontSize}px`,
             fontWeight: '400',
             lineHeight: '120%',
@@ -233,7 +233,7 @@ function CardsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-[#1C1F2A]"
+      className="relative w-full h-screen overflow-hidden bg-navy"
       style={{ scrollSnapAlign: 'start' }}
       aria-label="Subsidiaries"
     >
@@ -247,7 +247,7 @@ function CardsSection() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#1C1F2A] px-4 pb-8 pt-[88px] text-[#d6deea] md:px-8 md:pb-12 md:pt-[128px]">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-8 pt-[88px] text-[#d6deea] md:px-8 md:pb-12 md:pt-[128px]">
           <div className="relative mx-auto flex flex-1 items-center max-w-[1440px] w-full">
             <section ref={heroTextRef} aria-label="Company introduction">
               <p className="m-0 text-[32px] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
@@ -265,7 +265,7 @@ function CardsSection() {
                         }}
                         className={`inline-block ${
                           isAccent
-                            ? "text-[#ECD898] font-['Season_Mix-TRIAL',serif] font-normal tracking-[-0.01em]"
+                            ? "text-gold font-['Season_Mix-TRIAL',serif] font-normal tracking-[-0.01em]"
                             : ''
                         }`}
                       >
@@ -292,14 +292,14 @@ function CardsSection() {
                     ref={(el) => {
                       if (el) cardLineRefs.current.push(el)
                     }}
-                    className="absolute left-0 top-0 h-full w-[0.5px] bg-[#ECD898]"
+                    className="absolute left-0 top-0 h-full w-[0.5px] bg-gold"
                   />
 
                   <p
                     ref={(el) => {
                       if (el) cardContentRefs.current.push(el)
                     }}
-                    className="mb-3 text-[16px] leading-none tracking-[-0.01em] text-[#ECD898] md:text-[22.4px]"
+                    className="mb-3 text-[16px] leading-none tracking-[-0.01em] text-gold md:text-[22.4px]"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
                     <img src={logoYellow} alt="Alcove" className="w-auto h-[14px] md:h-[24px]" />
@@ -309,7 +309,7 @@ function CardsSection() {
                     ref={(el) => {
                       if (el) cardTitleRefs.current[card.title] = el
                     }}
-                    className="m-0 text-[28px] font-normal tracking-[-0.01em] leading-[120%] text-[#ECD898] md:text-[58px]"
+                    className="m-0 text-[28px] font-normal tracking-[-0.01em] leading-[120%] text-gold md:text-[58px]"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
                     {card.title}
@@ -321,12 +321,12 @@ function CardsSection() {
                     }}
                     className="mt-auto"
                   >
-                    <p className="mb-4 w-[80%] pe-4 text-[14px] font-normal leading-[140%] tracking-[0] text-[#E2EAF2] md:mb-6 md:text-[16px] md:leading-[120%]">
+                    <p className="mb-4 w-[80%] pe-4 text-[14px] font-normal leading-[140%] tracking-[0] text-mist md:mb-6 md:text-[16px] md:leading-[120%]">
                       {card.description}
                     </p>
                     <a
                       href="#"
-                      className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-[#E2EAF2] px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
+                      className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-mist px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
                     >
                       <p className="relative top-[0.5px]">DISCOVER</p>{' '}
                       <IoArrowForward className="text-sm relative top-[0.5px]" aria-hidden="true" />

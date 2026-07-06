@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
+import avenueViz from './assets/avenuesvg.svg'
 import { cubicEase } from './easings'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -115,10 +116,11 @@ function HeroSustainable() {
               Of Sustainable Spaces
             </h1>
 
-            <div className="max-w-full md:max-w-[230px] md:mr-[48px]">
+            <div className="max-w-full md:max-w-[200px] md:mr-[114px]">
               <p
                 ref={descriptionRef}
-                className="m-0 text-[13px] leading-[140%] tracking-[0] text-[#1C2D4F]"
+                className="m-0 text-[14px] font-normal leading-5 tracking-normal text-[#1C2D4F]"
+                style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
               >
                 Innovative real estate developments designed with sustainability in mind,
                 creating lasting value and vibrant communities across the Kurdistan Region.
@@ -147,59 +149,34 @@ function HeroSustainable() {
 
             <div
               ref={cardRef}
-              className="absolute right-4 md:right-[48px] -top-2 md:top-[-20px] w-[200px] md:w-[260px] rounded-[10px] p-4 md:p-5 shadow-[0_10px_30px_rgba(28,45,79,0.12)]"
-              style={{
-                background:
-                  'linear-gradient(135deg, #DCE2EA 0%, #C6CFDC 60%, #B7C2D1 100%)',
-              }}
+              className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-6 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px]"
             >
               <div className="flex justify-between items-start">
-                <p className="m-0 inline-flex items-center gap-[6px] font-['Akkurat_Mono',monospace] text-[9px] font-medium leading-none text-[#1C2D4F]">
-                  <span className="inline-block w-[6px] h-[6px] rounded-full bg-[#1C2D4F]" />
-                  RECENT PROJECTS
-                </p>
-                <div className="w-[26px] h-[26px] rounded-full border border-[#1C2D4F66] flex items-center justify-center">
-                  <IoArrowForward className="text-[11px] text-[#1C2D4F]" aria-hidden="true" />
+               <div>
+                  <p className="m-0 inline-flex items-center gap-[6px] font-['Akkurat_Mono',monospace] text-[8px] font-medium uppercase leading-none tracking-normal text-[#13294B]">
+                    <span className="inline-block w-[8px] h-[8px] rounded-full bg-[#13294B]" />
+                    RECENT PROJECTS
+                  </p>
+                  <h3
+                    className="m-0 text-[20px] font-[420] leading-[115%] tracking-[-0.02em] text-[#13294B]"
+                    style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                  >
+                    2nd Avenue
+                  </h3>
+               </div>
+                <div className="w-4 h-4 relative top-1.5 gap-[5px] p-1 rounded-[35px] border-[0.5px] border-[#1C2D4F66] flex items-center justify-center shrink-0">
+                  <IoArrowForward className=" text-[#1C2D4F]" aria-hidden="true" />
                 </div>
               </div>
 
-              <h3
-                className="m-0 mt-5 text-[30px] md:text-[34px] font-normal leading-none tracking-[-0.01em] text-[#1C2D4F]"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-              >
-                YouthHub
-              </h3>
+             
 
-              <svg
-                viewBox="0 0 200 70"
-                className="mt-3 w-full h-auto"
-                preserveAspectRatio="none"
+              <img
+                src={avenueViz}
+                alt=""
                 aria-hidden="true"
-              >
-                <g stroke="#1C2D4F" strokeWidth="0.4" fill="none" opacity="0.75">
-                  {Array.from({ length: 16 }).map((_, i) => {
-                    const y = 12 + i * 3
-                    return (
-                      <path
-                        key={i}
-                        d={`M 0 ${y} Q 50 ${y - 5} 100 ${y - 2} T 200 ${y - 4}`}
-                      />
-                    )
-                  })}
-                </g>
-                <circle cx="100" cy="34" r="2.5" fill="#1C2D4F" />
-                <text
-                  x="100"
-                  y="46"
-                  textAnchor="middle"
-                  fontSize="6"
-                  fill="#1C2D4F"
-                  fontFamily="'Akkurat_Mono', monospace"
-                  fontWeight="500"
-                >
-                  YouthHub
-                </text>
-              </svg>
+                className="w-full h-auto"
+              />
             </div>
           </div>
         </main>

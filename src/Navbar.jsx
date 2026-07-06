@@ -59,7 +59,7 @@ function ProjectsDropdown({ open, onClose }) {
   return (
     <div
       ref={panelRef}
-      className="pointer-events-auto fixed left-1/2 -translate-x-1/2 top-[80px] w-[calc(100vw-96px)] max-w-[1320px] rounded-[4px] border border-[#FFFFFF0F] bg-[#1C1F2A] px-8 py-12 md:px-14 md:py-14 text-[#E2EAF2]"
+      className="pointer-events-auto fixed left-1/2 -translate-x-1/2 top-[80px] w-[calc(100vw-96px)] max-w-[1320px] rounded-[4px] border border-[#FFFFFF0F] bg-navy px-8 py-12 md:px-14 md:py-14 text-mist"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
       role="dialog"
       aria-label="Projects portfolio"
@@ -67,7 +67,7 @@ function ProjectsDropdown({ open, onClose }) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12">
         <div className="flex flex-col">
           <h3
-            className="m-0 text-[44px] md:text-[58px] font-normal leading-[1.02] tracking-[-0.01em] text-[#E2EAF2]"
+            className="m-0 text-[44px] md:text-[58px] font-normal leading-[1.02] tracking-[-0.01em] text-mist"
             style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
           >
             Projects
@@ -75,9 +75,9 @@ function ProjectsDropdown({ open, onClose }) {
             Portfolio
           </h3>
           <Link
-            to={`/projects/${PROJECTS[0]?.slug ?? ''}`}
+            to="/projects"
             onClick={() => onClose()}
-            className="mt-10 inline-flex w-fit self-start items-center justify-center rounded-full border border-[#E2EAF2]/30 text-[#E2EAF2] no-underline px-6 py-4"
+            className="mt-10 inline-flex w-fit self-start items-center justify-center rounded-full border border-mist/30 text-mist no-underline px-6 py-4"
             aria-label="See all projects"
           >
             <IoArrowForward className="text-[14px]" aria-hidden="true" />
@@ -93,7 +93,7 @@ function ProjectsDropdown({ open, onClose }) {
               className="group flex flex-col text-inherit no-underline"
             >
               <h4
-                className="m-0 text-[26px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.01em] text-[#E2EAF2]"
+                className="m-0 text-[26px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.01em] text-mist"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
                 {project.title}
@@ -148,7 +148,7 @@ function Navbar() {
     >
       <nav
         ref={navbarRef}
-        className="pointer-events-auto flex h-[52px] w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-[#1C1F2A] px-2 md:w-max"
+        className="pointer-events-auto flex h-[52px] w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-navy px-2 md:w-max"
         aria-label="Main navigation"
       >
         <Link to="/" className="flex items-center justify-between p-2 no-underline">
@@ -195,12 +195,12 @@ function Navbar() {
           </li>
         </ul>
 
-        <a
-          href="#"
-          className="ml-3 whitespace-nowrap rounded-[22px] bg-[#E2EAF2] px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
+        <Link
+          to="/contact"
+          className="ml-3 whitespace-nowrap rounded-[22px] bg-mist px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
         >
           <p className="font-['Akkurat_Mono',monospace] relative top-[1px]">CONTACT</p>
-        </a>
+        </Link>
       </nav>
 
       <ProjectsDropdown

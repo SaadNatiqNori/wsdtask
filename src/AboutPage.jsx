@@ -39,7 +39,7 @@ function Strength({ title, description }) {
   return (
     <div className="border-l border-[#FFFFFF1A] pl-6">
       <h3
-        className="m-0 text-[26px] md:text-[34px] font-normal leading-[1.15] tracking-[-0.01em] text-[#ECD898]"
+        className="m-0 text-[26px] md:text-[34px] font-normal leading-[1.15] tracking-[-0.01em] text-gold"
         style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
       >
         {title}
@@ -111,7 +111,7 @@ function AboutPage() {
 
         <section
           ref={goalsSectionRef}
-          className="relative h-[200vh] bg-[#1C1F2A]"
+          className="relative h-[200vh] bg-navy"
         >
           <div className="sticky top-0 h-screen w-full overflow-hidden">
             <img
@@ -140,13 +140,13 @@ function AboutPage() {
 
               <div className="relative px-4 pt-16 md:pt-20 pb-12 md:pb-16">
                 <div className="max-w-[720px] mx-auto">
-                  <span className="pointer-events-auto inline-flex items-center rounded-full border border-[#E2EAF2]/40 px-5 py-2 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase tracking-[0.12em] text-[#E2EAF2] bg-transparent">
+                  <span className="pointer-events-auto inline-flex items-center rounded-full border border-mist/40 px-5 py-2 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase tracking-[0.12em] text-mist bg-transparent">
                     GOALS
                   </span>
                   <br />
                   <br />
                   <p
-                    className="m-0 text-[24px] md:text-[40px] font-normal leading-[1.2] tracking-[-0.01em] text-[#E2EAF2]"
+                    className="m-0 text-[24px] md:text-[40px] font-normal leading-[1.2] tracking-[-0.01em] text-mist"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
                     Alcove is a development company delivering integrated
@@ -157,7 +157,7 @@ function AboutPage() {
                     </span>
                   </p>
                   <p
-                    className="m-0 mt-12 md:mt-16 text-[24px] md:text-[40px] font-normal leading-[1.2] tracking-[-0.01em] text-[#E2EAF2]"
+                    className="m-0 mt-12 md:mt-16 text-[24px] md:text-[40px] font-normal leading-[1.2] tracking-[-0.01em] text-mist"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
                     Our approach is built on a clear understanding of the full
@@ -224,13 +224,13 @@ function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-[#1C1F2A] text-[#E2EAF2] py-24 md:py-32 px-4 md:px-12">
+        <section className="bg-navy text-mist py-24 md:py-32 px-4 md:px-12">
           <div className="max-w-[1440px] mx-auto">
-            <p className="m-0 text-[13px] md:text-[15px] tracking-[0] text-[#E2EAF2]">
+            <p className="m-0 text-[13px] md:text-[15px] tracking-[0] text-mist">
               Our Strengths
             </p>
             <h2
-              className="m-0 mt-6 text-[28px] md:text-[42px] font-normal leading-[1.25] tracking-[-0.01em] text-[#E2EAF2] max-w-[1100px]"
+              className="m-0 mt-6 text-[28px] md:text-[42px] font-normal leading-[1.25] tracking-[-0.01em] text-mist max-w-[1100px]"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
               ALCOVE operates across the key disciplines that define successful

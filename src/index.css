@@ -63,6 +63,14 @@
   }
 
   :root {
+    /* Brand palette — mirrors theme.extend.colors in tailwind.config.js.
+       Use the Tailwind tokens (bg-navy, text-mist, …) in className, and
+       these custom properties for inline styles / plain CSS. */
+    --color-navy: #1C1F2A;
+    --color-mist: #E2EAF2;
+    --color-gold: #ECD898;
+    --color-deep: #13294B;
+
     font-family: 'Season Sans-TRIAL', 'Inter', 'Avenir Next', 'Segoe UI',
       sans-serif;
     font-synthesis: none;

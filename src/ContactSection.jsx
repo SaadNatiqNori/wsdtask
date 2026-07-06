@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
@@ -84,7 +85,7 @@ function ContactSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-[#1C1F2A]"
+      className="relative w-full h-screen overflow-hidden bg-navy"
       style={{ scrollSnapAlign: 'start' }}
       aria-label="Contact"
     >
@@ -98,12 +99,12 @@ function ContactSection() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#1C1F2A] px-4 pb-[40px] pt-[140px] text-[#E2EAF2] md:px-8 md:pb-[64px] md:pt-[180px]">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-[40px] pt-[140px] text-mist md:px-8 md:pb-[64px] md:pt-[180px]">
           <div className="flex flex-col items-center text-center gap-6">
             <div className="overflow-hidden">
               <h2
                 ref={titleRef}
-                className="m-0 text-[58px] md:text-[80px] font-normal leading-none tracking-[-0.01em] text-[#E2EAF2]"
+                className="m-0 text-[58px] md:text-[80px] font-normal leading-none tracking-[-0.01em] text-mist"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
                 Let's talk
@@ -121,14 +122,14 @@ function ContactSection() {
             </div>
 
             <div className="overflow-hidden">
-              <a
+              <Link
                 ref={buttonRef}
-                href="#"
-                className="inline-flex items-center gap-2 rounded-[28px] bg-[#E2EAF2] px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#191f2f] no-underline"
+                to="/contact"
+                className="inline-flex items-center gap-2 rounded-[28px] bg-mist px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#191f2f] no-underline"
               >
                 <span className="relative top-[1px]">GET IN TOUCH</span>
                 <IoArrowForward className="text-sm" aria-hidden="true" />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -145,7 +146,7 @@ function ContactSection() {
                 maskSize: 'contain',
                 WebkitMaskPosition: 'center',
                 maskPosition: 'center',
-                backgroundColor: '#ECD898',
+                backgroundColor: 'var(--color-gold)',
               }}
               role="img"
               aria-label="Alcove"
