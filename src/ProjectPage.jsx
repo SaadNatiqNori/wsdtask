@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { IoArrowBack, IoArrowForward } from 'react-icons/io5'
 import ContactSection from './ContactSection'
+import ProjectSections from './project-sections'
 import { getProjectBySlug, PROJECTS_DATA } from './projects'
 import { cubicEase } from './easings'
 
@@ -17,8 +18,22 @@ function ProjectPage() {
     window.scrollTo(0, 0)
   }, [slug])
 
+  // Full-page sections (min-h-screen) carry `scroll-snap-align: start`; enabling
+  // proximity snap on the scroll root makes them snap into view like the home
+  // page while the shorter content sections keep normal free scroll. Scoped to
+  // this page (and only the section-driven layout) and reset on unmount.
+  useEffect(() => {
+    if (!project?.sections) return
+    const el = document.documentElement
+    el.style.scrollSnapType = 'y proximity'
+    return () => {
+      el.style.scrollSnapType = ''
+    }
+  }, [project])
+
   useLayoutEffect(() => {
-    if (!project) return
+    // Legacy template animation only — section-based projects animate themselves.
+    if (!project || project.sections) return
     const ctx = gsap.context(() => {
       gsap.set(
         [titleRef.current, metaRef.current, descriptionRef.current],
@@ -59,6 +74,23 @@ function ProjectPage() {
     )
   }
 
+  // Dynamic, section-driven layout (the CMS-fed path).
+  if (project.sections) {
+    return (
+      <>
+        <main
+          className="min-h-screen bg-[#E6EBF0] text-[#1C1F2A]"
+          style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
+        >
+          <ProjectSections sections={project.sections} project={project} />
+        </main>
+        {/* Closing CTA — same "Let's Talk" section the About page uses. */}
+        <ContactSection />
+      </>
+    )
+  }
+
+  // Legacy template (projects not yet migrated to sections).
   const relatedProjects = PROJECTS_DATA.filter(
     (p) => p.slug !== project.slug
   ).slice(0, 3)
