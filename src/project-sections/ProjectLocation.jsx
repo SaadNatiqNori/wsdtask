@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
+import { OrbitSVG, ShieldSVG, CirclesSVG } from './LocationIllustrations'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -10,6 +11,8 @@ gsap.registerPlugin(ScrollTrigger)
 const EASE = 'cubic-bezier(0.66, 0, 0.34, 1)'
 const DURATION = '650ms'
 const TRANSITION = (prop) => `${prop} ${DURATION} ${EASE}`
+
+const ILLUSTRATIONS = { orbit: OrbitSVG, shield: ShieldSVG, circles: CirclesSVG }
 
 // Section type: "location"
 // Split layout: gold title · per-tab image (slides through the section
@@ -81,30 +84,25 @@ function ProjectLocation({ title = 'Location', items = [] }) {
           {title}
         </h2>
 
-        {/* Centre image stage — not clipped here, so images can travel into the
-            section's empty space above/below (the section itself clips). */}
+        {/* Centre illustration stage — one line-art illustration per tab; they
+            slide through the section's space (the section itself clips). */}
         <div
           data-loc-item
-          className="relative aspect-[4/5] w-[300px] shrink-0 md:w-[360px] 2xl:w-[440px]"
+          className="relative aspect-square w-[300px] shrink-0 md:w-[380px] 2xl:w-[440px]"
           aria-hidden="true"
         >
-          {items.map((item, i) => (
-            <div
-              key={i}
-              data-loc-slide
-              className="absolute inset-0 overflow-hidden rounded-[10px] bg-navy will-change-transform"
-            >
-              {item.image && (
-                <img
-                  src={item.image}
-                  alt=""
-                  draggable="false"
-                  className="h-full w-full object-cover"
-                  style={{ objectPosition: item.imagePosition ?? 'center' }}
-                />
-              )}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const Illustration = ILLUSTRATIONS[item.illustration]
+            return (
+              <div
+                key={i}
+                data-loc-slide
+                className="absolute inset-0 flex items-center justify-center will-change-transform"
+              >
+                {Illustration && <Illustration className="h-full w-full" />}
+              </div>
+            )
+          })}
         </div>
 
         {/* Accordion */}

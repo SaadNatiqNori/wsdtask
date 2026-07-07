@@ -57,27 +57,23 @@ export const PROJECTS_DATA = [
       {
         type: 'location',
         title: 'Location',
-        // NOTE: each tab needs its own centre image. Placeholder = the AVENUE
-        // render with different crops so the vertical slide is visible; replace
-        // `image` per tab (and confirm the last two bodies) with real assets.
+        // Each tab's centre visual is a line-art illustration (see
+        // LocationIllustrations.jsx). Confirm final copy for the last two bodies.
         items: [
           {
             label: 'Prime Accessibility',
             body: 'Situated in the heart of Erbil with unmatched access to transport links, business hubs, and residential neighborhoods.',
-            image: avenueRender,
-            imagePosition: 'center 30%',
+            illustration: 'orbit',
           },
           {
             label: 'Proximity to Key Institutions',
             body: 'Minutes from government offices, universities, hospitals, and the international airport — the essentials of daily life within easy reach.',
-            image: avenueRender,
-            imagePosition: 'center 50%',
+            illustration: 'shield',
           },
           {
             label: 'Tourism & Growth',
             body: 'Anchored in a fast-growing district that draws visitors and investment, supporting strong long-term value.',
-            image: avenueRender,
-            imagePosition: 'center 72%',
+            illustration: 'circles',
           },
         ],
       },
