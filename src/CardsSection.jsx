@@ -1,31 +1,30 @@
 import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { IoArrowForward } from 'react-icons/io5'
 import logoYellow from './assets/LogoYellow.svg'
 import { cubicEase } from './easings'
+import { useContent } from './api'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const ACCENT_WORDS = new Set(['Development', 'Properties', 'Construction'])
-
-const HERO_TEXT =
-  'Alcove is a forward-thinking company specializing in real estate Development management of Properties and Construction services in Erbil, Kurdistan Region. With a commitment to building modern, sustainable, and innovative spaces, Alcove is shaping the future of urban living in the region.'
-
-const CARDS = [
-  {
-    title: 'Construction',
-    description: 'Delivering innovative and high-quality construction',
-  },
-  {
-    title: 'Development',
-    description: 'Leading large-scale development projects to transform urban spaces.',
-  },
-  {
-    title: 'Properties',
-    description: 'Managing a diverse portfolio of residential and commercial properties.',
-  },
-]
+const INTRO_FALLBACK = {
+  text: 'Alcove is a forward-thinking company specializing in real estate Development management of Properties and Construction services in Erbil, Kurdistan Region. With a commitment to building modern, sustainable, and innovative spaces, Alcove is shaping the future of urban living in the region.',
+  accentWords: ['Development', 'Properties', 'Construction'],
+  cards: [
+    {
+      title: 'Construction',
+      description: 'Delivering innovative and high-quality construction',
+    },
+    {
+      title: 'Development',
+      description: 'Leading large-scale development projects to transform urban spaces.',
+    },
+    {
+      title: 'Properties',
+      description: 'Managing a diverse portfolio of residential and commercial properties.',
+    },
+  ],
+}
 
 function useScale(referenceWidth = 1440) {
   const [state, setState] = useState(() => {
@@ -58,6 +57,21 @@ function useScale(referenceWidth = 1440) {
 
 function CardsSection() {
   const scale = useScale()
+  const home = useContent('home', { intro: INTRO_FALLBACK })
+  const intro = home.intro ?? INTRO_FALLBACK
+  // Treat empty/blank API values as "not provided" so incomplete CMS data
+  // (e.g. an unseeded intro that returns { cards: [] }) falls back to the full
+  // hardcoded content instead of wiping the section and breaking its animation.
+  const CARDS = intro.cards?.length ? intro.cards : INTRO_FALLBACK.cards
+  const ACCENT_WORDS = new Set(
+    intro.accentWords?.length ? intro.accentWords : INTRO_FALLBACK.accentWords
+  )
+  const HERO_TEXT = intro.text?.trim() ? intro.text : INTRO_FALLBACK.text
+  // Stable, content-derived keys so the animation re-initializes (against the
+  // freshly rendered DOM) whenever the CMS content changes the words or cards.
+  // Identical content yields identical keys, so no needless re-runs.
+  const cardsKey = CARDS.map((c) => c.title).join('|')
+  const accentKey = [...ACCENT_WORDS].join('|')
   const sectionRef = useRef(null)
   const wordRefs = useRef([])
   const accentWordMap = useRef({})
@@ -94,7 +108,10 @@ function CardsSection() {
         scrollTrigger: {
           trigger: sectionEl,
           start: 'top bottom',
-          toggleActions: 'restart none restart reset',
+          // Play the intro exactly once. Leaving onEnterBack/onLeaveBack as
+          // 'none' keeps the finished state when scrolling away and back,
+          // instead of restarting or resetting the animation.
+          toggleActions: 'play none none none',
         },
       })
 
@@ -226,7 +243,7 @@ function CardsSection() {
       ctx.revert()
       clones.forEach((c) => c.remove())
     }
-  }, [scale])
+  }, [scale, HERO_TEXT, cardsKey, accentKey])
 
   const words = HERO_TEXT.split(' ')
 
@@ -324,13 +341,6 @@ function CardsSection() {
                     <p className="mb-4 w-[80%] pe-4 text-[14px] font-normal leading-[140%] tracking-[0] text-mist md:mb-6 md:text-[16px] md:leading-[120%]">
                       {card.description}
                     </p>
-                    <a
-                      href="#"
-                      className="inline-flex items-center gap-[5px] rounded-[48px] border-[0.25px] border-mist px-[14px] py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
-                    >
-                      <p className="relative top-[0.5px]">DISCOVER</p>{' '}
-                      <IoArrowForward className="text-sm relative top-[0.5px]" aria-hidden="true" />
-                    </a>
                   </div>
                 </div>
               ))}

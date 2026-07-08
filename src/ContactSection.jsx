@@ -5,8 +5,16 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
 import { cubicEase } from './easings'
+import { useContent } from './api'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const CTA_FALLBACK = {
+  title: "Let's talk",
+  description:
+    'Contact us to explore how Alcove can strengthen engagement, adherence, and between-visit support.',
+  buttonLabel: 'GET IN TOUCH',
+}
 
 function useScale(referenceWidth = 1440) {
   const [state, setState] = useState(() => {
@@ -39,6 +47,8 @@ function useScale(referenceWidth = 1440) {
 
 function ContactSection() {
   const scale = useScale()
+  const footer = useContent('footer', { cta: CTA_FALLBACK })
+  const cta = footer.cta ?? CTA_FALLBACK
   const sectionRef = useRef(null)
   const titleRef = useRef(null)
   const descRef = useRef(null)
@@ -107,7 +117,7 @@ function ContactSection() {
                 className="m-0 text-[58px] md:text-[80px] font-normal leading-none tracking-[-0.01em] text-mist"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
-                Let's talk
+                {cta.title}
               </h2>
             </div>
 
@@ -116,8 +126,7 @@ function ContactSection() {
                 ref={descRef}
                 className="m-0 text-[14px] md:text-[15px] max-w-[420px] leading-[150%] text-[#A8B0BD]"
               >
-                Contact us to explore how Alcove can strengthen engagement,
-                adherence, and between-visit support.
+                {cta.description}
               </p>
             </div>
 
@@ -127,7 +136,7 @@ function ContactSection() {
                 to="/contact"
                 className="inline-flex items-center gap-2 rounded-[28px] bg-mist px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#191f2f] no-underline"
               >
-                <span className="relative top-[1px]">GET IN TOUCH</span>
+                <span className="relative top-[1px]">{cta.buttonLabel}</span>
                 <IoArrowForward className="text-sm" aria-hidden="true" />
               </Link>
             </div>

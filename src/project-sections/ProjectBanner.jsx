@@ -36,6 +36,7 @@ function ProjectBanner({
     <section className="px-6 md:px-10 mt-[52px] md:mt-[68px]">
       <div
         ref={rootRef}
+        data-banner-box
         className="relative mx-auto w-full max-w-[1200px] overflow-hidden rounded-[8px] bg-navy"
         style={{ aspectRatio: aspect }}
       >
@@ -43,15 +44,11 @@ function ProjectBanner({
           <img
             src={image}
             alt={alt}
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: 'center 55%' }}
+            data-banner-img
+            className="absolute bottom-0 left-0 h-[250px] w-full object-contain object-bottom"
           />
         )}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[#12151D]"
-          style={{ opacity: overlay }}
-        />
+        
       </div>
     </section>
   )

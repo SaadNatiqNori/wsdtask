@@ -44,7 +44,7 @@ function ProjectFeatures({ groups = [] }) {
           className="w-full"
           style={{ backgroundColor: group.bg ?? '#E6EBF0' }}
         >
-          <div className="mx-auto max-w-[1760px] border-t border-[#1C2436]/15 px-6 py-14 md:px-14 md:py-20">
+          <div className="mx-auto max-w-[1760px] border-t border-[#1C1F2A] px-6 py-14 md:px-14 md:py-20">
             <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,2.55fr)] md:gap-16">
               {/* Title column */}
               <div data-feat-item>
@@ -67,14 +67,14 @@ function ProjectFeatures({ groups = [] }) {
                   <div
                     key={row.feature ?? ri}
                     data-feat-item
-                    className="grid grid-cols-1 gap-3 border-b border-[#1C2436]/15 py-8 first:pt-0 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:first:pt-0"
+                    className="grid grid-cols-1 justify-between gap-3 border-b border-[#1C1F2A] py-8 first:pt-0 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:first:pt-0"
                   >
                     <h3 className="group m-0 self-start text-[24px] md:text-[34px] font-normal leading-[1.15] tracking-[-0.01em] text-[#1C1F2A]">
                       <span className="cursor-default decoration-[#5B8DBF] decoration-2 underline-offset-[10px] transition-all duration-200 group-hover:underline">
                         {row.feature}
                       </span>
                     </h3>
-                    <p className="m-0 self-start text-[14px] md:text-[15px] leading-[1.5] text-[#5A6472]">
+                    <p className="m-0 ml-auto w-full max-w-[312px] self-start text-[14px] md:text-[15px] leading-[1.5] text-[#5A6472]">
                       {row.description.map((seg, si) => {
                         const cls = [
                           seg.bold && 'font-semibold text-[#1C1F2A]',

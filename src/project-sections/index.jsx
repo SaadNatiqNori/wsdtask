@@ -1,9 +1,13 @@
 import ProjectHero from './ProjectHero'
 import ProjectBanner from './ProjectBanner'
+import ProjectOpening from './ProjectOpening'
 import ProjectStatement from './ProjectStatement'
 import ProjectGallery from './ProjectGallery'
 import ProjectLocation from './ProjectLocation'
 import ProjectFeatures from './ProjectFeatures'
+import ProjectOverview from './ProjectOverview'
+import ProjectShowcase from './ProjectShowcase'
+import ProjectServices from './ProjectServices'
 
 // Registry: CMS section `type` → component.
 // Each component is self-contained (owns its layout AND its animation), so a
@@ -16,31 +20,46 @@ const SECTION_COMPONENTS = {
   gallery: ProjectGallery,
   location: ProjectLocation,
   features: ProjectFeatures,
+  overview: ProjectOverview,
+  showcase: ProjectShowcase,
+  services: ProjectServices,
 }
 
 // Renders an ordered list of section objects (as returned by the CMS/backend).
 export function ProjectSections({ sections = [], project }) {
-  return (
-    <>
-      {sections.map((section, index) => {
-        const Component = SECTION_COMPONENTS[section.type]
-        if (!Component) {
-          if (import.meta.env.DEV) {
-            console.warn(`[ProjectSections] Unknown section type: "${section.type}"`)
-          }
-          return null
-        }
-        return (
-          <Component
-            key={section.id ?? `${section.type}-${index}`}
-            index={index}
-            project={project}
-            {...section}
-          />
-        )
-      })}
-    </>
-  )
+  const rendered = sections.map((section, index) => {
+    const Component = SECTION_COMPONENTS[section.type]
+    if (!Component) {
+      if (import.meta.env.DEV) {
+        console.warn(`[ProjectSections] Unknown section type: "${section.type}"`)
+      }
+      return null
+    }
+    return (
+      <Component
+        key={section.id ?? `${section.type}-${index}`}
+        index={index}
+        project={project}
+        {...section}
+      />
+    )
+  })
+
+  // When a layout opens with hero → banner, compose the pair as the opening
+  // screen: hero copy on top, banner box pinned to the fold, and (on desktop)
+  // the scrubbed scale-into-fullscreen reveal driven by the snap engine's
+  // per-viewport snap points. ProjectOpening renders a <section> either way,
+  // so the snap engine treats the whole opening as its own snap unit(s).
+  if (sections[0]?.type === 'hero' && sections[1]?.type === 'banner') {
+    return (
+      <>
+        <ProjectOpening hero={rendered[0]} banner={rendered[1]} />
+        {rendered.slice(2)}
+      </>
+    )
+  }
+
+  return <>{rendered}</>
 }
 
 export default ProjectSections

@@ -3,40 +3,11 @@ import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { cubicEase } from './easings'
 import ContactSection from './ContactSection'
-import avenueDark from './assets/avenuesvgdark.svg'
+import { useProjects } from './api'
+import { PROJECTS_DATA } from './projects'
+import { ProjectIllustration } from './PortfolioSlider'
 
 const CARD_WIDTH = 520
-
-const PROJECTS = [
-  {
-    slug: 'erbil-avenue',
-    label: 'Erbil Avenue',
-    title: 'Erbil Avenue',
-    description:
-      'Erbil Avenue is a premium mixed-use development, offering a unique blend of luxury living, world-class retail, gourmet dining, and diverse leisure experiences. This project sets a new benchmark for excellence in the region.',
-  },
-  {
-    slug: '2nd-avenue',
-    label: 'Second Avenue',
-    title: '2nd Avenue',
-    description:
-      'Second Avenue is an elegant commercial development, designed as a destination for luxury shopping, premium dining, and lifestyle experiences. Featuring global trademarks and international restaurants, it sets a new standard for sophistication in Erbil.',
-  },
-  {
-    slug: 'nice-village',
-    label: 'Nice Village',
-    title: 'Nice Village',
-    description:
-      'Nice Village is a premium residential community in a serene area of Erbil, offering luxury villas with integrated retail and lifestyle amenities.',
-  },
-  {
-    slug: 'nni',
-    label: 'New North Industrial',
-    title: 'New North Industrial',
-    description:
-      'The NNI Project is a flagship industrial development by Alcove Company, designed to meet the growing demand for high-quality, modern industrial spaces in Erbil.',
-  },
-]
 
 function Arrow({ className }) {
   return (
@@ -72,11 +43,15 @@ function ProjectsListPage() {
   const [active, setActive] = useState(null) // hovered row index
   const [display, setDisplay] = useState(0) // last shown project (kept during fade-out)
 
-  rowsRef.current = []
+  // All published projects, straight from the CRUD (offline fallback mirrors it).
+  const projects = useProjects(PROJECTS_DATA)
+  // Identity of the current list. When the live data swaps in (or a project is
+  // renamed / added / removed), this changes and the entrance animation
+  // re-initializes against the freshly rendered rows — so a remounted row can't
+  // miss the fade-in.
+  const slugKey = projects.map((p) => p.slug).join('|')
 
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
+  rowsRef.current = []
 
   // Entrance animation for heading + rows
   useLayoutEffect(() => {
@@ -93,7 +68,7 @@ function ProjectsListPage() {
       })
     })
     return () => ctx.revert()
-  }, [])
+  }, [slugKey])
 
   // Position follower setup + hidden initial state for the card
   useLayoutEffect(() => {
@@ -153,7 +128,10 @@ function ProjectsListPage() {
     }
   }
 
-  const project = PROJECTS[display]
+  const project = projects[display] ?? {}
+  const meta = [project.location, project.year, project.status]
+    .filter(Boolean)
+    .join(' · ')
 
   return (
     <>
@@ -183,7 +161,7 @@ function ProjectsListPage() {
           onMouseLeave={() => setActive(null)}
           className="mt-[80px] md:mt-[110px] list-none p-0 m-0"
         >
-          {PROJECTS.map((p, i) => {
+          {projects.map((p, i) => {
             const dim = active !== null && active !== i
             // Top line of this row is dark when nothing is hovered, or when this
             // row or the row directly above it is hovered (shared edge).
@@ -212,7 +190,7 @@ function ProjectsListPage() {
                     }`}
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
-                    {p.label}
+                    {p.title}
                   </span>
                   <Arrow
                     className={`shrink-0 w-[30px] h-[30px] md:w-[36px] md:h-[36px] transition-colors duration-[450ms] ease-out ${
@@ -226,7 +204,7 @@ function ProjectsListPage() {
           {/* Closing bottom line — dark when nothing hovered or the last row is hovered */}
           <div
             className={`h-px w-full transition-colors duration-[450ms] ease-out ${
-              active === null || active === PROJECTS.length - 1
+              active === null || active === projects.length - 1
                 ? 'bg-[#1C1F2A]'
                 : 'bg-[#AAB2C0]'
             }`}
@@ -250,16 +228,25 @@ function ProjectsListPage() {
           >
             {project.title}
           </h2>
+          {meta && (
+            <p className="mt-2 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase tracking-[0.12em] text-[#A8B0BD]">
+              {meta}
+            </p>
+          )}
           <p className="mt-[10px] max-w-[420px] text-[14px] leading-[1.55] tracking-[0] text-white">
             {project.description}
           </p>
           <div className="mt-8 flex justify-center">
-            <img
-              src={avenueDark}
-              alt=""
-              aria-hidden="true"
-              className="w-[80%] h-auto opacity-90"
-            />
+            {project.coverImage ? (
+              <img
+                src={project.coverImage}
+                alt=""
+                aria-hidden="true"
+                className="w-[80%] h-auto opacity-90"
+              />
+            ) : (
+              <ProjectIllustration variant={display % 4} />
+            )}
           </div>
         </div>
       </div>

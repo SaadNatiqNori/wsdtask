@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Lenis smooth scroll — these classes are toggled on <html> only while a Lenis
+   instance is active, so pages running native scroll are unaffected. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
 @font-face {
   font-family: 'Akkurat Mono';
   src: url('/fonts/AkkuratMono-Regular.ttf') format('truetype');
@@ -14,6 +37,24 @@
   font-family: 'Season Mix-TRIAL';
   src: url('/fonts/SeasonMix-TRIAL-Regular.ttf') format('truetype');
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 'Season Mix VF' — the Season variable font's Mix (SERF 50) named instances.
+   Registered from the static exports so weight 420 = Mix Regular, 580 = Mix Medium. */
+@font-face {
+  font-family: 'Season Mix VF';
+  src: url('/fonts/SeasonMix-TRIAL-Regular.ttf') format('truetype');
+  font-weight: 420;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Season Mix VF';
+  src: url('/fonts/SeasonMix-TRIAL-Medium.ttf') format('truetype');
+  font-weight: 580;
   font-style: normal;
   font-display: swap;
 }
@@ -31,7 +72,7 @@
   font-family: 'Season Sans-TRIAL';
   src: local('Season Sans TRIAL Medium'),
     url('/fonts/SeasonSans-TRIAL-Medium.ttf') format('truetype');
-  font-weight: 500;
+  font-weight: 500 550;
   font-style: normal;
   font-display: swap;
 }

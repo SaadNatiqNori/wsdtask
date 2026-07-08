@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useEffect } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -6,6 +6,26 @@ import { IoArrowBack } from 'react-icons/io5'
 import ContactSection from './ContactSection'
 import logoYellow from './assets/LogoYellow.svg'
 import { cubicEase } from './easings'
+import { useContent } from './api'
+
+const SUBS_FALLBACK = {
+  title: 'Subsidiaries',
+  intro: 'Alcove operates through three distinct subsidiaries:',
+  items: [
+    { icon: 'construction', title: 'Construction', description: 'Delivering innovative and high-quality construction' },
+    { icon: 'development', title: 'Development', description: 'Leading large-scale development projects to transform urban spaces.' },
+    { icon: 'properties', title: 'Properties', description: 'Managing a diverse portfolio of residential and commercial properties.' },
+  ],
+  what: {
+    title: ['What', 'ALCOVE does'],
+    left: [
+      { text: 'ALCOVE is a development company focused on construction and sales. We work on creating projects that are carefully planned, well executed, and positioned to meet both practical and commercial goals. Our role is to turn ideas into developed spaces that offer ' },
+      { text: 'quality, function, and value.', variant: 'gold' },
+      { text: ' Our work is built on a combination of development expertise and market understanding.' },
+    ],
+    right: 'On the construction side, we focus on delivering strong, reliable, and high-standard projects. On the sales side, we work to ensure that each development is presented in a way that connects with the market and attracts the right audience. This balanced approach allows us to support the success of a project from the beginning of construction through to final delivery and beyond.',
+  },
+}
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -114,7 +134,32 @@ function SubsidiaryCard({ icon, title, description }) {
   )
 }
 
+const ICON_COMPONENTS = {
+  construction: ConstructionIcon,
+  development: DevelopmentIcon,
+  properties: PropertiesIcon,
+}
+
 function SubsidiariesPage() {
+  const subs = useContent('subsidiaries', SUBS_FALLBACK)
+  const items = subs.items ?? SUBS_FALLBACK.items
+  const what = subs.what ?? SUBS_FALLBACK.what
+  // Guard against a non-string intro (see the documented data.intro collision)
+  // so it can never render as [object Object].
+  const intro = typeof subs.intro === 'string' ? subs.intro : SUBS_FALLBACK.intro
+  const iconFor = (item) => {
+    if (item.image) {
+      return (
+        <img
+          src={item.image}
+          alt=""
+          className="w-[44px] h-[44px] md:w-[52px] md:h-[52px] object-contain"
+        />
+      )
+    }
+    const Icon = ICON_COMPONENTS[item.icon] ?? ConstructionIcon
+    return <Icon />
+  }
   const titleRef = useRef(null)
   const introRef = useRef(null)
   const cardRefs = useRef([])
@@ -123,10 +168,6 @@ function SubsidiariesPage() {
   const whatRightRef = useRef(null)
 
   cardRefs.current = []
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -189,14 +230,14 @@ function SubsidiariesPage() {
               className="m-0 text-[36px] md:text-[48px] font-normal leading-[0.95] tracking-[-0.02em] text-gold"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
-              Subsidiaries
+              {subs.title}
             </h1>
             <p
               ref={introRef}
               className="m-0 mt-3 text-[20px] md:text-[36px] leading-[1.3] tracking-[-0.01em] text-mist"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
-              Alcove operates through three distinct subsidiaries:
+              {intro}
             </p>
           </div>
 
@@ -218,9 +259,9 @@ function SubsidiariesPage() {
                 className="relative md:col-start-1 md:row-start-1"
               >
                 <SubsidiaryCard
-                  icon={<ConstructionIcon />}
-                  title="Construction"
-                  description="Delivering innovative and high-quality construction"
+                  icon={iconFor(items[0])}
+                  title={items[0].title}
+                  description={items[0].description}
                 />
                 <div
                   aria-hidden="true"
@@ -239,9 +280,9 @@ function SubsidiariesPage() {
                 className="relative md:col-start-2 md:row-start-2"
               >
                 <SubsidiaryCard
-                  icon={<DevelopmentIcon />}
-                  title="Development"
-                  description="Leading large-scale development projects to transform urban spaces."
+                  icon={iconFor(items[1])}
+                  title={items[1].title}
+                  description={items[1].description}
                 />
                 <div
                   aria-hidden="true"
@@ -260,9 +301,9 @@ function SubsidiariesPage() {
                 className="relative md:col-start-1 md:row-start-3"
               >
                 <SubsidiaryCard
-                  icon={<PropertiesIcon />}
-                  title="Properties"
-                  description="Managing a diverse portfolio of residential and commercial properties."
+                  icon={iconFor(items[2])}
+                  title={items[2].title}
+                  description={items[2].description}
                 />
                 <div
                   aria-hidden="true"
@@ -283,9 +324,9 @@ function SubsidiariesPage() {
                 className="m-0 text-[44px] md:text-[64px] font-normal leading-[1.0] tracking-[-0.02em] text-gold"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
-                What
+                {what.title[0]}
                 <br />
-                ALCOVE does
+                {what.title[1]}
               </h2>
             </div>
             <div className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
@@ -293,24 +334,19 @@ function SubsidiariesPage() {
                 ref={whatLeftRef}
                 className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-mist"
               >
-                ALCOVE is a development company focused on construction and sales.
-                We work on creating projects that are carefully planned, well
-                executed, and positioned to meet both practical and commercial
-                goals. Our role is to turn ideas into developed spaces that offer{' '}
-                <span className="text-gold">quality, function, and value.</span>{' '}
-                Our work is built on a combination of development expertise and
-                market understanding.
+                {(what.left ?? []).map((seg, i) =>
+                  seg.variant === 'gold' ? (
+                    <span key={i} className="text-gold">{seg.text}</span>
+                  ) : (
+                    <span key={i}>{seg.text}</span>
+                  )
+                )}
               </p>
               <p
                 ref={whatRightRef}
                 className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-mist"
               >
-                On the construction side, we focus on delivering strong, reliable,
-                and high-standard projects. On the sales side, we work to ensure
-                that each development is presented in a way that connects with the
-                market and attracts the right audience. This balanced approach
-                allows us to support the success of a project from the beginning of
-                construction through to final delivery and beyond.
+                {what.right}
               </p>
             </div>
           </div>

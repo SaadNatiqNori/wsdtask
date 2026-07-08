@@ -5,8 +5,16 @@ import { IoArrowForward } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
 import avenueViz from './assets/avenuesvg.svg'
 import { cubicEase } from './easings'
+import { useContent } from './api'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const HERO_FALLBACK = {
+  headline: ['Shaping the Future', 'Of Sustainable Spaces'],
+  description:
+    'Innovative real estate developments designed with sustainability in mind, creating lasting value and vibrant communities across the Kurdistan Region.',
+  featured: { eyebrow: 'RECENT PROJECTS', title: 'Second Avenue', slug: 'second-avenue' },
+}
 
 function useScale(referenceWidth = 1440) {
   const [state, setState] = useState(() => {
@@ -39,6 +47,8 @@ function useScale(referenceWidth = 1440) {
 
 function HeroSustainable() {
   const scale = useScale()
+  const home = useContent('home', { hero: HERO_FALLBACK })
+  const hero = home.hero ?? HERO_FALLBACK
   const sectionRef = useRef(null)
   const headlineRef = useRef(null)
   const descriptionRef = useRef(null)
@@ -111,9 +121,9 @@ function HeroSustainable() {
               className="m-0 text-[36px] font-normal not-italic leading-[108%] tracking-[-0.01em] md:text-[58px]"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
-              Shaping the Future
+              {hero.headline[0]}
               <br />
-              Of Sustainable Spaces
+              {hero.headline[1]}
             </h1>
 
             <div className="max-w-full md:max-w-[200px] md:mr-[114px]">
@@ -122,8 +132,7 @@ function HeroSustainable() {
                 className="m-0 text-[14px] font-normal leading-5 tracking-normal text-[#1C2D4F]"
                 style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
               >
-                Innovative real estate developments designed with sustainability in mind,
-                creating lasting value and vibrant communities across the Kurdistan Region.
+                {hero.description}
               </p>
             </div>
           </div>
@@ -155,13 +164,13 @@ function HeroSustainable() {
                <div>
                   <p className="m-0 inline-flex items-center gap-[6px] font-['Akkurat_Mono',monospace] text-[8px] font-medium uppercase leading-none tracking-normal text-[#13294B]">
                     <span className="inline-block w-[8px] h-[8px] rounded-full bg-[#13294B]" />
-                    RECENT PROJECTS
+                    {hero.featured.eyebrow}
                   </p>
                   <h3
                     className="m-0 text-[20px] font-[420] leading-[115%] tracking-[-0.02em] text-[#13294B]"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
-                    2nd Avenue
+                    {hero.featured.title}
                   </h3>
                </div>
                 <div className="w-4 h-4 relative top-1.5 gap-[5px] p-1 rounded-[35px] border-[0.5px] border-[#1C2D4F66] flex items-center justify-center shrink-0">
@@ -172,7 +181,7 @@ function HeroSustainable() {
              
 
               <img
-                src={avenueViz}
+                src={hero.featured.image || avenueViz}
                 alt=""
                 aria-hidden="true"
                 className="w-full h-auto"

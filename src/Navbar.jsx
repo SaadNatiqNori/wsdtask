@@ -5,14 +5,19 @@ import { IoChevronDownOutline, IoArrowForward } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
 import { cubicEase } from './easings'
 import { PROJECTS_DATA } from './projects'
+import { useProjects, useContent } from './api'
 
-const PROJECTS = PROJECTS_DATA.slice(0, 5).map((p) => ({
-  slug: p.slug,
-  title: p.title,
-  description: p.short,
-}))
+const NAVBAR_FALLBACK = {
+  links: [
+    { label: 'ABOUT', to: '/about' },
+    { label: 'SUBSIDIARIES', to: '/subsidiaries' },
+  ],
+  projectsLabel: 'PROJECTS',
+  contactLabel: 'CONTACT',
+  dropdownHeading: ['Projects', 'Portfolio'],
+}
 
-function ProjectsDropdown({ open, onClose }) {
+function ProjectsDropdown({ open, onClose, projects, heading }) {
   const panelRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(open)
 
@@ -70,9 +75,9 @@ function ProjectsDropdown({ open, onClose }) {
             className="m-0 text-[44px] md:text-[58px] font-normal leading-[1.02] tracking-[-0.01em] text-mist"
             style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
           >
-            Projects
+            {heading[0]}
             <br />
-            Portfolio
+            {heading[1]}
           </h3>
           <Link
             to="/projects"
@@ -85,7 +90,7 @@ function ProjectsDropdown({ open, onClose }) {
         </div>
 
         <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-12">
-          {PROJECTS.map((project, i) => (
+          {projects.map((project, i) => (
             <Link
               key={`${project.slug}-${i}`}
               to={`/projects/${project.slug}`}
@@ -113,6 +118,19 @@ function Navbar() {
   const navbarRef = useRef(null)
   const [projectsOpen, setProjectsOpen] = useState(false)
   const projectsTriggerRef = useRef(null)
+
+  const allProjects = useProjects(PROJECTS_DATA)
+  const nav = useContent('navbar', NAVBAR_FALLBACK)
+  // The dropdown mirrors the home portfolio: the featured projects (fall back to
+  // all so it's never empty).
+  const featured = allProjects.filter((p) => p.featured)
+  const dropdownProjects = (featured.length ? featured : allProjects)
+    .slice(0, 6)
+    .map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      description: p.short,
+    }))
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -156,26 +174,18 @@ function Navbar() {
         </Link>
 
         <ul className="ml-[0.55rem] hidden list-none items-center gap-6 p-0 md:flex relative -top-[2px]">
-          <li>
-            <Link
-              to="/about"
-              className={`inline-flex items-center whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none no-underline transition-opacity duration-200 ${
-                projectsOpen ? 'text-[#d5dee9] opacity-30' : 'text-[#d5dee9]'
-              }`}
-            >
-              ABOUT
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/subsidiaries"
-              className={`inline-flex items-center whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none no-underline transition-opacity duration-200 ${
-                projectsOpen ? 'text-[#d5dee9] opacity-30' : 'text-[#d5dee9]'
-              }`}
-            >
-              SUBSIDIARIES
-            </Link>
-          </li>
+          {nav.links.map((link) => (
+            <li key={link.to}>
+              <Link
+                to={link.to}
+                className={`inline-flex items-center whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none no-underline transition-opacity duration-200 ${
+                  projectsOpen ? 'text-[#d5dee9] opacity-30' : 'text-[#d5dee9]'
+                }`}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
           <li ref={projectsTriggerRef}>
             <button
               type="button"
@@ -184,7 +194,7 @@ function Navbar() {
               aria-expanded={projectsOpen}
               aria-haspopup="dialog"
             >
-              PROJECTS{' '}
+              {nav.projectsLabel}{' '}
               <IoChevronDownOutline
                 className={`translate-y-[-1px] text-[0.9em] leading-none transition-transform duration-200 ${
                   projectsOpen ? 'rotate-180' : ''
@@ -199,13 +209,15 @@ function Navbar() {
           to="/contact"
           className="ml-3 whitespace-nowrap rounded-[22px] bg-mist px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
         >
-          <p className="font-['Akkurat_Mono',monospace] relative top-[1px]">CONTACT</p>
+          <p className="font-['Akkurat_Mono',monospace] relative top-[1px]">{nav.contactLabel}</p>
         </Link>
       </nav>
 
       <ProjectsDropdown
         open={projectsOpen}
         onClose={() => setProjectsOpen(false)}
+        projects={dropdownProjects}
+        heading={nav.dropdownHeading}
       />
     </header>
   )

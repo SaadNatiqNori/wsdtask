@@ -42,12 +42,12 @@ function ProjectGallery({
   return (
     <section
       ref={rootRef}
-      className="relative overflow-hidden bg-[#0E0E0E] text-mist py-[92px] md:py-[112px]"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist py-10"
     >
       <div className="px-6 md:px-10 flex flex-col items-center text-center">
         <span
           data-gallery-item
-          className="inline-flex items-center rounded-full border border-white/30 px-5 py-2 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase tracking-[0.12em] text-mist"
+          className="inline-flex items-center rounded-full border border-white/35 px-3 py-1 font-['Akkurat_Mono',monospace] text-[14px] font-extrabold uppercase tracking-[0.12em] text-mist"
         >
           {eyebrow}
         </span>
@@ -61,7 +61,7 @@ function ProjectGallery({
       </div>
 
       {/* Centered carousel — neighbours peek; clipped at the section edges. */}
-      <div data-gallery-item className="mt-[56px] md:mt-[72px] overflow-hidden">
+      <div data-gallery-item className="mt-10 md:mt-12 w-full overflow-hidden">
         <div
           className="flex"
           style={{
@@ -82,7 +82,7 @@ function ProjectGallery({
               <img
                 src={img.src}
                 alt={img.alt ?? ''}
-                className="block w-full aspect-[1.85/1] object-cover"
+                className="block w-full h-[440px] object-cover"
                 draggable="false"
               />
             </div>
@@ -93,7 +93,7 @@ function ProjectGallery({
       {images.length > 1 && (
         <div
           data-gallery-item
-          className="mt-9 md:mt-11 flex items-center justify-center gap-4"
+          className="mt-8 md:mt-10 flex items-center justify-center gap-4"
         >
           <button
             type="button"

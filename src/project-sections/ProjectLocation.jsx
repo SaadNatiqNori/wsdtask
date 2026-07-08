@@ -13,6 +13,8 @@ const DURATION = '650ms'
 const TRANSITION = (prop) => `${prop} ${DURATION} ${EASE}`
 
 const ILLUSTRATIONS = { orbit: OrbitSVG, shield: ShieldSVG, circles: CirclesSVG }
+// Built-in line-art used when an item has no uploaded image; cycles by position.
+const ILLUSTRATION_KEYS = ['orbit', 'shield', 'circles']
 
 // Section type: "location"
 // Split layout: gold title · per-tab image (slides through the section
@@ -71,6 +73,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
   return (
     <section
       ref={rootRef}
+      data-no-snap
       className="relative flex min-h-screen items-center overflow-hidden bg-[#161A24] text-mist"
       style={{ scrollSnapAlign: 'start' }}
     >
@@ -92,14 +95,23 @@ function ProjectLocation({ title = 'Location', items = [] }) {
           aria-hidden="true"
         >
           {items.map((item, i) => {
-            const Illustration = ILLUSTRATIONS[item.illustration]
+            const Illustration =
+              ILLUSTRATIONS[item.illustration ?? ILLUSTRATION_KEYS[i % 3]]
             return (
               <div
                 key={i}
                 data-loc-slide
                 className="absolute inset-0 flex items-center justify-center will-change-transform"
               >
-                {Illustration && <Illustration className="h-full w-full" />}
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt=""
+                    className="h-[323px] w-full object-contain"
+                  />
+                ) : (
+                  Illustration && <Illustration className="h-full w-full" />
+                )}
               </div>
             )
           })}

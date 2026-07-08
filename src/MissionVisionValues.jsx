@@ -1,9 +1,29 @@
 import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { cubicEase } from './easings'
+import { useContent } from './api'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const MVV_FALLBACK = {
+  mission: {
+    title: 'Mission',
+    body: 'To deliver high-quality, sustainable, and innovative real estate solutions that meet the evolving needs of our clients and communities. We aim to create enduring value by integrating excellence in design, construction, and property management, while fostering lasting relationships with stakeholders.',
+  },
+  vision: {
+    title: 'Vision',
+    body: "To be a leading force in the real estate and construction industry in the Kurdistan Region and beyond, recognized for our commitment to quality, sustainability, and community-driven development. We envision creating spaces that not only meet today's needs but also stand the test of time, contributing to the region's growth and prosperity.",
+  },
+  values: {
+    title: 'Values',
+    intro: 'At Alcove, we are guided by:',
+    items: [
+      { term: 'Excellence', description: 'Delivering premium quality in every detail.' },
+      { term: 'Innovation', description: 'Embracing creativity and modern solutions.' },
+      { term: 'Integrity', description: 'Building trust through transparency and professionalism.' },
+    ],
+  },
+}
 
 function useScale(referenceWidth = 1440) {
   const [state, setState] = useState(() => {
@@ -126,35 +146,25 @@ function ValuesIllustration() {
   )
 }
 
-function ValuesContent() {
+function ValuesContent({ intro, items }) {
   return (
     <div className="text-[14px] leading-[150%] tracking-[0] max-w-[520px] text-[#1C2D4F]">
-      <p className="m-0">At Alcove, we are guided by:</p>
+      <p className="m-0">{intro}</p>
       <ul className="mt-3 list-none p-0 m-0 space-y-1">
-        <li className="flex items-baseline gap-2">
-          <span className="inline-block w-[5px] h-[5px] rounded-full bg-[#1C2D4F] translate-y-[-2px]" />
-          <span>
-            <strong className="font-semibold">Excellence</strong> – Delivering premium quality in every detail.
-          </span>
-        </li>
-        <li className="flex items-baseline gap-2">
-          <span className="inline-block w-[5px] h-[5px] rounded-full bg-[#1C2D4F] translate-y-[-2px]" />
-          <span>
-            <strong className="font-semibold">Innovation</strong> – Embracing creativity and modern solutions.
-          </span>
-        </li>
-        <li className="flex items-baseline gap-2">
-          <span className="inline-block w-[5px] h-[5px] rounded-full bg-[#1C2D4F] translate-y-[-2px]" />
-          <span>
-            <strong className="font-semibold">Integrity</strong> – Building trust through transparency and professionalism.
-          </span>
-        </li>
+        {items.map((item) => (
+          <li key={item.term} className="flex items-baseline gap-2">
+            <span className="inline-block w-[5px] h-[5px] rounded-full bg-[#1C2D4F] translate-y-[-2px]" />
+            <span>
+              <strong className="font-semibold">{item.term}</strong> – {item.description}
+            </span>
+          </li>
+        ))}
       </ul>
     </div>
   )
 }
 
-function Card({ refProp, illRef, title, description, isValues, illustration }) {
+function Card({ refProp, illRef, title, description, isValues, values, illustration }) {
   return (
     <div
       ref={refProp}
@@ -170,7 +180,7 @@ function Card({ refProp, illRef, title, description, isValues, illustration }) {
         </h3>
         <div>
           {isValues ? (
-            <ValuesContent />
+            <ValuesContent intro={values.intro} items={values.items} />
           ) : (
             <p className="m-0 text-[14px] leading-[150%] tracking-[0] max-w-[520px] text-[#1C2D4F]">
               {description}
@@ -187,6 +197,8 @@ function Card({ refProp, illRef, title, description, isValues, illustration }) {
 
 function MissionVisionValues() {
   const scale = useScale()
+  const home = useContent('home', { mvv: MVV_FALLBACK })
+  const mvv = home.mvv ?? MVV_FALLBACK
   const sectionRef = useRef(null)
   const stickyRef = useRef(null)
   const missionRef = useRef(null)
@@ -198,24 +210,35 @@ function MissionVisionValues() {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.set(missionRef.current, { yPercent: 100, opacity: 0 })
       gsap.set([visionRef.current, valuesRef.current], { yPercent: 100, opacity: 0 })
       gsap.set(
         [missionIllRef.current, visionIllRef.current, valuesIllRef.current],
         { autoAlpha: 1 }
       )
 
-      gsap.to(missionRef.current, {
-        yPercent: 0,
-        opacity: 1,
-        duration: 1.4,
-        ease: cubicEase,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-          toggleActions: 'restart none none reset',
-        },
-      })
+      // Mission reveal — scrubbed to the section's scroll-in (top bottom → top
+      // top) so Mission's position is a pure function of scroll. This was a
+      // toggleActions tween, but those callbacks don't fire on a page reload
+      // that lands already scrolled into the pinned section, so Mission stayed
+      // at yPercent:100 (off-screen) and the viewport went blank. Scrubbing,
+      // like Vision/Values below, makes the state correct on load at any offset.
+      gsap.fromTo(
+        missionRef.current,
+        { yPercent: 100, opacity: 0 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          // Same scrub smoothing and (default) ease as the Vision/Values
+          // timeline below, so Mission enters at the same pace as the other
+          // tabs instead of hard-locking to the snap.
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'top top',
+            scrub: 1,
+          },
+        }
+      )
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -263,23 +286,42 @@ function MissionVisionValues() {
             <Card
               refProp={missionRef}
               illRef={missionIllRef}
-              title="Mission"
-              description="To deliver high-quality, sustainable, and innovative real estate solutions that meet the evolving needs of our clients and communities. We aim to create enduring value by integrating excellence in design, construction, and property management, while fostering lasting relationships with stakeholders."
-              illustration={<MissionIllustration />}
+              title={mvv.mission.title}
+              description={mvv.mission.body}
+              illustration={
+                mvv.mission.image ? (
+                  <img src={mvv.mission.image} alt="" className="w-full max-w-[313px] h-auto" />
+                ) : (
+                  <MissionIllustration />
+                )
+              }
             />
             <Card
               refProp={visionRef}
               illRef={visionIllRef}
-              title="Vision"
-              description="To be a leading force in the real estate and construction industry in the Kurdistan Region and beyond, recognized for our commitment to quality, sustainability, and community-driven development. We envision creating spaces that not only meet today's needs but also stand the test of time, contributing to the region's growth and prosperity."
-              illustration={<VisionIllustration />}
+              title={mvv.vision.title}
+              description={mvv.vision.body}
+              illustration={
+                mvv.vision.image ? (
+                  <img src={mvv.vision.image} alt="" className="w-full max-w-[313px] h-auto" />
+                ) : (
+                  <VisionIllustration />
+                )
+              }
             />
             <Card
               refProp={valuesRef}
               illRef={valuesIllRef}
-              title="Values"
+              title={mvv.values.title}
               isValues
-              illustration={<ValuesIllustration />}
+              values={mvv.values}
+              illustration={
+                mvv.values.image ? (
+                  <img src={mvv.values.image} alt="" className="w-full max-w-[313px] h-auto" />
+                ) : (
+                  <ValuesIllustration />
+                )
+              }
             />
           </div>
         </div>

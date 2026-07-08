@@ -4,13 +4,29 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
 import ContactSection from './ContactSection'
 import { cubicEase } from './easings'
+import { useContent, useSettings, postContact } from './api'
 
 gsap.registerPlugin(ScrollTrigger)
 
 // Brand blue used across the light pages (About, Hero) for text on light bg.
 const INK = '#1C2D4F'
 
-const DETAILS = [
+const CONTACT_FALLBACK = {
+  header: {
+    badge: 'Contact',
+    title: "Let's Talk",
+    subtitle: 'Connect with ALCOVE to explore opportunities, partnerships, and more.',
+  },
+  form: {
+    nameLabel: 'Name',
+    emailLabel: 'Email',
+    messageLabel: 'Message',
+    submitLabel: 'Send message',
+    sentLabel: 'Message sent',
+  },
+}
+
+const DETAILS_FALLBACK = [
   {
     label: 'Location',
     lines: ['Erbil Avenue, Baharka', 'Road, Erbil, Kurdistan', 'Region of Iraq'],
@@ -33,36 +49,103 @@ const DASH_V =
 const DASH_H =
   'repeating-linear-gradient(to right, #AEB8C8 0, #AEB8C8 2px, transparent 2px, transparent 4px)'
 
-function Field({ label, type = 'text', value, onChange, trailing }) {
+function Field({ label, type = 'text', value, onChange, trailing, error }) {
   return (
-    <label className="group relative block border-b border-[#1C2D4F]/25 pb-3 transition-colors focus-within:border-[#1C2D4F]">
-      <span className="sr-only">{label}</span>
-      <div className="flex items-end justify-between gap-3">
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={label}
-          className="min-w-0 flex-1 bg-transparent text-[18px] md:text-[19px] leading-none text-[#1C2D4F] outline-none placeholder:text-[#1C2D4F]/45"
-        />
-        {trailing}
-      </div>
-    </label>
+    <div>
+      <label
+        className={`group relative block border-b pb-3 transition-colors ${
+          error
+            ? 'border-red-500/70 focus-within:border-red-500'
+            : 'border-[#1C2D4F]/25 focus-within:border-[#1C2D4F]'
+        }`}
+      >
+        <span className="sr-only">{label}</span>
+        <div className="flex items-end justify-between gap-3">
+          <input
+            type={type}
+            value={value}
+            onChange={onChange}
+            placeholder={label}
+            aria-invalid={error ? 'true' : undefined}
+            className="min-w-0 flex-1 bg-transparent text-[18px] md:text-[19px] leading-none text-[#1C2D4F] outline-none placeholder:text-[#1C2D4F]/45"
+          />
+          {trailing}
+        </div>
+      </label>
+      {error && <p className="mt-2 text-[13px] leading-tight text-red-600">{error}</p>}
+    </div>
   )
 }
 
 function ContactPage() {
+  const content = useContent('contact', CONTACT_FALLBACK)
+  const header = content.header ?? CONTACT_FALLBACK.header
+  const formLabels = content.form ?? CONTACT_FALLBACK.form
+  const settings = useSettings({ contact_details: DETAILS_FALLBACK })
+  const details = settings.contact_details ?? DETAILS_FALLBACK
+
   const headerRef = useRef(null)
   const cardRef = useRef(null)
   const footerRef = useRef(null)
   const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
 
-  const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+  // Clear a field's error (and any general error) as soon as the user edits it.
+  const update = (key) => (e) => {
+    const { value } = e.target
+    setForm((f) => ({ ...f, [key]: value }))
+    setErrors((prev) =>
+      prev[key] || prev.form ? { ...prev, [key]: undefined, form: undefined } : prev
+    )
+  }
 
-  const handleSubmit = (e) => {
+  // Client-side validation — mirrors the backend rules so the user gets instant
+  // feedback before a round-trip.
+  const validate = (values) => {
+    const next = {}
+    if (!values.name.trim()) next.name = 'Please enter your name.'
+    else if (values.name.trim().length < 2) next.name = 'Name is too short.'
+    if (!values.email.trim()) next.email = 'Please enter your email.'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim()))
+      next.email = 'Please enter a valid email address.'
+    if (!values.message.trim()) next.message = 'Please enter a message.'
+    else if (values.message.trim().length < 5) next.message = 'Message is too short.'
+    return next
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSent(true)
+    if (sending || sent) return
+
+    const clientErrors = validate(form)
+    if (Object.keys(clientErrors).length > 0) {
+      setErrors(clientErrors)
+      return
+    }
+
+    setErrors({})
+    setSending(true)
+    const res = await postContact(form)
+    setSending(false)
+
+    if (res.ok) {
+      setSent(true)
+      setForm({ name: '', email: '', message: '' })
+      return
+    }
+
+    // Surface Laravel 422 field errors; otherwise a generic failure message.
+    if (res.status === 422 && res.data?.errors) {
+      const mapped = {}
+      for (const [key, msgs] of Object.entries(res.data.errors)) {
+        mapped[key] = Array.isArray(msgs) ? msgs[0] : String(msgs)
+      }
+      setErrors(mapped)
+    } else {
+      setErrors({ form: 'Something went wrong. Please try again.' })
+    }
   }
 
   useLayoutEffect(() => {
@@ -115,31 +198,33 @@ function ContactPage() {
           className="sticky top-[128px] md:top-[140px] z-0 flex flex-col items-center text-center"
         >
           <span className="inline-flex items-center rounded-full border border-[#1C2D4F]/35 px-3 py-1 font-['Akkurat_Mono',monospace] text-[14px] font-extrabold uppercase tracking-[0.12em] text-[#1C2D4F]">
-            <span className="relative font-['Akkurat_Mono',monospace]">Contact</span>
+            <span className="relative font-['Akkurat_Mono',monospace]">{header.badge}</span>
           </span>
           <h1
             className="m-0 mt-7 text-[54px] md:text-[92px] font-normal leading-[0.95] tracking-[-0.02em] text-[#1C2D4F]"
             style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
           >
-            Let&rsquo;s Talk
+            {header.title}
           </h1>
           <p className="m-0 mt-5 w-full max-w-[460px] text-[15px] md:text-[18px] leading-[120%] tracking-[0] text-[#1C2D4F]">
-            Connect with ALCOVE to explore opportunities, partnerships, and more.
+            {header.subtitle}
           </p>
         </div>
 
         <form
           ref={cardRef}
           onSubmit={handleSubmit}
-          className="relative z-10 mx-auto mt-[72px] md:mt-[96px] w-full max-w-[666px] rounded-[8px] bg-[#D7E0E8] px-6 py-10 md:h-[486px] md:px-[72px] md:pt-[68px] md:pb-[56px]"
+          noValidate
+          className="relative z-10 mx-auto mt-[72px] md:mt-[96px] w-full max-w-[666px] rounded-[8px] bg-[#D7E0E8] px-6 py-10 md:min-h-[486px] md:px-[72px] md:pt-[68px] md:pb-[56px]"
         >
           <div className="flex flex-col gap-[34px] md:gap-[40px]">
-            <Field label="Name" value={form.name} onChange={update('name')} />
-            <Field label="Email" type="email" value={form.email} onChange={update('email')} />
+            <Field label={formLabels.nameLabel} value={form.name} onChange={update('name')} error={errors.name} />
+            <Field label={formLabels.emailLabel} type="email" value={form.email} onChange={update('email')} error={errors.email} />
             <Field
-              label="Message"
+              label={formLabels.messageLabel}
               value={form.message}
               onChange={update('message')}
+              error={errors.message}
               trailing={
                 <svg
                   aria-hidden="true"
@@ -165,15 +250,50 @@ function ContactPage() {
             </a>
           </p>
 
+          {errors.form && (
+            <p className="mt-4 text-center text-[13px] text-red-600">{errors.form}</p>
+          )}
+
           <div className="mt-7 flex justify-center">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-[28px] bg-navy px-8 py-5 font-['Akkurat_Mono',monospace] text-[12px] font-medium uppercase leading-[1] tracking-[0] text-[#E2EAF2]"
+              disabled={sending || sent}
+              aria-busy={sending ? 'true' : undefined}
+              className={`inline-flex items-center gap-2 rounded-[28px] bg-navy px-8 py-5 font-['Akkurat_Mono',monospace] text-[12px] font-medium uppercase leading-[1] tracking-[0] text-[#E2EAF2] transition-opacity ${
+                sending || sent ? 'cursor-not-allowed opacity-60' : 'hover:opacity-90'
+              }`}
             >
               <span className="relative top-[1px]">
-                {sent ? 'Message sent' : 'Send message'}
+                {sent
+                  ? formLabels.sentLabel
+                  : sending
+                    ? 'Sending…'
+                    : formLabels.submitLabel}
               </span>
-              <IoArrowForward className="text-sm" aria-hidden="true" />
+              {sending ? (
+                <svg
+                  className="h-4 w-4 animate-spin"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-90"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+              ) : (
+                <IoArrowForward className="text-sm" aria-hidden="true" />
+              )}
             </button>
           </div>
         </form>
@@ -214,7 +334,7 @@ function ContactPage() {
           ))}
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-14 md:grid-cols-5 md:gap-y-0">
-            {DETAILS.map((col) => (
+            {details.map((col) => (
               <div
                 key={col.label}
                 data-col

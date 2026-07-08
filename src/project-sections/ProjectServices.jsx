@@ -1,0 +1,114 @@
+import { useLayoutEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { cubicEase } from '../easings'
+import { prefersReducedMotion } from './motion'
+import { ServiceIcon } from './ServiceIcons'
+
+gsap.registerPlugin(ScrollTrigger)
+
+// Section type: "services"
+// Light section: a sticky intro on the left (same behaviour as the About page's
+// "Why choose ALCOVE") while the service items scroll past on the right. Each
+// item: icon, serif title, and a segmented description (keywords bolded).
+function ProjectServices({
+  eyebrow = 'Services and Amenities',
+  heading,
+  headingBold,
+  items = [],
+}) {
+  const rootRef = useRef(null)
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion()) return
+    const ctx = gsap.context(() => {
+      gsap.from('[data-svc-item]', {
+        opacity: 0,
+        y: 40,
+        duration: 1.1,
+        ease: cubicEase,
+        stagger: 0.12,
+        scrollTrigger: { trigger: rootRef.current, start: 'top 70%' },
+      })
+    }, rootRef)
+    return () => ctx.revert()
+  }, [])
+
+  return (
+    <section
+      ref={rootRef}
+      data-no-snap
+      className="bg-[#E6EBF0] text-[#1C2D4F] px-6 py-24 md:px-14 md:py-32"
+      style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
+    >
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 md:grid-cols-2 md:gap-16 lg:grid-cols-[1fr_546px] lg:gap-24">
+        {/* Sticky intro */}
+        <div className="md:sticky md:top-[120px] md:self-start">
+          <p
+            className="m-0 text-[18px] md:text-[22px] leading-none tracking-[-0.04em] text-[#1C2D4F]"
+            style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 580 }}
+          >
+            {eyebrow}
+          </p>
+          {heading && (
+            <h2
+              className="m-0 mt-6 max-w-[560px] text-[28px] md:text-[34px] font-normal leading-none tracking-normal text-[#1C2D4F]"
+              style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
+            >
+              {heading}
+              {headingBold && (
+                <>
+                  {' '}
+                  <span style={{ fontWeight: 550 }}>{headingBold}</span>
+                </>
+              )}
+            </h2>
+          )}
+        </div>
+
+        {/* Items */}
+        <div>
+          {items.map((item, i) => (
+            <div
+              key={item.title ?? i}
+              data-svc-item
+              className="border-t border-[#1C2D4F] py-12 md:py-16"
+            >
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-[38px] w-[34px] object-contain"
+                  draggable="false"
+                />
+              ) : (
+                <ServiceIcon name={item.icon} className="h-[38px] w-[34px] text-[#1C2D4F]" />
+              )}
+              <h3
+                className="m-0 mt-8 text-[28px] md:text-[32px] font-normal leading-none tracking-[-0.04em] text-[#1C2D4F]"
+                style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
+              >
+                {item.title}
+              </h3>
+              <p className="m-0 mt-5 text-[16px] md:text-[18px] font-normal leading-5 tracking-normal text-[#5A6472] max-w-[429px]">
+                {(item.description ?? []).map((seg, si) => (
+                  <span
+                    key={si}
+                    className={seg.bold ? 'text-[#1C2D4F]' : undefined}
+                    style={seg.bold ? { fontWeight: 550 } : undefined}
+                  >
+                    {seg.text}
+                  </span>
+                ))}
+              </p>
+            </div>
+          ))}
+          <div className="border-t border-[#1C2D4F]/25" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default ProjectServices

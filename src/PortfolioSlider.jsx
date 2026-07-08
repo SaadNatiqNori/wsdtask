@@ -4,39 +4,19 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
 import { cubicEase } from './easings'
+import { useProjects, useContent } from './api'
+import { PROJECTS_DATA } from './projects'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const PROJECTS = [
-  {
-    slug: 'erbil-avenue',
-    title: 'Erbil Avenue',
-    description:
-      'Erbil Avenue is a premium mixed-use development, offering a unique blend of luxury living, world-class retail, gourmet dining, and diverse leisure experiences. This project sets a new benchmark for excellence in the region.',
-    illustration: 0,
-  },
-  {
-    slug: '2nd-avenue',
-    title: '2nd Avenue',
-    description:
-      'Second Avenue is an elegant commercial development, designed as a destination for luxury shopping, premium dining, and lifestyle experiences. Featuring global trademarks and international restaurants, it sets a new standard for sophistication in Erbil.',
-    illustration: 1,
-  },
-  {
-    slug: 'youth-hub',
-    title: 'Youth Hub',
-    description:
-      'Youth Hub is the largest and most advanced youth center in the Kurdistan Region and Iraq — an inclusive destination for youth and beyond. With modern facilities and diverse opportunities, it is a vibrant space that inspires creativity and sparks collaboration.',
-    illustration: 2,
-  },
-  {
-    slug: 'avenue-square',
-    title: 'Avenue Square',
-    description:
-      'Avenue Square is a premium residential community, situated in one of the most exclusive and serene areas of Erbil. Designed for elegance, privacy, and comfort, it combines luxury villas with integrated retail and lifestyle amenities.',
-    illustration: 3,
-  },
-]
+// Section-level copy only — the project cards come from the Projects CRUD
+// (the `featured` ones), so this slider stays in sync with /projects.
+const PORTFOLIO_FALLBACK = {
+  heading: ['Portfolio', 'Overview'],
+  description:
+    'Our portfolio includes residential, commercial, and mixed-use properties, all designed to enhance quality of life and create long-term value for investors, residents, and communities.',
+  ctaLabel: 'CHECK ALL',
+}
 
 function useScale(referenceWidth = 1440) {
   const [state, setState] = useState(() => {
@@ -67,7 +47,7 @@ function useScale(referenceWidth = 1440) {
   return state.scale
 }
 
-function ProjectIllustration({ variant }) {
+export function ProjectIllustration({ variant }) {
   const stroke = '#3A3E4A'
   const fill = '#252830'
 
@@ -209,78 +189,165 @@ function ProjectIllustration({ variant }) {
 
 function PortfolioSlider() {
   const scale = useScale()
+  const home = useContent('home', { portfolio: PORTFOLIO_FALLBACK })
+  const portfolio = home.portfolio ?? PORTFOLIO_FALLBACK
+  // Cards are the CRUD projects flagged "Show on home portfolio". Fall back to
+  // all projects if none are flagged, so the section is never empty.
+  const allProjects = useProjects(PROJECTS_DATA)
+  const featured = allProjects.filter((p) => p.featured)
+  const projects = featured.length ? featured : allProjects
   const sectionRef = useRef(null)
   const scrollRef = useRef(null)
   const introRef = useRef(null)
   const cardRefs = useRef([])
-  const [progress, setProgress] = useState(0)
+  const progressFillRef = useRef(null)
 
   cardRefs.current = []
+
+  // Size each card to hug its own cover image: draw the image at a fixed height
+  // so its width is the natural aspect, then set the card width to that image
+  // width plus the horizontal padding (the "x margin"). The title/description
+  // then wrap to the image width instead of stretching the card wider.
+  const IMG_HEIGHT = 150
+  const CARD_PAD_X = 32 // matches the card's px-8 (both sides = 64)
+  const fitCardToImage = (img) => {
+    if (!img) return
+    const apply = () => {
+      const { naturalWidth: nw, naturalHeight: nh } = img
+      if (!nw || !nh) return
+      const imgW = IMG_HEIGHT * (nw / nh)
+      const card = img.closest('article')
+      if (card) card.style.width = `${Math.round(Math.max(imgW, 340)) + CARD_PAD_X * 2}px`
+    }
+    if (img.complete && img.naturalWidth) apply()
+    else img.addEventListener('load', apply, { once: true })
+  }
 
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
 
-    const handleScroll = () => {
+    // Update the progress indicator off the scroll event, but write straight to
+    // the DOM inside a rAF so we don't re-render the whole slider every frame
+    // (that was the main source of the "glitchy" feel while dragging).
+    let rafId = 0
+    const paint = () => {
+      rafId = 0
+      const fill = progressFillRef.current
+      if (!fill) return
       const max = el.scrollWidth - el.clientWidth
-      setProgress(max > 0 ? el.scrollLeft / max : 0)
+      const p = max > 0 ? el.scrollLeft / max : 0
+      fill.style.left = `${p * 78}%`
+    }
+    const handleScroll = () => {
+      if (!rafId) rafId = requestAnimationFrame(paint)
     }
 
     el.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
+    paint()
 
+    // Drag-to-scroll (mouse) with inertia. Touch/trackpad keep native scrolling.
     let isDown = false
+    let moved = false
+    let dragScale = 1
     let startX = 0
     let startScrollLeft = 0
-    let moved = false
+    let lastX = 0
+    let lastT = 0
+    let velocity = 0 // local px per ms; scrollLeft moves opposite the cursor
+    let momentumId = 0
+
+    const stopMomentum = () => {
+      if (momentumId) cancelAnimationFrame(momentumId)
+      momentumId = 0
+    }
 
     const onPointerDown = (e) => {
+      if (e.pointerType !== 'mouse') return
+      stopMomentum()
       isDown = true
       moved = false
-      startX = e.clientX
+      startX = lastX = e.clientX
       startScrollLeft = el.scrollLeft
-      el.style.scrollSnapType = 'none'
+      lastT = e.timeStamp
+      velocity = 0
+      // The section is CSS-scaled (.scale-wrapper); convert cursor pixels into
+      // the element's own pixels so the cards track the cursor 1:1.
+      dragScale = el.getBoundingClientRect().width / el.offsetWidth || 1
       el.style.cursor = 'grabbing'
-      el.setPointerCapture?.(e.pointerId)
+      // Stop the browser starting a native image/text drag mid-swipe.
+      e.preventDefault()
     }
 
     const onPointerMove = (e) => {
       if (!isDown) return
-      const dx = e.clientX - startX
-      if (Math.abs(dx) > 3) moved = true
-      el.scrollLeft = startScrollLeft - dx
+      const dxTotal = (e.clientX - startX) / dragScale
+      if (Math.abs(dxTotal) > 4) moved = true
+      el.scrollLeft = startScrollLeft - dxTotal
+      const dt = e.timeStamp - lastT
+      if (dt > 0) {
+        velocity = -((e.clientX - lastX) / dragScale) / dt
+        lastX = e.clientX
+        lastT = e.timeStamp
+      }
     }
 
-    const endDrag = (e) => {
+    const endDrag = () => {
       if (!isDown) return
       isDown = false
       el.style.cursor = ''
-      el.style.scrollSnapType = ''
-      if (e && e.pointerId != null) el.releasePointerCapture?.(e.pointerId)
+      // Glide on release, decaying the velocity, instead of stopping dead — this
+      // is what makes the release feel smooth rather than abrupt/janky.
+      const maxScroll = el.scrollWidth - el.clientWidth
+      let prev = performance.now()
+      const glide = (now) => {
+        const dt = now - prev
+        prev = now
+        velocity *= Math.pow(0.95, dt / 16) // frame-rate independent friction
+        el.scrollLeft += velocity * dt
+        if (el.scrollLeft <= 0 || el.scrollLeft >= maxScroll) velocity = 0
+        momentumId = Math.abs(velocity) > 0.02 ? requestAnimationFrame(glide) : 0
+      }
+      if (Math.abs(velocity) > 0.02) momentumId = requestAnimationFrame(glide)
     }
 
-    const onClickCapture = (e) => {
-      if (moved) {
-        e.preventDefault()
+    // Horizontal wheel / trackpad swipe: keep it as a native horizontal scroll
+    // and stop the page's full-screen section navigation from hijacking it.
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        stopMomentum()
         e.stopPropagation()
       }
     }
 
+    // Swallow the click that ends a drag so it doesn't trigger the card's Link,
+    // but let a genuine click (no movement) through so DISCOVER navigates.
+    const onClickCapture = (e) => {
+      if (moved) {
+        e.preventDefault()
+        e.stopPropagation()
+        moved = false
+      }
+    }
+
+    // Listen on window (not via pointer capture) so the drag keeps tracking
+    // outside the element AND the click still reaches the Link — pointer capture
+    // retargets the click to the container, which was blocking navigation.
     el.addEventListener('pointerdown', onPointerDown)
-    el.addEventListener('pointermove', onPointerMove)
-    el.addEventListener('pointerup', endDrag)
-    el.addEventListener('pointercancel', endDrag)
-    el.addEventListener('pointerleave', endDrag)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', endDrag)
+    el.addEventListener('wheel', onWheel, { passive: true })
     el.addEventListener('click', onClickCapture, true)
 
     return () => {
+      stopMomentum()
       el.removeEventListener('scroll', handleScroll)
       el.removeEventListener('pointerdown', onPointerDown)
-      el.removeEventListener('pointermove', onPointerMove)
-      el.removeEventListener('pointerup', endDrag)
-      el.removeEventListener('pointercancel', endDrag)
-      el.removeEventListener('pointerleave', endDrag)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', endDrag)
+      el.removeEventListener('wheel', onWheel)
       el.removeEventListener('click', onClickCapture, true)
+      if (rafId) cancelAnimationFrame(rafId)
     }
   }, [])
 
@@ -328,42 +395,45 @@ function PortfolioSlider() {
           <div
             ref={scrollRef}
             data-horizontal-scroll
-            className="overflow-x-auto overflow-y-hidden flex items-start gap-2 snap-x snap-mandatory cursor-grab select-none [&::-webkit-scrollbar]:hidden"
-            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
+            className="overflow-x-auto overflow-y-hidden flex items-start gap-2 cursor-grab select-none [&::-webkit-scrollbar]:hidden"
+            style={{
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-x',
+              overscrollBehavior: 'contain',
+            }}
           >
             <div
               ref={introRef}
-              className="flex-shrink-0 w-[340px] snap-start flex flex-col pr-6 py-4"
+              className="flex-shrink-0 w-[340px] flex flex-col pr-6 py-4"
             >
               <h2
                 className="m-0 text-[58px] font-normal leading-[1.02] tracking-[-0.01em]"
                 style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
               >
-                Portfolio
+                {portfolio.heading[0]}
                 <br />
-                Overview
+                {portfolio.heading[1]}
               </h2>
               <p className="mt-8 text-[13px] leading-[160%] max-w-[280px] text-[#1C2D4F]">
-                Our portfolio includes residential, commercial, and mixed-use properties,
-                all designed to enhance quality of life and create long-term value for
-                investors, residents, and communities.
+                {portfolio.description}
               </p>
-              <a
-                href="#"
+              <Link
+                to="/projects"
                 className="mt-6 inline-flex w-fit items-center gap-2 rounded-[24px] bg-navy px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
               >
-                <span className="relative top-[1px]">CHECK ALL</span>
+                <span className="relative top-[1px]">{portfolio.ctaLabel}</span>
                 <IoArrowForward className="text-sm" aria-hidden="true" />
-              </a>
+              </Link>
             </div>
 
-            {PROJECTS.map((project) => (
+            {projects.map((project, i) => (
               <article
-                key={project.title}
+                key={project.slug}
                 ref={(el) => {
                   if (el) cardRefs.current.push(el)
                 }}
-                className="flex-shrink-0 w-[600px] h-[460px] bg-navy p-8 snap-start flex flex-col text-[#d6deea]"
+                className="flex-shrink-0 w-[496px] h-[493px] bg-navy p-8 flex flex-col text-[#d6deea]"
               >
                 <div>
                   <h3
@@ -372,13 +442,23 @@ function PortfolioSlider() {
                   >
                     {project.title}
                   </h3>
-                  <p className="mt-4 text-[13px] leading-[150%] max-w-[460px] text-[#A8B0BD]">
-                    {project.description}
+                  <p className="mt-4 text-[13px] leading-[150%] text-[#A8B0BD]">
+                    {project.short || project.description}
                   </p>
                 </div>
 
-                <div className="flex-1 flex items-end justify-center my-3 min-h-0">
-                  <ProjectIllustration variant={project.illustration} />
+                <div className="flex-1 flex items-end justify-center my-12 min-h-0">
+                  {project.coverImage ? (
+                    <img
+                      src={project.coverImage}
+                      alt={project.title}
+                      draggable={false}
+                      ref={fitCardToImage}
+                      className="h-[150px] w-auto max-w-none object-contain"
+                    />
+                  ) : (
+                    <ProjectIllustration variant={i % 4} />
+                  )}
                 </div>
 
                 <Link
@@ -394,10 +474,11 @@ function PortfolioSlider() {
 
           <div className="mt-8 mx-auto w-full max-w-[280px] h-[2px] bg-[#1C2D4F]/15 relative">
             <div
+              ref={progressFillRef}
               className="absolute top-0 h-full bg-[#1C2D4F] transition-[left] duration-150 ease-out"
               style={{
                 width: '22%',
-                left: `${progress * 78}%`,
+                left: '0%',
               }}
             />
           </div>
