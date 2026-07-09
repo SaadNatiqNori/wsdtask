@@ -9,9 +9,9 @@ gsap.registerPlugin(ScrollTrigger)
 // 100vh stage plays a scrubbed scale-reveal — the banner box grows upward
 // from its resting size until it fills the viewport (radius → 0) while the
 // building image scales up and slides to the vertical center, covering the
-// hero copy on the way. The page's snap engine emits one snap point per
-// viewport of the section (3 for 300vh), so each scroll gesture lands on
-// timeline progress 0 / 0.5 / 1 — one keyframe per gesture.
+// hero copy on the way. The scrub is driven by the page's normal Lenis
+// smooth scroll, so the reveal progresses continuously, in parallel with
+// the browser scroll.
 //
 // On small screens or with reduced motion, renders the static composition
 // (hero on top, banner pinned to the fold) with no scroll stage.
@@ -67,8 +67,8 @@ function ProjectOpening({ hero, banner }) {
         },
       })
 
-      // Choreography (timeline 0 → 1; snap points land at 0.5 = KF2 and
-      // 1 = KF3). By KF2 the box is already full-bleed but only ~58% of the
+      // Choreography (timeline 0 → 1, scrubbed continuously; KF2 = 0.5 and
+      // KF3 = 1). By KF2 the box is already full-bleed but only ~58% of the
       // viewport tall, so the title stays readable above its edge; by KF3
       // it owns the whole stage.
       // The box is w-full clamped by max-width; raising the clamp (rather

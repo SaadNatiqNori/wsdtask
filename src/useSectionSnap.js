@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { cubicEase } from './easings'
 
-// Per-section snap engine (extracted from the home page so section-driven
-// project pages can share it). Layers wheel/key/touch controls on top of the
-// shared Lenis instance: each gesture snaps to the next/previous snap point.
+// Per-section snap engine (used by the home page). Layers wheel/key/touch
+// controls on top of the shared Lenis instance: each gesture snaps to the
+// next/previous snap point.
 // Snap points are the tops of every top-level <section> under #root (a
 // <section> is one snap unit — nested sections inside it are not collected),
 // with one extra point per viewport-height for multi-viewport sections.

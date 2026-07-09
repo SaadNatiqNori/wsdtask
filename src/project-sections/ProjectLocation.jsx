@@ -73,9 +73,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
   return (
     <section
       ref={rootRef}
-      data-no-snap
       className="relative flex min-h-screen items-center overflow-hidden bg-[#161A24] text-mist"
-      style={{ scrollSnapAlign: 'start' }}
     >
       <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center gap-16 px-6 py-24 md:flex-row md:justify-between md:gap-10 md:px-16 md:py-0">
         {/* Title */}

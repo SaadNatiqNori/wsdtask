@@ -6,8 +6,6 @@ import ContactSection from './ContactSection'
 import ProjectSections from './project-sections'
 import { getProjectBySlug } from './projects'
 import { useProject } from './api'
-import { useLenis, useScrollMode } from './SmoothScroll'
-import { useSectionSnap } from './useSectionSnap'
 import { cubicEase } from './easings'
 
 function ProjectPage() {
@@ -18,14 +16,11 @@ function ProjectPage() {
   const metaRef = useRef(null)
   const descriptionRef = useRef(null)
 
-  // Section-driven layouts scroll exactly like the home page: Lenis in home
-  // mode (a pure programmatic scroll engine, smoothWheel off) with the shared
-  // per-section snap engine layered on top — one section per gesture. Legacy
-  // (non-section) projects keep the default smooth scrolling, so the snap
-  // engine is disabled there (passed a null Lenis).
-  const lenis = useLenis()
-  useScrollMode(project?.sections ? 'home' : null)
-  useSectionSnap(project?.sections ? lenis : null)
+  // Project pages scroll like every other content page: the route-default
+  // Lenis 'smooth' mode (continuous smooth wheel scrolling, no section snap).
+  // Scroll-driven section animations (e.g. the opening scale reveal) are
+  // ScrollTrigger scrubs, which the SmoothScrollProvider keeps in sync with
+  // Lenis — so they progress in parallel with the browser scroll.
 
   useLayoutEffect(() => {
     // Legacy template animation only — section-based projects animate themselves.

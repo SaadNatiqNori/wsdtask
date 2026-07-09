@@ -33,10 +33,7 @@ function ProjectOverview({ eyebrow = 'Project Overview', heading, body, image })
     <section
       ref={rootRef}
       className="bg-[#161A24] text-mist h-screen px-6 md:px-14"
-      style={{
-        scrollSnapAlign: 'start',
-        fontFamily: "'Season Sans-TRIAL', sans-serif",
-      }}
+      style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
       <div className="mx-auto flex h-full max-w-[1440px] flex-col justify-center py-20 md:py-24">
         <div className="mb-10 md:mb-14">

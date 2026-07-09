@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
@@ -49,6 +50,11 @@ function HeroSustainable() {
   const scale = useScale()
   const home = useContent('home', { hero: HERO_FALLBACK })
   const hero = home.hero ?? HERO_FALLBACK
+  // Per-field merge: the API omits featured fields when no project is
+  // flagged as recent, so missing ones fill in from the fallback.
+  const featured = { ...HERO_FALLBACK.featured, ...(hero.featured ?? {}) }
+  // The card deep-links to the recent project when the CMS provides a slug.
+  const CardTag = featured.slug ? Link : 'div'
   const sectionRef = useRef(null)
   const headlineRef = useRef(null)
   const descriptionRef = useRef(null)
@@ -156,21 +162,24 @@ function HeroSustainable() {
               aria-label="Alcove"
             />
 
-            <div
+            <CardTag
               ref={cardRef}
+              {...(featured.slug
+                ? { to: `/projects/${featured.slug}`, 'aria-label': `View project: ${featured.title}` }
+                : {})}
               className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-6 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px]"
             >
               <div className="flex justify-between items-start">
                <div>
                   <p className="m-0 inline-flex items-center gap-[6px] font-['Akkurat_Mono',monospace] text-[8px] font-medium uppercase leading-none tracking-normal text-[#13294B]">
                     <span className="inline-block w-[8px] h-[8px] rounded-full bg-[#13294B]" />
-                    {hero.featured.eyebrow}
+                    {featured.eyebrow}
                   </p>
                   <h3
                     className="m-0 text-[20px] font-[420] leading-[115%] tracking-[-0.02em] text-[#13294B]"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
-                    {hero.featured.title}
+                    {featured.title}
                   </h3>
                </div>
                 <div className="w-4 h-4 relative top-1.5 gap-[5px] p-1 rounded-[35px] border-[0.5px] border-[#1C2D4F66] flex items-center justify-center shrink-0">
@@ -181,12 +190,12 @@ function HeroSustainable() {
              
 
               <img
-                src={hero.featured.image || avenueViz}
+                src={featured.image || avenueViz}
                 alt=""
                 aria-hidden="true"
                 className="w-full h-auto"
               />
-            </div>
+            </CardTag>
           </div>
         </main>
       </div>

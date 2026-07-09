@@ -21,10 +21,10 @@ const MODE_OPTIONS = {
 }
 
 // One global Lenis instance for the whole app. Its mode is derived from the
-// route, but a page can override it (e.g. section-based project pages opt into
-// 'native' so their CSS scroll-snap keeps working — Lenis and native
-// scroll-snap fight each other). ScrollTrigger is wired to Lenis once here, so
-// every ScrollTrigger animation in the app stays in sync under smooth scroll.
+// route, but a page can override it via useScrollMode ('native' = no Lenis at
+// all, for pages that need the browser's own scroll). ScrollTrigger is wired
+// to Lenis once here, so every ScrollTrigger animation in the app stays in
+// sync under smooth scroll.
 export function SmoothScrollProvider({ children }) {
   const { pathname } = useLocation()
   const [override, setOverride] = useState(null)

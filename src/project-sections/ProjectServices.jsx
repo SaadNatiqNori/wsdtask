@@ -37,7 +37,6 @@ function ProjectServices({
   return (
     <section
       ref={rootRef}
-      data-no-snap
       className="bg-[#E6EBF0] text-[#1C2D4F] px-6 py-24 md:px-14 md:py-32"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >

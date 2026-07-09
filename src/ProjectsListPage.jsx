@@ -9,6 +9,16 @@ import { ProjectIllustration } from './PortfolioSlider'
 
 const CARD_WIDTH = 520
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+// CMS dates arrive as "YYYY-MM-DD" → "13 Jan 2026". Legacy rows may still
+// hold a bare year ("2024"), which is shown as-is.
+function formatProjectDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? '')
+  if (!match) return value
+  return `${Number(match[3])} ${MONTHS[Number(match[2]) - 1]} ${match[1]}`
+}
+
 function Arrow({ className }) {
   return (
     <svg
@@ -129,7 +139,7 @@ function ProjectsListPage() {
   }
 
   const project = projects[display] ?? {}
-  const meta = [project.location, project.year, project.status]
+  const meta = [project.location, formatProjectDate(project.year), project.status]
     .filter(Boolean)
     .join(' · ')
 

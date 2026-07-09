@@ -47,9 +47,8 @@ export function ProjectSections({ sections = [], project }) {
 
   // When a layout opens with hero → banner, compose the pair as the opening
   // screen: hero copy on top, banner box pinned to the fold, and (on desktop)
-  // the scrubbed scale-into-fullscreen reveal driven by the snap engine's
-  // per-viewport snap points. ProjectOpening renders a <section> either way,
-  // so the snap engine treats the whole opening as its own snap unit(s).
+  // the scale-into-fullscreen reveal scrubbed continuously by the page's
+  // normal smooth scroll.
   if (sections[0]?.type === 'hero' && sections[1]?.type === 'banner') {
     return (
       <>

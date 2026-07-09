@@ -56,17 +56,18 @@ function CarIllustration({ className }) {
   )
 }
 
-// Every animatable piece sits inside its own `overflow-hidden` box, with the
-// `data-anim` target as the inner content. On a slide change the inner content
-// slides/fades within its own box (a masked reveal) — it never travels across
-// the whole section.
+// Every animatable piece carries `data-anim` and moves freely — no per-element
+// clipping boxes, so nothing gets visibly cut mid-motion. The copy column is
+// anchored to the top of the stage (whose height is equalized across slides),
+// so the heading sits at the same y on every slide; the illustration column is
+// vertically centered on the stage's center line, which is also constant.
 function Slide({ heading, bodyLeft, bodyRight, image }) {
   return (
-    <div className="w-full px-6 md:px-14">
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-16">
-        {/* Copy */}
+    <div className="h-full w-full px-6 md:px-14">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 md:h-full md:grid-cols-2 md:gap-16">
+        {/* Copy — flows from the stage top so the title position never shifts */}
         <div>
-          <div className="overflow-hidden border-l border-white/40 pb-1 pl-6 md:pl-8">
+          <div className="border-l border-white/40 pb-1 pl-6 md:pl-8">
             <h2
               data-anim
               className="m-0 whitespace-pre-line text-[34px] md:text-[52px] font-normal leading-[1.05] tracking-[-0.01em] text-mist"
@@ -77,34 +78,33 @@ function Slide({ heading, bodyLeft, bodyRight, image }) {
           </div>
 
           {(bodyLeft || bodyRight) && (
-            <div className="mt-10 md:mt-14 grid max-w-[640px] grid-cols-1 gap-8 sm:grid-cols-2 md:gap-10">
+            <div className="mt-10 md:mt-14 grid max-w-[580px] grid-cols-1 gap-8 sm:grid-cols-2 md:gap-10 pl-6 md:pl-8">
               {bodyLeft && (
-                <div className="overflow-hidden">
-                  <p
-                    data-anim
-                    className="m-0 text-[14px] md:text-[15px] leading-[1.7] tracking-[0] text-[#B7BEC9]"
-                  >
-                    {bodyLeft}
-                  </p>
-                </div>
+                <p
+                  data-anim
+                  data-anim-speed="1.2"
+                  className="m-0 text-[14px] md:text-[15px] leading-[1.7] tracking-[0] text-[#E2EAF2]"
+                >
+                  {bodyLeft}
+                </p>
               )}
               {bodyRight && (
-                <div className="overflow-hidden">
-                  <p
-                    data-anim
-                    className="m-0 text-[14px] md:text-[15px] leading-[1.7] tracking-[0] text-[#B7BEC9]"
-                  >
-                    {bodyRight}
-                  </p>
-                </div>
+                <p
+                  data-anim
+                  data-anim-speed="1.2"
+                  data-anim-shift="1.5"
+                  className="m-0 text-[14px] md:text-[15px] leading-[1.7] tracking-[0] text-[#E2EAF2]"
+                >
+                  {bodyRight}
+                </p>
               )}
             </div>
           )}
         </div>
 
-        {/* Illustration */}
-        <div className="flex justify-center overflow-hidden md:justify-end">
-          <div data-anim className="w-full max-w-[520px]">
+        {/* Illustration — centered on the stage's fixed center line */}
+        <div className="flex items-center justify-center md:justify-end">
+          <div data-anim data-anim-speed="1.1" className="w-full max-w-[520px]">
             {image ? (
               <img
                 src={image}
@@ -124,22 +124,33 @@ function Slide({ heading, bodyLeft, bodyRight, image }) {
 }
 
 const SHIFT = 80 // px each element travels (within its own box) on a slide change
-const SHOWCASE_EASE = cubicBezier(1, 0.19, 0.76, 0.53)
+const EXIT_EASE = cubicBezier(0.55, 0, 1, 0.54) // level 1: accelerating exit (quicker take on Figma's 0.66, 0, 1, 0.54)
+const ENTER_EASE = cubicBezier(0, 0.51, 0.39, 1) // level 3: decelerating entrance
+const CUT_HOLD = 0.001 // level 2: Figma's "After delay 1ms" before the instant cut
+const BASE_DUR = 0.5 // s — Figma's 500ms; each element multiplies it by its own speed
+
+// Per-element motion control on [data-anim] elements:
+// `data-anim-speed` scales the base 500ms (1 = base, 1.4 = 40% slower);
+// `data-anim-shift` scales the base 80px travel (1 = base, 1.5 = 120px), so
+// two elements with equal timing can cover different distances.
+const speedOf = (el) => Number(el.dataset.animSpeed) || 1
+const shiftOf = (el) => Number(el.dataset.animShift) || 1
 
 // Section type: "showcase"
-// Full-bleed black slider. Manual only (drag + dots). On a slide change the
-// outgoing and incoming slides are rendered as two overlapping layers and
-// animated in a single GSAP timeline that starts both together — so the exit and
-// entry run as one continuous motion with no gap. Each element is clipped to its
-// own box (masked reveal), eased with a shared cubic-bezier.
+// Full-bleed black slider. Manual only (drag + dots). Slide changes replay the
+// Figma match-cut prototype: (1) the outgoing slide smart-animates out — 500ms,
+// bezier(0.66, 0, 1, 0.54); (2) after a 1ms delay an instant variant change
+// swaps to the incoming slide at its entrance offset (the cut); (3) the
+// incoming slide smart-animates into place — 500ms, bezier(0, 0.51, 0.39, 1).
+// The exit ends at full speed and the entrance starts at full speed, so motion
+// reads as continuous across the cut. Elements move freely (no per-element
+// clipping). All slides stay mounted, stacked in one grid cell, so the stage
+// height is always the tallest slide's — nothing shifts vertically on a swap.
 function ProjectShowcase({ slides = [] }) {
   const rootRef = useRef(null)
-  const stageRef = useRef(null) // overlap container; height-locked across a swap
-  const frontRef = useRef(null) // incoming layer
-  const backRef = useRef(null) // outgoing layer (only mounted mid-transition)
+  const layersRef = useRef([]) // one wrapper per slide, all stacked in one grid cell
   const drag = useRef({ x: 0, active: false })
   const dir = useRef(1) // 1 = forward (out-left / in-right), -1 = backward
-  const lockH = useRef(0) // outgoing slide's height, captured before the swap
   const [current, setCurrent] = useState(0) // stable slide when idle
   const [transition, setTransition] = useState(null) // { from, to } while animating
   const count = slides.length
@@ -159,69 +170,82 @@ function ProjectShowcase({ slides = [] }) {
     return () => ctx.revert()
   }, [])
 
-  // Drive a slide change: outgoing elements slide out while the incoming ones
-  // slide in — both tweens start at time 0 of one timeline, so there is no gap
-  // between them. State resets from the timeline's onComplete.
+  // Drive a slide change as a match cut: the outgoing elements accelerate out
+  // (level 1), the incoming slide cuts in instantly at its entrance offset
+  // after a 1ms hold (level 2), then decelerates into place (level 3). State
+  // resets from the timeline's onComplete.
   useLayoutEffect(() => {
-    if (!transition || !frontRef.current) return
+    if (!transition) return
+    const toLayer = layersRef.current[transition.to]
+    const fromLayer = layersRef.current[transition.from]
+    if (!toLayer) return
     const { to } = transition
     const reduce = prefersReducedMotion()
     const d = dir.current
-    const stage = stageRef.current
 
-    // Hold the stage at the taller of the two slides so the swap can't jump.
-    if (stage) {
-      stage.style.minHeight = `${Math.max(lockH.current, frontRef.current.offsetHeight)}px`
-    }
+    const inEls = gsap.utils.toArray('[data-anim]', toLayer)
+    const outEls = fromLayer ? gsap.utils.toArray('[data-anim]', fromLayer) : []
 
-    const inEls = gsap.utils.toArray('[data-anim]', frontRef.current)
-    const outEls = backRef.current
-      ? gsap.utils.toArray('[data-anim]', backRef.current)
-      : []
+    // The incoming slide waits hidden at its entrance offset (per-element
+    // travel distance) — set before paint so it can't flash under the outgoing
+    // layer. The instant cut (level 2) is the moment the entrance tween below
+    // begins.
+    gsap.set(
+      inEls,
+      reduce
+        ? { x: 0, autoAlpha: 1 }
+        : { x: (i, el) => SHIFT * shiftOf(el) * d, autoAlpha: 0 }
+    )
 
     const tl = gsap.timeline({
       onComplete: () => {
-        if (stage) stage.style.minHeight = ''
         setCurrent(to)
         setTransition(null)
       },
     })
-    tl.to(
-      outEls,
-      {
-        x: -SHIFT * d,
-        autoAlpha: 0,
-        duration: reduce ? 0 : 0.5,
-        ease: SHOWCASE_EASE,
-        stagger: reduce ? 0 : 0.06,
-      },
-      0
-    )
-    tl.fromTo(
-      inEls,
-      { x: reduce ? 0 : SHIFT * d, autoAlpha: reduce ? 1 : 0 },
-      {
-        x: 0,
-        autoAlpha: 1,
-        duration: reduce ? 0 : 0.6,
-        ease: SHOWCASE_EASE,
-        stagger: reduce ? 0 : 0.08,
-      },
-      0
-    )
+    // Level 1 — smart animate, bezier(0.66, 0, 1, 0.54): outgoing exits. All
+    // elements start together; each runs at its own speed (data-anim-speed)
+    // over its own distance (data-anim-shift).
+    outEls.forEach((el) => {
+      tl.to(
+        el,
+        {
+          x: -SHIFT * shiftOf(el) * d,
+          autoAlpha: 0,
+          duration: reduce ? 0 : BASE_DUR * speedOf(el),
+          ease: EXIT_EASE,
+        },
+        0
+      )
+    })
+    // Level 2 — the cut: 1ms after the slowest exit finishes.
+    const cutAt = reduce ? 0 : BASE_DUR * Math.max(1, ...outEls.map(speedOf)) + CUT_HOLD
+    // Level 3 — from the cut, incoming elements settle into place with
+    // bezier(0, 0.51, 0.39, 1), again each at its own speed.
+    inEls.forEach((el) => {
+      tl.to(
+        el,
+        {
+          x: 0,
+          autoAlpha: 1,
+          duration: reduce ? 0 : BASE_DUR * speedOf(el),
+          ease: ENTER_EASE,
+        },
+        cutAt
+      )
+    })
     return () => tl.kill()
   }, [transition])
 
   if (!count) return null
 
   const active = transition ? transition.to : current
-  const shownFront = Math.max(0, Math.min(active, count - 1))
+  const shown = Math.max(0, Math.min(active, count - 1))
 
   const goTo = (i) => {
     const next = Math.min(count - 1, Math.max(0, i))
     if (transition || next === current) return
     dir.current = next > current ? 1 : -1
-    lockH.current = stageRef.current ? stageRef.current.offsetHeight : 0
     setTransition({ from: current, to: next })
   }
 
@@ -240,7 +264,6 @@ function ProjectShowcase({ slides = [] }) {
     <section
       ref={rootRef}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black text-mist"
-      style={{ scrollSnapAlign: 'start' }}
     >
       <div
         data-showcase-reveal
@@ -250,17 +273,27 @@ function ProjectShowcase({ slides = [] }) {
         onPointerLeave={onUp}
         style={{ touchAction: 'pan-y', cursor: count > 1 ? 'grab' : 'default' }}
       >
-        <div ref={stageRef} className="relative">
-          {/* Incoming / stable layer */}
-          <div ref={frontRef}>
-            <Slide {...slides[shownFront]} />
-          </div>
-          {/* Outgoing layer — only present during a transition, overlaid on top. */}
-          {transition && (
-            <div ref={backRef} className="absolute inset-0" aria-hidden="true">
-              <Slide {...slides[Math.max(0, Math.min(transition.from, count - 1))]} />
-            </div>
-          )}
+        {/* All slides stay mounted, stacked in the same grid cell, so the
+            stage always measures the tallest slide — no height jumps on a
+            swap. Only the current slide (plus the outgoing one while a
+            transition runs) is visible. */}
+        <div className="grid">
+          {slides.map((slide, i) => {
+            const visible = i === shown || (transition && i === transition.from)
+            return (
+              <div
+                key={i}
+                ref={(el) => {
+                  layersRef.current[i] = el
+                }}
+                className="col-start-1 row-start-1"
+                style={{ visibility: visible ? 'visible' : 'hidden' }}
+                aria-hidden={i !== active}
+              >
+                <Slide {...slide} />
+              </div>
+            )
+          })}
         </div>
       </div>
 
