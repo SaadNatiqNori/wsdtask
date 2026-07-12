@@ -27,6 +27,21 @@ export async function postContact(body) {
 // JsonResource endpoints wrap payloads in { data }. Unwrap transparently.
 const unwrap = (res) => (res && res.data !== undefined ? res.data : res)
 
+// Dedupe concurrent GETs for the same path: components that mount together
+// (e.g. the four home sections all reading /content/home) share one request
+// instead of each firing their own. The entry is dropped once the request
+// settles, so a later mount (navigation) still fetches fresh CMS content.
+const inflight = new Map()
+
+function getJSONShared(path) {
+  if (inflight.has(path)) return inflight.get(path)
+  const promise = getJSON(path).finally(() => {
+    inflight.delete(path)
+  })
+  inflight.set(path, promise)
+  return promise
+}
+
 /**
  * Fetch `path` once on mount and merge the result over `fallback`.
  *
@@ -39,7 +54,7 @@ function useApiData(path, fallback, transform = (x) => x) {
 
   useEffect(() => {
     let active = true
-    getJSON(path)
+    getJSONShared(path)
       .then((res) => {
         const value = transform(unwrap(res))
         if (active && value != null) setData(value)

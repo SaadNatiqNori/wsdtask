@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { IoArrowBack, IoArrowForward } from 'react-icons/io5'
 import ContactSection from './ContactSection'
+import Seo from './Seo'
 import ProjectSections from './project-sections'
 import { getProjectBySlug } from './projects'
 import { useProject } from './api'
@@ -48,6 +49,8 @@ function ProjectPage() {
   if (!project) {
     return (
       <main className="min-h-screen bg-navy text-mist flex flex-col items-center justify-center px-4">
+        {/* Unknown slugs render with 200 (SPA), so tell crawlers not to index. */}
+        <Seo title="Project not found" noindex />
         <h1
           className="text-[42px] md:text-[58px] font-normal leading-none tracking-[-0.01em]"
           style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
@@ -69,6 +72,7 @@ function ProjectPage() {
   if (project.sections) {
     return (
       <>
+        <Seo title={project.title} description={project.description} />
         <main
           className="min-h-screen bg-[#E6EBF0] text-[#1C1F2A]"
           style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
@@ -85,6 +89,7 @@ function ProjectPage() {
   // empty state instead of a bare fallback layout.
   return (
     <>
+      <Seo title={project.title} description={project.description} />
       <main className="relative min-h-screen overflow-hidden bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
         {/* Blueprint-grid backdrop — a nod to the architecture/construction craft. */}
         <div
