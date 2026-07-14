@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Claude-generated working files (snapshots, design docs, notes)
+.claude-snapshot.txt
+docs/superpowers/
+.vite/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

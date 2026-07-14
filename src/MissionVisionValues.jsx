@@ -168,26 +168,31 @@ function Card({ refProp, illRef, title, description, isValues, values, illustrat
   return (
     <div
       ref={refProp}
-      className="absolute inset-0 flex flex-col px-4 pt-[120px] pb-[40px] md:px-8 md:pt-[128px] md:pb-[48px]"
+      className="absolute inset-0 flex flex-col px-4 pt-[120px] md:px-8 md:pt-[128px]"
     >
-      <div className="w-full h-[1px] bg-[#1C2D4F]/30" />
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-[460px_1fr] gap-6 md:gap-16">
-        <h3
-          className="m-0 text-[42px] md:text-[58px] font-normal leading-none tracking-[-0.01em]"
-          style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-        >
-          {title}
-        </h3>
-        <div>
-          {isValues ? (
-            <ValuesContent intro={values.intro} items={values.items} />
-          ) : (
-            <p className="m-0 text-[14px] leading-[150%] tracking-[0] max-w-[520px] text-[#1C2D4F]">
-              {description}
-            </p>
-          )}
-          <div ref={illRef} className="mt-10">
-            {illustration}
+      {/* Opaque only from the hairline down: when this card slides in as a
+          tab, it covers the previous card's illustration while the previous
+          header stays readable above the line. */}
+      <div className="flex-1 flex flex-col bg-[#E6EBF0] -mx-4 px-4 pb-[40px] md:-mx-8 md:px-8 md:pb-[48px]">
+        <div className="w-full h-[1px] bg-[#1C2D4F]/30" />
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-[460px_1fr] gap-6 md:gap-16">
+          <h3
+            className="m-0 text-[42px] md:text-[58px] font-normal leading-none tracking-[-0.01em]"
+            style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+          >
+            {title}
+          </h3>
+          <div>
+            {isValues ? (
+              <ValuesContent intro={values.intro} items={values.items} />
+            ) : (
+              <p className="m-0 text-[14px] leading-[150%] tracking-[0] max-w-[520px] text-[#1C2D4F]">
+                {description}
+              </p>
+            )}
+            <div ref={illRef} className="mt-10">
+              {illustration}
+            </div>
           </div>
         </div>
       </div>
@@ -204,41 +209,16 @@ function MissionVisionValues() {
   const missionRef = useRef(null)
   const missionIllRef = useRef(null)
   const visionRef = useRef(null)
-  const visionIllRef = useRef(null)
   const valuesRef = useRef(null)
-  const valuesIllRef = useRef(null)
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.set([visionRef.current, valuesRef.current], { yPercent: 100, opacity: 0 })
-      gsap.set(
-        [missionIllRef.current, visionIllRef.current, valuesIllRef.current],
-        { autoAlpha: 1 }
-      )
-
-      // Mission reveal — scrubbed to the section's scroll-in (top bottom → top
-      // top) so Mission's position is a pure function of scroll. This was a
-      // toggleActions tween, but those callbacks don't fire on a page reload
-      // that lands already scrolled into the pinned section, so Mission stayed
-      // at yPercent:100 (off-screen) and the viewport went blank. Scrubbing,
-      // like Vision/Values below, makes the state correct on load at any offset.
-      gsap.fromTo(
-        missionRef.current,
-        { yPercent: 100, opacity: 0 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          // Same scrub smoothing and (default) ease as the Vision/Values
-          // timeline below, so Mission enters at the same pace as the other
-          // tabs instead of hard-locking to the snap.
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top bottom',
-            end: 'top top',
-            scrub: 1,
-          },
-        }
-      )
+      // Stacked-tabs choreography, fully scrubbed (position is a pure function
+      // of scroll, so a reload mid-section lands in the correct state). Mission
+      // renders in place with no entrance of its own. Nothing ever fades —
+      // cards are opaque below their hairline, so an arriving tab covers the
+      // previous card's illustration while the previous header stays visible.
+      gsap.set([visionRef.current, valuesRef.current], { yPercent: 100 })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -249,13 +229,22 @@ function MissionVisionValues() {
         },
       })
 
-      tl.to(missionIllRef.current, { autoAlpha: 0, duration: 1 }, 0)
-      tl.to(visionRef.current, { yPercent: 22, opacity: 1, duration: 1 }, 0)
-
-      tl.to(missionRef.current, { yPercent: -110, opacity: 0, duration: 1 }, 1)
-      tl.to(visionRef.current, { yPercent: -12, duration: 1 }, 1)
-      tl.to(visionIllRef.current, { autoAlpha: 0, duration: 1 }, 1)
-      tl.to(valuesRef.current, { yPercent: 10, opacity: 1, duration: 1 }, 1)
+      // Vision slides in while Mission scrolls up a little, docking with a
+      // clear gap under Mission's description. No fade: Mission's
+      // illustration stays fully visible (Vision's sheet covers it on the
+      // way up) and is removed only at the instant Vision docks — by then
+      // it's exactly covered — so it can't re-emerge during Mission's exit.
+      // Scrolling back before the dock restores it instantly.
+      tl.to(missionRef.current, { yPercent: -6, ease: 'none', duration: 1 }, 0)
+      tl.to(visionRef.current, { yPercent: 12, ease: 'none', duration: 1 }, 0)
+      tl.set(missionIllRef.current, { autoAlpha: 0 }, 1)
+      // Values slides in...
+      tl.to(valuesRef.current, { yPercent: 10, ease: 'none', duration: 1 }, 1)
+      // ...and as it nears Vision, the stack eases up and out — Mission
+      // leaves through the top and Vision becomes the top tab, docked so its
+      // own illustration hides behind Values' sheet.
+      tl.to(missionRef.current, { yPercent: -110, ease: 'power2.inOut', duration: 0.75 }, 1.25)
+      tl.to(visionRef.current, { yPercent: -8, ease: 'power2.inOut', duration: 0.75 }, 1.25)
     })
 
     return () => ctx.revert()
@@ -265,7 +254,6 @@ function MissionVisionValues() {
     <section
       ref={sectionRef}
       className="relative w-full h-[300vh] bg-[#E6EBF0]"
-      style={{ scrollSnapAlign: 'start' }}
       aria-label="Mission, vision, values"
     >
       <div
@@ -298,7 +286,6 @@ function MissionVisionValues() {
             />
             <Card
               refProp={visionRef}
-              illRef={visionIllRef}
               title={mvv.vision.title}
               description={mvv.vision.body}
               illustration={
@@ -311,7 +298,6 @@ function MissionVisionValues() {
             />
             <Card
               refProp={valuesRef}
-              illRef={valuesIllRef}
               title={mvv.values.title}
               isValues
               values={mvv.values}

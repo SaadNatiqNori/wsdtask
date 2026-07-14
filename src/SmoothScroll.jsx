@@ -13,9 +13,6 @@ const ScrollModeContext = createContext(() => {})
 const easing = (t) => 1 - Math.pow(1 - t, 3)
 
 const MODE_OPTIONS = {
-  // Home layers a custom section-snap on top, so Lenis must NOT smooth the
-  // wheel itself — it's used purely as a programmatic scroll engine there.
-  home: { duration: 1.2, easing, smoothWheel: false, syncTouch: false },
   // Standard content pages: real continuous smooth scrolling.
   smooth: { duration: 1.2, easing, smoothWheel: true, syncTouch: false },
 }
@@ -28,8 +25,7 @@ const MODE_OPTIONS = {
 export function SmoothScrollProvider({ children }) {
   const { pathname } = useLocation()
   const [override, setOverride] = useState(null)
-  const routeMode = pathname === '/' ? 'home' : 'smooth'
-  const mode = override ?? routeMode
+  const mode = override ?? 'smooth'
 
   const [lenis, setLenis] = useState(null)
   const lenisRef = useRef(null)

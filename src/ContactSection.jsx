@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { IoArrowForward } from 'react-icons/io5'
+import ArrowIcon from './ArrowIcon'
 import logo from './assets/Logo.svg'
 import { cubicEase } from './easings'
 import { useContent } from './api'
@@ -96,7 +96,6 @@ function ContactSection() {
     <section
       ref={sectionRef}
       className="relative w-full h-screen overflow-hidden bg-navy"
-      style={{ scrollSnapAlign: 'start' }}
       aria-label="Contact"
     >
       <div
@@ -109,13 +108,18 @@ function ContactSection() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-[40px] pt-[140px] text-mist md:px-8 md:pb-[64px] md:pt-[180px]">
-          <div className="flex flex-col items-center text-center gap-6">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-[31px] pt-[150px] text-mist md:px-8">
+          <div className="flex flex-col items-center text-center gap-[37px]">
             <div className="overflow-hidden">
               <h2
                 ref={titleRef}
-                className="m-0 text-[58px] md:text-[80px] font-normal leading-none tracking-[-0.01em] text-mist"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                className="m-0 text-[47px] font-[420] leading-[100%] tracking-[-0.04em] text-mist"
+                style={{
+                  fontFamily: "'Season Mix VF', serif",
+                  // Figma spec: leading-trim CAP_HEIGHT — without it the 47px
+                  // line box breaks the section's fixed vertical rhythm.
+                  textBox: 'trim-both cap alphabetic',
+                }}
               >
                 {cta.title}
               </h2>
@@ -124,7 +128,7 @@ function ContactSection() {
             <div className="overflow-hidden">
               <p
                 ref={descRef}
-                className="m-0 text-[14px] md:text-[15px] max-w-[420px] leading-[150%] text-[#A8B0BD]"
+                className="m-0 max-w-[356px] text-[16px] leading-[100%] text-mist"
               >
                 {cta.description}
               </p>
@@ -134,15 +138,15 @@ function ContactSection() {
               <Link
                 ref={buttonRef}
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-[28px] bg-mist px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#191f2f] no-underline"
+                className="inline-flex h-[46px] items-center gap-[5px] rounded-[48px] bg-mist px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-navy no-underline"
               >
-                <span className="relative top-[1px]">{cta.buttonLabel}</span>
-                <IoArrowForward className="text-sm" aria-hidden="true" />
+                <span className="relative top-[0px]">{cta.buttonLabel}</span>
+                <ArrowIcon size={14} />
               </Link>
             </div>
           </div>
 
-          <div className="relative mt-auto">
+          <div className="relative mt-auto pt-[161px]">
             <div
               ref={alcoveRef}
               className="w-full aspect-[64/13]"

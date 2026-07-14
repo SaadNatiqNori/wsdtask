@@ -86,6 +86,13 @@ function CardsSection() {
   cardContentRefs.current = []
   cardLineRefs.current = []
 
+  // Choreography: the word-rise entrance plays once as the section scrolls in,
+  // so the description is readable the moment the user arrives. The section
+  // then pins and the rest — non-accent dissolve, accent words flying into the
+  // card titles, lines/descriptions growing in — is scrubbed by scroll.
+  // Scrolling back rewinds it; the flying words are absolutely-positioned
+  // clones inside the pinned section (not fixed to the viewport), so they can
+  // never be stranded over a neighboring section.
   useLayoutEffect(() => {
     const sectionEl = sectionRef.current
     const allWordEls = wordRefs.current.filter(Boolean)
@@ -93,155 +100,216 @@ function CardsSection() {
     const nonAccentEls = allWordEls.filter((el) => !accentEls.includes(el))
     const heroEl = heroTextRef.current
     const cardsEl = cardsContainerRef.current
+    const titleEls = Object.values(cardTitleRefs.current).filter(Boolean)
     const contentEls = cardContentRefs.current.filter(Boolean)
     const lineEls = cardLineRefs.current.filter(Boolean)
 
     if (!sectionEl || !allWordEls.length) return
 
-    const clones = []
+    let cancelled = false
+    let mm = null
+    let resizeTimer = null
 
-    const ctx = gsap.context(() => {
-      gsap.set(allWordEls, { yPercent: 100 })
-      gsap.set(cardsEl, { autoAlpha: 0 })
+    const teardown = () => {
+      if (mm) {
+        mm.revert()
+        mm = null
+      }
+    }
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionEl,
-          start: 'top bottom',
-          // Play the intro exactly once. Leaving onEnterBack/onLeaveBack as
-          // 'none' keeps the finished state when scrolling away and back,
-          // instead of restarting or resetting the animation.
-          toggleActions: 'play none none none',
-        },
-      })
+    const build = () => {
+      teardown()
+      if (cancelled) return
+      mm = gsap.matchMedia()
 
-      tl.to(allWordEls, {
-        yPercent: 0,
-        duration: 2,
-        ease: cubicEase,
-      })
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const clones = []
 
-      tl.to(
-        nonAccentEls,
-        {
-          yPercent: -100,
-          duration: 0.8,
-          ease: cubicEase,
-        },
-        '+=0.5'
-      )
-
-      tl.call(() => {
-        const fromRects = {}
-        CARDS.forEach((card) => {
-          const el = accentWordMap.current[card.title]
-          if (el) fromRects[card.title] = el.getBoundingClientRect()
-        })
-
-        gsap.to(heroEl, { opacity: 0, duration: 0.5, ease: cubicEase })
-
-        gsap.set(cardsEl, { autoAlpha: 1 })
-        Object.values(cardTitleRefs.current).forEach((el) => {
-          if (el) gsap.set(el, { opacity: 0 })
-        })
+        gsap.set(allWordEls, { yPercent: 100 })
+        gsap.set(cardsEl, { autoAlpha: 0 })
+        gsap.set(titleEls, { opacity: 0 })
         gsap.set(contentEls, { autoAlpha: 0, y: 20 })
         gsap.set(lineEls, { scaleY: 0, transformOrigin: 'top' })
 
-        const toRects = {}
-        CARDS.forEach((card) => {
-          const el = cardTitleRefs.current[card.title]
-          if (el) toRects[card.title] = el.getBoundingClientRect()
+        const entrance = gsap.to(allWordEls, {
+          yPercent: 0,
+          duration: 2,
+          ease: cubicEase,
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: 'top bottom',
+            toggleActions: 'play none none none',
+          },
         })
 
-        const moveTl = gsap.timeline()
-
-        CARDS.forEach((card, index) => {
-          const from = fromRects[card.title]
-          const to = toRects[card.title]
-          if (!from || !to) return
-
+        // Flight geometry, measured up front (fonts are loaded by now). The
+        // overflow wrappers are untransformed, so their rects give the words'
+        // settled positions even while the entrance still holds them shifted.
+        const sectionRect = sectionEl.getBoundingClientRect()
+        const flights = CARDS.map((card) => {
           const accentEl = accentWordMap.current[card.title]
-          const computedFontSize = parseFloat(
-            window.getComputedStyle(accentEl).fontSize
-          )
           const targetEl = cardTitleRefs.current[card.title]
-          const targetFontSize = parseFloat(
-            window.getComputedStyle(targetEl).fontSize
-          )
-          const fontScale = targetFontSize / computedFontSize
+          if (!accentEl || !targetEl) return null
 
-          const dx = to.left - from.left
-          const dy = to.top - from.top
+          const from = accentEl.parentElement.getBoundingClientRect()
+          const to = targetEl.getBoundingClientRect()
+          const fromSize = parseFloat(window.getComputedStyle(accentEl).fontSize)
+          const toSize = parseFloat(window.getComputedStyle(targetEl).fontSize)
 
           const clone = document.createElement('span')
           clone.textContent = card.title
           Object.assign(clone.style, {
-            position: 'fixed',
-            left: `${from.left}px`,
-            top: `${from.top}px`,
+            position: 'absolute',
+            left: `${from.left - sectionRect.left}px`,
+            top: `${from.top - sectionRect.top}px`,
             fontFamily: "'Season Mix-TRIAL', serif",
             color: 'var(--color-gold)',
-            fontSize: `${computedFontSize}px`,
+            fontSize: `${fromSize}px`,
             fontWeight: '400',
             lineHeight: '120%',
             letterSpacing: '-0.01em',
+            whiteSpace: 'nowrap',
             zIndex: '100',
             pointerEvents: 'none',
             willChange: 'transform',
-            transformOrigin: 'top left',
-            transform: `scale(${scale})`,
           })
-          document.body.appendChild(clone)
+          sectionEl.appendChild(clone)
           clones.push(clone)
+          // The clone lives outside the scale wrapper; mirror its scale so the
+          // rendered size matches the word it replaces.
+          gsap.set(clone, { scale, transformOrigin: 'top left', autoAlpha: 0 })
 
-          moveTl.to(
+          return {
+            accentEl,
+            targetEl,
             clone,
-            {
-              x: dx,
-              y: dy,
-              scale: fontScale * scale,
-              duration: 1.4,
-              ease: cubicEase,
-              onComplete: () => {
-                if (targetEl) gsap.set(targetEl, { opacity: 1 })
-                gsap.to(clone, {
-                  opacity: 0,
-                  duration: 0.15,
-                  onComplete: () => clone.remove(),
-                })
-              },
+            dx: to.left - from.left,
+            dy: to.top - from.top,
+            scaleTo: (toSize / fromSize) * scale,
+          }
+        }).filter(Boolean)
+
+        const FLY = 0.8
+
+        // The white words dissolve on their own clock, not the scroll's —
+        // scrubbing them shows half-clipped glyphs tracking the wheel. The
+        // first scroll inside the pin dissolves them; returning to the pin
+        // start brings them back. Explicit to-tweens with overwrite (rather
+        // than one reversed tween) because fully reversing a from/fromTo
+        // reverts to pre-tween inline values — the entrance's offscreen state.
+        let dissolved = false
+        const setDissolved = (on) => {
+          if (on === dissolved) return
+          dissolved = on
+          gsap.to(nonAccentEls, {
+            yPercent: on ? -100 : 0,
+            duration: 0.8,
+            ease: cubicEase,
+            overwrite: true,
+          })
+        }
+
+        const tl = gsap.timeline({
+          defaults: { ease: cubicEase },
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: 'top top',
+            end: window.innerWidth >= 768 ? '+=150%' : '+=100%',
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+            // A fast scroller can reach the pin mid-entrance; hand the words
+            // over to the scrub settled so the two tweens don't fight.
+            onEnter: () => entrance.progress(1),
+            onUpdate: (self) => {
+              // How far into the pin (0..1) the user scrolls before the
+              // description starts to dissolve.
+              if (self.progress > 0.13) {
+                // The entrance must be settled before the dissolve touches
+                // the same words, or the two tweens trade renders.
+                entrance.progress(1)
+                setDissolved(true)
+              } else {
+                setDissolved(false)
+              }
             },
-            index * 0.08
-          )
+          },
         })
 
-        moveTl.to(
-          contentEls,
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.9,
-            ease: cubicEase,
-            stagger: 0.08,
-          },
-          '-=0.5'
-        )
+        tl.set(cardsEl, { autoAlpha: 1 }, FLY)
 
-        moveTl.to(
-          lineEls,
-          {
-            scaleY: 1,
-            duration: 1.4,
-            ease: cubicEase,
-          },
-          '<'
-        )
+        flights.forEach(({ accentEl, targetEl, clone, dx, dy, scaleTo }, i) => {
+          const start = FLY + i * 0.08
+          tl.set(accentEl, { opacity: 0 }, start)
+          tl.set(clone, { autoAlpha: 1 }, start)
+          tl.to(clone, { x: dx, y: dy, scale: scaleTo, duration: 1.4 }, start)
+          tl.to(targetEl, { opacity: 1, duration: 0.15 }, start + 1.3)
+          tl.to(clone, { autoAlpha: 0, duration: 0.15 }, start + 1.4)
+        })
+
+        // Titles with no matching accent word (CMS mismatch) still reveal.
+        const flown = new Set(flights.map((f) => f.targetEl))
+        const unflown = titleEls.filter((el) => !flown.has(el))
+        if (unflown.length) tl.to(unflown, { opacity: 1, duration: 0.3 }, FLY + 1.3)
+
+        tl.to(contentEls, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08 }, FLY + 0.9)
+        tl.to(lineEls, { scaleY: 1, duration: 1.4 }, FLY + 0.9)
+        // Hold the finished layout for a beat of scroll before unpinning.
+        tl.to({}, { duration: 0.5 })
+
+        return () => clones.forEach((c) => c.remove())
       })
+
+      // Reduced motion: no pin, no flight — a plain opacity handoff.
+      mm.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.set(allWordEls, { yPercent: 0 })
+        gsap.set(cardsEl, { autoAlpha: 0 })
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: 'top 25%',
+            toggleActions: 'play none none reverse',
+          },
+        })
+        tl.to(heroEl, { autoAlpha: 0, duration: 0.4, ease: 'none' })
+        tl.to(cardsEl, { autoAlpha: 1, duration: 0.4, ease: 'none' }, '<')
+      })
+
+      // The pin spacer changes the positions of everything below. This pin is
+      // built async (after fonts.ready), i.e. AFTER the later sections created
+      // their triggers — and refresh() processes triggers in creation order,
+      // only offsetting triggers that refresh after the pin. Without sort()
+      // everything below would be measured pin-less and fire ~150vh too early.
+      ScrollTrigger.sort()
+      ScrollTrigger.refresh()
+    }
+
+    // Flight geometry is measured once per build. Width changes re-run this
+    // effect via `scale`; height changes move the vertically-centered cards,
+    // so rebuild for those here.
+    let lastHeight = window.innerHeight
+    const onResize = () => {
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        if (window.innerHeight !== lastHeight) {
+          lastHeight = window.innerHeight
+          build()
+        }
+      }, 200)
+    }
+    window.addEventListener('resize', onResize)
+
+    // Rect measurements are only trustworthy once the display fonts are in.
+    const fontsReady = document.fonts?.ready ?? Promise.resolve()
+    fontsReady.then(() => {
+      if (!cancelled) build()
     })
 
     return () => {
-      ctx.revert()
-      clones.forEach((c) => c.remove())
+      cancelled = true
+      clearTimeout(resizeTimer)
+      window.removeEventListener('resize', onResize)
+      teardown()
     }
   }, [scale, HERO_TEXT, cardsKey, accentKey])
 
@@ -251,7 +319,6 @@ function CardsSection() {
     <section
       ref={sectionRef}
       className="relative w-full h-screen overflow-hidden bg-navy"
-      style={{ scrollSnapAlign: 'start' }}
       aria-label="Subsidiaries"
     >
       <div
@@ -264,7 +331,7 @@ function CardsSection() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-8 pt-[88px] text-[#d6deea] md:px-8 md:pb-12 md:pt-[128px]">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-8 pt-[88px] text-[#d6deea] md:px-8 md:py-12">
           <div className="relative mx-auto flex flex-1 items-center max-w-[1440px] w-full">
             <section ref={heroTextRef} aria-label="Company introduction">
               <p className="m-0 text-[32px] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
@@ -297,7 +364,7 @@ function CardsSection() {
 
             <section
               ref={cardsContainerRef}
-              className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3 mt-4 md:mt-14"
+              className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3 mt-4 md:mt-0"
               aria-label="Subsidiaries"
             >
               {CARDS.map((card) => (
@@ -338,7 +405,7 @@ function CardsSection() {
                     }}
                     className="mt-auto"
                   >
-                    <p className="mb-4 w-[80%] pe-4 text-[14px] font-normal leading-[140%] tracking-[0] text-mist md:mb-6 md:text-[16px] md:leading-[120%]">
+                    <p className=" w-[80%] pe-4 text-[14px] font-normal leading-[140%] tracking-[0] text-mist md:text-[16px] md:leading-[120%]">
                       {card.description}
                     </p>
                   </div>

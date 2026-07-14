@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useLayoutEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { IoArrowForward } from 'react-icons/io5'
+import ArrowIcon from './ArrowIcon'
 import { cubicEase } from './easings'
 import { useProjects, useContent } from './api'
 import { PROJECTS_DATA } from './projects'
@@ -209,7 +209,7 @@ function PortfolioSlider() {
   // width plus the horizontal padding (the "x margin"). The title/description
   // then wrap to the image width instead of stretching the card wider.
   const IMG_HEIGHT = 150
-  const CARD_PAD_X = 32 // matches the card's px-8 (both sides = 64)
+  const CARD_PAD_X = 38 // matches the card's px-[38px] (both sides = 76)
   const fitCardToImage = (img) => {
     if (!img) return
     const apply = () => {
@@ -378,7 +378,6 @@ function PortfolioSlider() {
     <section
       ref={sectionRef}
       className="relative w-full h-screen overflow-hidden bg-[#E6EBF0]"
-      style={{ scrollSnapAlign: 'start' }}
       aria-label="Portfolio overview"
     >
       <div
@@ -391,11 +390,11 @@ function PortfolioSlider() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col justify-center bg-[#E6EBF0] px-4 pt-[88px] pb-8 text-[#1C2D4F] md:px-8 md:pt-[120px] md:pb-10">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col justify-center bg-[#E6EBF0] pt-[88px] pb-8 text-[#1C2D4F] md:pt-[120px] md:pb-10">
           <div
             ref={scrollRef}
             data-horizontal-scroll
-            className="overflow-x-auto overflow-y-hidden flex items-start gap-2 cursor-grab select-none [&::-webkit-scrollbar]:hidden"
+            className="overflow-x-auto overflow-y-hidden flex items-stretch gap-2 pl-4 pr-2 md:pl-[38px] cursor-grab select-none [&::-webkit-scrollbar]:hidden"
             style={{
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
@@ -403,27 +402,31 @@ function PortfolioSlider() {
               overscrollBehavior: 'contain',
             }}
           >
+            {/* mr + the row's gap-2 (8px) = the 227.5px intro-to-cards gap */}
             <div
               ref={introRef}
-              className="flex-shrink-0 w-[340px] flex flex-col pr-6 py-4"
+              className="flex-shrink-0 w-[240px] flex flex-col gap-[30px] py-4 mr-[219.5px]"
             >
               <h2
-                className="m-0 text-[58px] font-normal leading-[1.02] tracking-[-0.01em]"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                className="m-0 text-[44px] leading-[100%] tracking-[-0.02em] text-navy"
+                style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
               >
                 {portfolio.heading[0]}
                 <br />
                 {portfolio.heading[1]}
               </h2>
-              <p className="mt-8 text-[13px] leading-[160%] max-w-[280px] text-[#1C2D4F]">
+              <p
+                className="m-0 text-[14px] leading-5 text-navy"
+                style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
+              >
                 {portfolio.description}
               </p>
               <Link
                 to="/projects"
-                className="mt-6 inline-flex w-fit items-center gap-2 rounded-[24px] bg-navy px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
+                className="inline-flex w-fit h-[46px] items-center gap-[5px] rounded-[48px] bg-navy px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
               >
-                <span className="relative top-[1px]">{portfolio.ctaLabel}</span>
-                <IoArrowForward className="text-sm" aria-hidden="true" />
+                <span className="relative top-[0px]">{portfolio.ctaLabel}</span>
+                <ArrowIcon size={14} />
               </Link>
             </div>
 
@@ -433,21 +436,24 @@ function PortfolioSlider() {
                 ref={(el) => {
                   if (el) cardRefs.current.push(el)
                 }}
-                className="flex-shrink-0 w-[496px] h-[493px] bg-navy p-8 flex flex-col text-[#d6deea]"
+                className="flex-shrink-0 w-[496px] bg-navy px-[38px] py-10 flex flex-col gap-[70px] text-mist"
               >
                 <div>
                   <h3
-                    className="m-0 text-[36px] font-normal leading-[1.1] tracking-[-0.01em] text-mist"
-                    style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                    className="m-0 text-[22px] leading-[115%] tracking-[-0.02em] text-mist"
+                    style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
                   >
                     {project.title}
                   </h3>
-                  <p className="mt-4 text-[13px] leading-[150%] text-[#A8B0BD]">
+                  <p
+                    className="mt-[18px] text-[12px] leading-5 text-mist"
+                    style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
+                  >
                     {project.short || project.description}
                   </p>
                 </div>
 
-                <div className="flex-1 flex items-end justify-center my-12 min-h-0">
+                <div className="flex justify-center">
                   {project.coverImage ? (
                     <img
                       src={project.coverImage}
@@ -463,10 +469,10 @@ function PortfolioSlider() {
 
                 <Link
                   to={`/projects/${project.slug}`}
-                  className="inline-flex w-fit items-center gap-[5px] rounded-[48px] border-[0.5px] border-mist px-[14px] py-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline"
+                  className="mt-auto inline-flex w-fit h-[46px] flex-shrink-0 items-center gap-[5px] rounded-[48px] border-[0.25px] border-mist px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
                 >
-                  <span className="relative top-[0.5px]">DISCOVER</span>
-                  <IoArrowForward className="text-sm relative top-[0.5px]" aria-hidden="true" />
+                  <span className="relative top-[1px]">DISCOVER</span>
+                  <ArrowIcon size={14} />
                 </Link>
               </article>
             ))}

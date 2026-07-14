@@ -1,8 +1,9 @@
 import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
-import { IoChevronDownOutline, IoArrowForward } from 'react-icons/io5'
+import { IoChevronDownOutline } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
+import arrowRight from './assets/arrow-right.svg'
 import { cubicEase } from './easings'
 import { PROJECTS_DATA } from './projects'
 import { useProjects, useContent } from './api'
@@ -17,9 +18,10 @@ const NAVBAR_FALLBACK = {
   dropdownHeading: ['Projects', 'Portfolio'],
 }
 
-function ProjectsDropdown({ open, onClose, projects, heading }) {
+function ProjectsDropdown({ open, onClose, projects, heading, onMouseEnter, onMouseLeave }) {
   const panelRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(open)
+  const [hoveredItem, setHoveredItem] = useState(null)
 
   useEffect(() => {
     if (open) {
@@ -64,16 +66,18 @@ function ProjectsDropdown({ open, onClose, projects, heading }) {
   return (
     <div
       ref={panelRef}
-      className="pointer-events-auto fixed left-1/2 -translate-x-1/2 top-[80px] w-[calc(100vw-96px)] max-w-[1320px] rounded-[4px] border border-[#FFFFFF0F] bg-navy px-8 py-12 md:px-14 md:py-14 text-mist"
+      className="pointer-events-auto fixed left-1/2 -translate-x-1/2 top-[86px] w-[932px] max-w-[calc(100vw-48px)] rounded-[4px] border border-[#FFFFFF0F] bg-navy px-[45px] py-[55px] text-mist"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
       role="dialog"
       aria-label="Projects portfolio"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12">
-        <div className="flex flex-col">
+      <div className="flex flex-col md:flex-row gap-[58px]">
+        <div className="flex shrink-0 flex-col">
           <h3
-            className="m-0 text-[44px] md:text-[58px] font-normal leading-[1.02] tracking-[-0.01em] text-mist"
-            style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+            className="m-0 text-[27px] leading-[100%] tracking-[-0.02em] text-mist"
+            style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
           >
             {heading[0]}
             <br />
@@ -82,28 +86,34 @@ function ProjectsDropdown({ open, onClose, projects, heading }) {
           <Link
             to="/projects"
             onClick={() => onClose()}
-            className="mt-10 inline-flex w-fit self-start items-center justify-center rounded-full border border-mist/30 text-mist no-underline px-6 py-4"
+            className="mt-[18px] inline-flex h-[28px] w-[32px] shrink-0 self-start items-center justify-center rounded-[48px] border-[0.25px] border-solid border-mist/30 text-mist no-underline"
             aria-label="See all projects"
           >
-            <IoArrowForward className="text-[14px]" aria-hidden="true" />
+            <img src={arrowRight} alt="" className="h-[10px] w-[10px]" aria-hidden="true" />
           </Link>
         </div>
 
-        <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-12">
+        <div
+          className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-[44px]"
+          onMouseLeave={() => setHoveredItem(null)}
+        >
           {projects.map((project, i) => (
             <Link
               key={`${project.slug}-${i}`}
               to={`/projects/${project.slug}`}
               onClick={() => onClose()}
-              className="group flex flex-col text-inherit no-underline"
+              onMouseEnter={() => setHoveredItem(i)}
+              className={`group flex flex-col text-inherit no-underline transition-opacity duration-200 ${
+                hoveredItem !== null && hoveredItem !== i ? 'opacity-30' : ''
+              }`}
             >
               <h4
-                className="m-0 text-[26px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.01em] text-mist"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                className="m-0 text-[16px] font-normal leading-[100%] tracking-[0] text-mist"
+                style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
               >
                 {project.title}
               </h4>
-              <p className="mt-4 text-[13px] leading-[150%] tracking-[0] text-[#9AA3B2]">
+              <p className="mt-[15px] text-[10px] leading-[120%] tracking-[0] text-[#E2EAF280]">
                 {project.description}
               </p>
             </Link>
@@ -117,7 +127,25 @@ function ProjectsDropdown({ open, onClose, projects, heading }) {
 function Navbar() {
   const navbarRef = useRef(null)
   const [projectsOpen, setProjectsOpen] = useState(false)
+  const [hoveredLink, setHoveredLink] = useState(null)
   const projectsTriggerRef = useRef(null)
+  const closeTimerRef = useRef(null)
+
+  const openProjects = () => {
+    clearTimeout(closeTimerRef.current)
+    setProjectsOpen(true)
+  }
+  // Delay closing so the pointer can cross the gap between the navbar and the panel.
+  const scheduleCloseProjects = () => {
+    clearTimeout(closeTimerRef.current)
+    closeTimerRef.current = setTimeout(() => setProjectsOpen(false), 180)
+  }
+
+  useEffect(() => () => clearTimeout(closeTimerRef.current), [])
+
+  // An item stays full color while hovered (or while its dropdown is open); the rest mute.
+  const isMuted = (key) =>
+    hoveredLink ? hoveredLink !== key : projectsOpen && key !== 'projects'
 
   const allProjects = useProjects(PROJECTS_DATA)
   const nav = useContent('navbar', NAVBAR_FALLBACK)
@@ -166,31 +194,47 @@ function Navbar() {
     >
       <nav
         ref={navbarRef}
-        className="pointer-events-auto flex h-[52px] w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-navy px-2 md:w-max"
+        className="pointer-events-auto flex min-w-[420px] h-[55px] w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-navy p-2 md:w-max"
         aria-label="Main navigation"
       >
-        <Link to="/" className="flex items-center justify-between p-2 no-underline">
+        <Link to="/" className="flex h-9 items-center justify-between p-2 no-underline">
           <img src={logo} alt="Alcove" className="h-[12px] w-auto" />
         </Link>
 
-        <ul className="ml-[0.55rem] hidden list-none items-center gap-6 p-0 md:flex relative -top-[2px]">
+        <ul className="hidden list-none items-center gap-[5px] p-0 m-0 md:flex">
           {nav.links.map((link) => (
-            <li key={link.to}>
+            <li
+              key={link.to}
+              onMouseEnter={() => setHoveredLink(link.to)}
+              onMouseLeave={() => setHoveredLink(null)}
+            >
               <Link
                 to={link.to}
-                className={`inline-flex items-center whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none no-underline transition-opacity duration-200 ${
-                  projectsOpen ? 'text-[#d5dee9] opacity-30' : 'text-[#d5dee9]'
+                className={`inline-flex h-[39px] items-center whitespace-nowrap rounded-[3px] px-3 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline transition-opacity duration-200 ${
+                  isMuted(link.to) ? 'opacity-30' : ''
                 }`}
               >
                 {link.label}
               </Link>
             </li>
           ))}
-          <li ref={projectsTriggerRef}>
+          <li
+            ref={projectsTriggerRef}
+            onMouseEnter={() => {
+              setHoveredLink('projects')
+              openProjects()
+            }}
+            onMouseLeave={() => {
+              setHoveredLink(null)
+              scheduleCloseProjects()
+            }}
+          >
             <button
               type="button"
               onClick={() => setProjectsOpen((v) => !v)}
-              className="inline-flex items-center gap-[0.3rem] whitespace-nowrap font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none text-[#d5dee9] no-underline bg-transparent border-0 p-0 cursor-pointer"
+              className={`inline-flex h-[39px] items-center gap-[5px] whitespace-nowrap rounded-[3px] px-3 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#d5dee9] no-underline bg-transparent border-0 cursor-pointer transition-opacity duration-200 ${
+                isMuted('projects') ? 'opacity-30' : ''
+              }`}
               aria-expanded={projectsOpen}
               aria-haspopup="dialog"
             >
@@ -207,9 +251,9 @@ function Navbar() {
 
         <Link
           to="/contact"
-          className="ml-3 whitespace-nowrap rounded-[22px] bg-mist px-3 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
+          className="inline-flex h-9 items-center whitespace-nowrap rounded-[22px] bg-mist px-[10px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
         >
-          <p className="font-['Akkurat_Mono',monospace] relative top-[1px]">{nav.contactLabel}</p>
+          <p className="m-0 font-['Akkurat_Mono',monospace] relative top-[1px]">{nav.contactLabel}</p>
         </Link>
       </nav>
 
@@ -218,6 +262,8 @@ function Navbar() {
         onClose={() => setProjectsOpen(false)}
         projects={dropdownProjects}
         heading={nav.dropdownHeading}
+        onMouseEnter={openProjects}
+        onMouseLeave={scheduleCloseProjects}
       />
     </header>
   )

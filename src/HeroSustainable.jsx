@@ -106,8 +106,7 @@ function HeroSustainable() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-[#E6EBF0]"
-      style={{ scrollSnapAlign: 'start' }}
+      className="relative w-full h-screen overflow-hidden bg-[#E2EAF2]"
       aria-label="Hero"
     >
       <div
@@ -120,12 +119,17 @@ function HeroSustainable() {
           height: `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E6EBF0] px-4 pb-[24px] pt-[88px] text-[#1C2D4F] md:px-8 md:pb-[40px] md:pt-[128px]">
+        <main
+          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 pb-[24px] pt-[88px] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[var(--hero-pt)]"
+          // The navbar is fixed and unscaled, but this content is inside the scale
+          // wrapper — divide by the scale so the rendered navbar→content gap stays 125.69px.
+          style={{ '--hero-pt': `${(75 + 125.69) / scale}px` }}
+        >
           <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 md:gap-8">
             <h1
               ref={headlineRef}
-              className="m-0 text-[36px] font-normal not-italic leading-[108%] tracking-[-0.01em] md:text-[58px]"
-              style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+              className="m-0 text-[36px] not-italic leading-[115%] tracking-[-0.02em] md:text-[48px]"
+              style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
             >
               {hero.headline[0]}
               <br />
@@ -135,7 +139,7 @@ function HeroSustainable() {
             <div className="max-w-full md:max-w-[200px] md:mr-[114px]">
               <p
                 ref={descriptionRef}
-                className="m-0 text-[14px] font-normal leading-5 tracking-normal text-[#1C2D4F]"
+                className="m-0 text-[14px] font-normal leading-4 tracking-[0] text-[#1C2D4F]"
                 style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
               >
                 {hero.description}
@@ -167,13 +171,15 @@ function HeroSustainable() {
               {...(featured.slug
                 ? { to: `/projects/${featured.slug}`, 'aria-label': `View project: ${featured.title}` }
                 : {})}
-              className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-6 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px]"
+              className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-6 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px] group transition-[backdrop-filter] duration-500 ease-out hover:backdrop-blur-[90px]"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start relative -top-2">
                <div>
                   <p className="m-0 inline-flex items-center gap-[6px] font-['Akkurat_Mono',monospace] text-[8px] font-medium uppercase leading-none tracking-normal text-[#13294B]">
-                    <span className="inline-block w-[8px] h-[8px] rounded-full bg-[#13294B]" />
-                    {featured.eyebrow}
+                    <span className="inline-block w-[6px] h-[6px] rounded-full bg-[#13294B]" />
+                    {/* Akkurat Mono's cap ink sits ~0.7px above the line-box center at 8px/100%;
+                        nudge the label down so it optically centers with the dot. */}
+                    <span className="relative top-[0.7px]">{featured.eyebrow}</span>
                   </p>
                   <h3
                     className="m-0 text-[20px] font-[420] leading-[115%] tracking-[-0.02em] text-[#13294B]"
@@ -182,8 +188,8 @@ function HeroSustainable() {
                     {featured.title}
                   </h3>
                </div>
-                <div className="w-4 h-4 relative top-1.5 gap-[5px] p-1 rounded-[35px] border-[0.5px] border-[#1C2D4F66] flex items-center justify-center shrink-0">
-                  <IoArrowForward className=" text-[#1C2D4F]" aria-hidden="true" />
+                <div className="w-4 h-4 relative top-1.5 gap-[5px] p-1 rounded-[35px] border-[0.5px] border-[#1C2D4F66] flex items-center justify-center shrink-0 transition-colors duration-500 ease-out group-hover:bg-[#1C2D4F] group-hover:border-[#1C2D4F]">
+                  <IoArrowForward className=" text-[#1C2D4F] transition-colors duration-500 ease-out group-hover:text-[#E2EAF2]" aria-hidden="true" />
                 </div>
               </div>
 
