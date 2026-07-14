@@ -223,7 +223,7 @@ function SubsidiariesPage() {
   return (
     <>
       <main className="relative min-h-screen bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
-        <div className="max-w-[1280px] mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <div className="text-center">
             <h1
               ref={titleRef}

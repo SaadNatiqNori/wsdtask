@@ -43,16 +43,13 @@ const ABOUT_FALLBACK = {
   },
 }
 
-function Strength({ title, description }) {
+function Strength({ title, description, index }) {
   return (
-    <div className="border-l border-[#FFFFFF1A] pl-6">
-      <h3
-        className="m-0 text-[26px] md:text-[34px] font-normal leading-[1.15] tracking-[-0.01em] text-gold"
-        style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-      >
+    <div className={`relative ${index > 0 ? "md:ml-[61px] md:pl-[61px] md:before:absolute md:before:left-0 md:before:top-0 md:before:h-[192px] md:before:w-[0.5px] md:before:bg-white md:before:content-['']" : ''}`}>
+      <h3 className="m-0 text-[24px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.6px] text-gold md:whitespace-nowrap">
         {title}
       </h3>
-      <p className="mt-6 text-[14px] md:text-[15px] leading-[160%] tracking-[0] text-[#A8B0BD]">
+      <p className="mt-8 text-[15px] md:text-[16px] leading-normal tracking-[0] text-mist md:w-[356px]">
         {description}
       </p>
     </div>
@@ -96,24 +93,24 @@ function AboutPage() {
 
   return (
     <>
-      <main className="bg-[#E6EBF0] text-[#1C2D4F]">
-        <section className="flex flex-col items-center pt-[140px] md:pt-[180px] pb-16 md:pb-24 px-4">
+      <main className="bg-mist text-navy">
+        <section className="flex flex-col items-center pt-[140px] md:pt-[180px] pb-16 md:pb-24 px-4 w-full max-w-[1440px] mx-auto">
           <span
             ref={heroBadgeRef}
-            className="inline-flex items-center rounded-full border border-[#1C2D4F]/35 px-3 py-1 font-['Akkurat_Mono',monospace] text-[14px] font-extrabold uppercase tracking-[0.12em] text-[#1C2D4F]"
+            className="inline-flex items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-deep px-[9px] pb-[7px] pt-[10px] font-['Akkurat_Mono',monospace] text-[14px] font-medium leading-[1.15] tracking-[-0.28px] text-center uppercase text-navy h-[24px]"
           >
             {hero.badge}
           </span>
           <h1
             ref={heroTitleRef}
-            className="m-0 mt-8 text-center text-[56px] md:text-[112px] font-normal leading-[0.95] tracking-[-0.02em] text-[#1C2D4F]"
-            style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+            className="m-0 mt-[22px] text-center text-[40px] md:text-[50px] font-normal leading-[1.05] tracking-[-1px] text-navy"
+            style={{ fontFamily: "'Season Mix VF', 'Season Mix-TRIAL', serif" }}
           >
             {hero.title}
           </h1>
           <p
             ref={heroSubtitleRef}
-            className="m-0 mt-4 text-center text-[15px] md:text-[18px] leading-[140%] tracking-[0] max-w-[460px] text-[#1C2D4F]"
+            className="m-0 mt-[22px] text-center text-[16px] leading-[1.15] tracking-[-0.16px] max-w-[374px] text-navy"
           >
             {hero.subtitle}
           </p>
@@ -150,46 +147,45 @@ function AboutPage() {
 
               <div className="relative px-4 pt-16 md:pt-20 pb-12 md:pb-16">
                 <div className="max-w-[720px] mx-auto">
-                  <span className="pointer-events-auto inline-flex items-center rounded-full border border-mist/40 px-3 py-1 font-['Akkurat_Mono',monospace] text-[14px] font-extrabold uppercase tracking-[0.12em] text-mist bg-transparent">
-                    {goals.badge}
-                  </span>
-                  <br />
-                  <br />
-                  {goals.paragraphs.map((p, i) => (
-                    <p
-                      key={i}
-                      className={`m-0 ${i === 0 ? '' : 'mt-12 md:mt-16'} text-[24px] md:text-[40px] font-normal leading-[1.2] tracking-[-0.01em] text-mist`}
-                      style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-                    >
-                      {p.lead}{' '}
-                      <span className="text-[#A8B0BD]">{p.muted}</span>
-                    </p>
-                  ))}
+                  <div className="flex flex-col items-start gap-[56px]">
+                    <span className="pointer-events-auto inline-flex items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-mist/40 px-[9px] pb-[7px] pt-[10px] font-['Akkurat_Mono',monospace] text-[14px] font-medium leading-[1.15] tracking-[-0.28px] text-center uppercase text-mist bg-transparent h-[24px]">
+                      {goals.badge}
+                    </span>
+                    {goals.paragraphs.map((p, i) => (
+                      <p
+                        key={i}
+                        className="m-0 text-[30px] md:text-[42px] font-normal leading-[1.2] tracking-[-0.84px] text-white"
+                      >
+                        {p.lead}{' '}
+                        <span className="text-white/60">{p.muted}</span>
+                      </p>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="bg-[#D8DDE5] py-24 md:py-32 px-4 md:px-12">
-          <div className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-10 md:gap-20">
-            <div className="md:sticky md:top-[140px] md:self-start">
+        <section className="bg-[#D7DEE6] px-[38px] pt-24 md:pt-[195px] pb-24 md:pb-32">
+          <div className="flex flex-col gap-10 md:flex-row md:gap-[208px] max-w-[1440px] mx-auto">
+            <div className="shrink-0 md:sticky md:top-[140px] md:self-start md:w-[259px]">
               <h2
-                className="m-0 text-[26px] md:text-[34px] font-normal leading-[1.2] tracking-[-0.01em] text-[#1C2D4F]"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                className="m-0 text-[24px] md:text-[28px] leading-none tracking-[-1.12px] text-navy"
+                style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 550 }}
               >
                 {why.title[0]}
                 <br />
                 {why.title[1]}
               </h2>
             </div>
-            <div className="space-y-12 md:space-y-16">
+            <div className="space-y-12 md:w-[780px] md:space-y-16">
               {why.paragraphs.map((p, i) => (
                 <p
                   key={i}
-                  className="m-0 text-[20px] md:text-[26px] leading-[1.4] tracking-[-0.005em] text-[#1C2D4F]"
+                  className="m-0 text-[24px] md:text-[34px] font-normal leading-[110%] tracking-[-1.36px] text-navy"
                 >
-                  <span className="text-[#1C2D4F]/45">{p.muted}</span>{' '}
+                  <span className="text-[#8A8FA0]">{p.muted}</span>{' '}
                   {p.rest}
                 </p>
               ))}
@@ -197,26 +193,28 @@ function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-navy text-mist py-24 md:py-32 px-4 md:px-12">
+        <section className="bg-navy text-mist px-[38px] pt-24 md:pt-[95px] pb-24 md:pb-32">
           <div className="max-w-[1440px] mx-auto">
-            <p className="m-0 text-[13px] md:text-[15px] tracking-[0] text-mist">
+            <p
+              className="m-0 text-[18px] md:text-[22px] leading-none tracking-[-0.88px] text-mist"
+              style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 550 }}
+            >
               {strengths.eyebrow}
             </p>
             <h2
-              className="m-0 mt-6 text-[28px] md:text-[42px] font-normal leading-[1.25] tracking-[-0.01em] text-mist max-w-[1100px]"
-              style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+              className="m-0 mt-[30px] text-[28px] md:text-[36px] font-normal leading-normal tracking-[-1.44px] text-mist md:w-[780px]"
             >
               {strengths.title}
             </h2>
 
-            <div className="mt-20 md:mt-28 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
-              {strengthItems.slice(0, 3).map((s) => (
-                <Strength key={s.title} {...s} />
+            <div className="mt-16 md:mt-[104px] flex flex-col gap-y-12 md:flex-row md:gap-y-0">
+              {strengthItems.slice(0, 3).map((s, i) => (
+                <Strength key={s.title} index={i} {...s} />
               ))}
             </div>
-            <div className="mt-16 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
-              {strengthItems.slice(3, 5).map((s) => (
-                <Strength key={s.title} {...s} />
+            <div className="mt-16 md:mt-[138px] flex flex-col gap-y-12 md:flex-row md:gap-y-0">
+              {strengthItems.slice(3, 5).map((s, i) => (
+                <Strength key={s.title} index={i} {...s} />
               ))}
             </div>
           </div>
