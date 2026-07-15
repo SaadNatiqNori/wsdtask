@@ -33,7 +33,7 @@ function ConstructionIcon() {
   return (
     <svg
       viewBox="0 0 80 80"
-      className="w-[44px] h-[44px] md:w-[52px] md:h-[52px]"
+      className="h-[28px] w-auto"
       fill="none"
       stroke="var(--color-gold)"
       strokeWidth="1.1"
@@ -56,7 +56,7 @@ function DevelopmentIcon() {
   return (
     <svg
       viewBox="0 0 80 80"
-      className="w-[44px] h-[44px] md:w-[52px] md:h-[52px]"
+      className="h-[28px] w-auto"
       fill="none"
       stroke="var(--color-gold)"
       strokeWidth="1.1"
@@ -92,7 +92,7 @@ function PropertiesIcon() {
   return (
     <svg
       viewBox="0 0 80 80"
-      className="w-[44px] h-[44px] md:w-[52px] md:h-[52px]"
+      className="h-[28px] w-auto"
       fill="none"
       stroke="var(--color-gold)"
       strokeWidth="1.1"
@@ -114,20 +114,26 @@ function PropertiesIcon() {
 
 function SubsidiaryCard({ icon, title, description }) {
   return (
-    <div className="bg-[#22252E] border border-[#FFFFFF0A] p-8 md:p-10 rounded-[6px]">
-      {icon}
+    <div
+      className="flex flex-col rounded-[4px] p-[38px] w-full max-w-[429px]"
+      style={{ background: '#FFFFFF05' }}
+    >
+      <div className="h-[28px] flex items-center">{icon}</div>
       <img
         src={logoYellow}
         alt="Alcove"
-        className="mt-6 h-[18px] md:h-[20px] w-auto"
+        className="mt-[21px] h-[15px] w-[74px]"
       />
       <h3
-        className="m-0 mt-2 text-[36px] md:text-[48px] font-normal leading-[1.05] tracking-[-0.02em] text-gold"
-        style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+        className="m-0 mt-[14px] text-[32px] md:text-[38px] font-normal leading-none tracking-[-0.04em] text-gold"
+        style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
       >
         {title}
       </h3>
-      <p className="mt-6 text-[14px] md:text-[15px] leading-[150%] tracking-[0] max-w-[320px] text-mist/85">
+      <p
+        className="m-0 mt-[32px] text-[16px] leading-[1.15] tracking-[0] max-w-[257px] text-mist"
+        style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 400 }}
+      >
         {description}
       </p>
     </div>
@@ -162,12 +168,6 @@ function SubsidiariesPage() {
   }
   const titleRef = useRef(null)
   const introRef = useRef(null)
-  const cardRefs = useRef([])
-  const whatTitleRef = useRef(null)
-  const whatLeftRef = useRef(null)
-  const whatRightRef = useRef(null)
-
-  cardRefs.current = []
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -180,42 +180,6 @@ function SubsidiariesPage() {
         stagger: 0.08,
         delay: 0.2,
       })
-
-      const cards = cardRefs.current.filter(Boolean)
-      if (cards.length > 0) {
-        gsap.set(cards, { y: 60, opacity: 0 })
-        gsap.to(cards, {
-          y: 0,
-          opacity: 1,
-          duration: 1.2,
-          ease: cubicEase,
-          stagger: 0.12,
-          scrollTrigger: {
-            trigger: cards[0],
-            start: 'top 85%',
-            toggleActions: 'restart none restart reset',
-          },
-        })
-      }
-
-      const whatTargets = [
-        whatTitleRef.current,
-        whatLeftRef.current,
-        whatRightRef.current,
-      ]
-      gsap.set(whatTargets, { y: 60, opacity: 0 })
-      gsap.to(whatTargets, {
-        y: 0,
-        opacity: 1,
-        duration: 1.2,
-        ease: cubicEase,
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: whatTitleRef.current,
-          start: 'top 85%',
-          toggleActions: 'restart none restart reset',
-        },
-      })
     })
     return () => ctx.revert()
   }, [])
@@ -224,18 +188,18 @@ function SubsidiariesPage() {
     <>
       <main className="relative min-h-screen bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
         <div className="max-w-[1440px] mx-auto">
-          <div className="text-center">
+          <div className="text-center max-w-[695px] mx-auto">
             <h1
               ref={titleRef}
-              className="m-0 text-[36px] md:text-[48px] font-normal leading-[0.95] tracking-[-0.02em] text-gold"
-              style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+              className="m-0 text-[32px] md:text-[46px] font-normal leading-none tracking-[-0.04em] text-gold"
+              style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
             >
               {subs.title}
             </h1>
             <p
               ref={introRef}
-              className="m-0 mt-3 text-[20px] md:text-[36px] leading-[1.3] tracking-[-0.01em] text-mist"
-              style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+              className="m-0 mt-4 text-[22px] md:text-[32px] leading-[1.15] tracking-[0] text-mist"
+              style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 400 }}
             >
               {intro}
             </p>
@@ -253,10 +217,7 @@ function SubsidiariesPage() {
 
             <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-[260px] gap-y-[60px] md:gap-y-[80px]">
               <div
-                ref={(el) => {
-                  if (el) cardRefs.current.push(el)
-                }}
-                className="relative md:col-start-1 md:row-start-1"
+                className="relative md:w-[429px] md:justify-self-end md:col-start-1 md:row-start-1"
               >
                 <SubsidiaryCard
                   icon={iconFor(items[0])}
@@ -274,10 +235,7 @@ function SubsidiariesPage() {
               </div>
 
               <div
-                ref={(el) => {
-                  if (el) cardRefs.current.push(el)
-                }}
-                className="relative md:col-start-2 md:row-start-2"
+                className="relative md:w-[429px] md:justify-self-start md:col-start-2 md:row-start-2"
               >
                 <SubsidiaryCard
                   icon={iconFor(items[1])}
@@ -295,10 +253,7 @@ function SubsidiariesPage() {
               </div>
 
               <div
-                ref={(el) => {
-                  if (el) cardRefs.current.push(el)
-                }}
-                className="relative md:col-start-1 md:row-start-3"
+                className="relative md:w-[429px] md:justify-self-end md:col-start-1 md:row-start-3"
               >
                 <SubsidiaryCard
                   icon={iconFor(items[2])}
@@ -317,36 +272,39 @@ function SubsidiariesPage() {
             </div>
           </div>
 
-          <div className="mt-24 md:mt-[180px] bg-[#22252E] border border-[#FFFFFF0A] p-8 md:p-16 rounded-[6px]">
-            <div className="border-l-2 border-gold pl-6 md:pl-8">
+          <div className="mt-24 md:mt-[232px] max-w-[1130px] mx-auto bg-[#22252E] rounded-[6px] px-6 py-12 md:px-[70px] md:py-[80px] flex flex-col gap-12 md:gap-[70px]">
+            <div className="flex gap-[28px]">
+              <div
+                aria-hidden="true"
+                className="w-[1px] shrink-0 self-stretch bg-gold"
+              />
               <h2
-                ref={whatTitleRef}
-                className="m-0 text-[44px] md:text-[64px] font-normal leading-[1.0] tracking-[-0.02em] text-gold"
-                style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                className="m-0 text-[32px] md:text-[44px] font-normal leading-[1.2] tracking-[-0.04em] text-gold"
+                style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
               >
                 {what.title[0]}
                 <br />
                 {what.title[1]}
               </h2>
             </div>
-            <div className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-[50px] max-w-[990px]">
               <p
-                ref={whatLeftRef}
-                className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-mist"
+                className="m-0 text-[18px] md:text-[22px] leading-[1.25] tracking-[0] text-mist max-w-[470px]"
               >
-                {(what.left ?? []).map((seg, i) =>
-                  seg.variant === 'gold' ? (
-                    <span key={i} className="text-gold">{seg.text}</span>
-                  ) : (
-                    <span key={i}>{seg.text}</span>
-                  )
-                )}
+                <span className="opacity-80">
+                  {(what.left ?? []).map((seg, i) =>
+                    seg.variant === 'gold' ? (
+                      <span key={i} className="text-gold">{seg.text}</span>
+                    ) : (
+                      <span key={i}>{seg.text}</span>
+                    )
+                  )}
+                </span>
               </p>
               <p
-                ref={whatRightRef}
-                className="m-0 text-[17px] md:text-[22px] leading-[155%] tracking-[0] text-mist"
+                className="m-0 text-[18px] md:text-[22px] leading-[1.25] tracking-[0] text-mist max-w-[470px]"
               >
-                {what.right}
+                <span className="opacity-80">{what.right}</span>
               </p>
             </div>
           </div>

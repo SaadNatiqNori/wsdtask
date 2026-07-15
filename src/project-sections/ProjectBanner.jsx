@@ -45,7 +45,11 @@ function ProjectBanner({
             src={image}
             alt={alt}
             data-banner-img
-            className="absolute bottom-0 left-0 h-[250px] w-full object-contain object-bottom"
+            // Fixed 8vw side inset so the art never runs flush to the edges
+            // once the box goes full-bleed. Viewport-based (not scroll-driven),
+            // and within the resting letterbox slack so the small banner is
+            // unaffected.
+            className="absolute bottom-0 left-0 h-[250px] w-full px-[8vw] object-contain object-bottom"
           />
         )}
         

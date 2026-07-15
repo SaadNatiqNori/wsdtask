@@ -134,18 +134,20 @@ function AboutPage() {
             <div className="relative flex-1">
               <div
                 ref={overlayRef}
-                className="absolute left-0 right-0 bottom-0 -top-[30vh] pointer-events-none"
+                className="absolute left-0 right-0 bottom-0 -top-[70vh] pointer-events-none"
                 style={{
                   backdropFilter: 'blur(32px) brightness(0.55)',
                   WebkitBackdropFilter: 'blur(32px) brightness(0.55)',
+                  // Smoothstep (S-curve) mask: many stops with no slope kinks so the
+                  // blur/darkening eases in continuously and avoids Mach-band "lines".
                   WebkitMaskImage:
-                    'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 12%, rgba(0,0,0,1) 26%, rgba(0,0,0,1) 100%)',
+                    'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.03) 4%, rgba(0,0,0,0.1) 8%, rgba(0,0,0,0.22) 12%, rgba(0,0,0,0.35) 16%, rgba(0,0,0,0.5) 20%, rgba(0,0,0,0.65) 24%, rgba(0,0,0,0.78) 28%, rgba(0,0,0,0.9) 32%, rgba(0,0,0,0.97) 36%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 100%)',
                   maskImage:
-                    'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 12%, rgba(0,0,0,1) 26%, rgba(0,0,0,1) 100%)',
+                    'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.03) 4%, rgba(0,0,0,0.1) 8%, rgba(0,0,0,0.22) 12%, rgba(0,0,0,0.35) 16%, rgba(0,0,0,0.5) 20%, rgba(0,0,0,0.65) 24%, rgba(0,0,0,0.78) 28%, rgba(0,0,0,0.9) 32%, rgba(0,0,0,0.97) 36%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 100%)',
                 }}
               />
 
-              <div className="relative px-4 pt-16 md:pt-20 pb-12 md:pb-16">
+              <div className="relative px-4 pt-40 md:pt-52 pb-12 md:pb-16">
                 <div className="max-w-[720px] mx-auto">
                   <div className="flex flex-col items-start gap-[56px]">
                     <span className="pointer-events-auto inline-flex items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-mist/40 px-[9px] pb-[7px] pt-[10px] font-['Akkurat_Mono',monospace] text-[14px] font-medium leading-[1.15] tracking-[-0.28px] text-center uppercase text-mist bg-transparent h-[24px]">

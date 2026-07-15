@@ -32,8 +32,12 @@ function ProjectStatement({ segments = [] }) {
     <section className="flex min-h-screen items-center px-6 md:px-10">
       <p
         ref={rootRef}
-        className="m-0 max-w-[1040px] text-[32px] md:text-[60px] font-[420] leading-[1.15] tracking-[-0.02em] text-[#AAB2C0]"
-        style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+        className="m-0 max-w-[1128px] text-[32px] md:text-[60px] font-[420] leading-[1.15] tracking-[-0.02em] text-[#AAB2C0]"
+        style={{
+          fontFamily: "'Season Mix VF', serif",
+          textBoxTrim: 'trim-both',
+          textBoxEdge: 'cap alphabetic',
+        }}
       >
         {segments.map((seg, i) => (
           <span

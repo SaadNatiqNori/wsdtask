@@ -32,21 +32,21 @@ function ProjectOverview({ eyebrow = 'Project Overview', heading, body, image })
   return (
     <section
       ref={rootRef}
-      className="bg-[#161A24] text-mist h-screen px-6 md:px-14"
+      className="bg-[#161A24] text-mist h-screen px-[38px]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
-      <div className="mx-auto flex h-full max-w-[1440px] flex-col justify-center py-20 md:py-24">
-        <div className="mb-10 md:mb-14">
+      <div className="mx-auto flex h-full flex-col justify-center py-[69px]">
+        <div className="mb-10 md:mb-[69px]">
           <p
             data-ov-item
-            className="m-0 text-[18px] md:text-[22px] font-normal leading-none tracking-[-0.04em] text-[#A8B0BD]"
+            className="m-0 text-[18px] md:text-[22px] font-normal leading-none tracking-[-0.04em] text-white"
           >
             {eyebrow}
           </p>
 
           <h2
             data-ov-item
-            className="m-0 mt-6 md:mt-8 max-w-[780px] whitespace-pre-line text-[34px] md:text-[56px] font-normal leading-none tracking-[-0.04em] text-mist"
+            className="m-0 mt-6 md:mt-8 max-w-[780px] whitespace-pre-line text-[34px] md:text-[56px] font-normal leading-none tracking-[-0.04em] text-white"
           >
             {heading}
           </h2>
@@ -55,7 +55,7 @@ function ProjectOverview({ eyebrow = 'Project Overview', heading, body, image })
         <div>
           <div className="h-px w-full bg-white/20" />
 
-          <div className="mt-10 md:mt-14 grid grid-cols-1 items-start gap-10 md:grid-cols-2 md:gap-16">
+          <div className="mt-10 md:mt-[69px] grid grid-cols-1 items-start gap-10 md:grid-cols-2 md:gap-16">
             <div data-ov-item>
               <img
                 src={image || logoYellow}
@@ -68,7 +68,7 @@ function ProjectOverview({ eyebrow = 'Project Overview', heading, body, image })
             {body && (
               <p
                 data-ov-item
-                className="m-0 max-w-[430px] text-[15px] md:text-[18px] font-normal leading-6 tracking-[-0.04em] text-[#98A2B2] md:justify-self-end"
+                className="m-0 max-w-[430px] text-[15px] md:text-[18px] font-normal leading-6 tracking-[-0.04em] text-white md:justify-self-end"
               >
                 {body}
               </p>

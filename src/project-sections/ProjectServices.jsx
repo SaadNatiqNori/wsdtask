@@ -37,10 +37,10 @@ function ProjectServices({
   return (
     <section
       ref={rootRef}
-      className="bg-[#E6EBF0] text-[#1C2D4F] px-6 py-24 md:px-14 md:py-32"
+      className="bg-[#E6EBF0] text-[#1C2D4F] px-6 py-24 md:px-[38px] md:py-32"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
-      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 md:grid-cols-2 md:gap-16 lg:grid-cols-[1fr_546px] lg:gap-24">
+      <div className="mx-auto grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16 lg:grid-cols-[1fr_546px] lg:gap-24">
         {/* Sticky intro */}
         <div className="md:sticky md:top-[120px] md:self-start">
           <p
@@ -51,7 +51,7 @@ function ProjectServices({
           </p>
           {heading && (
             <h2
-              className="m-0 mt-6 max-w-[560px] text-[28px] md:text-[34px] font-normal leading-none tracking-normal text-[#1C2D4F]"
+              className="m-0 mt-6 max-w-[664px] text-[28px] md:text-[34px] font-normal leading-none tracking-normal text-[#1C2D4F]"
               style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
             >
               {heading}

@@ -41,16 +41,24 @@ function ProjectFeatures({ groups = [] }) {
         <div
           key={group.title ?? gi}
           data-feat-group
-          className="w-full"
+          // 119px gap UNDER each group in its own bg; only the first group also
+          // pads its top (the section's top edge). So the gap between two groups
+          // is the upper group's colour all the way down to the next group's
+          // border — the colour switches at the line, not mid-gap.
+          className={`w-full pb-[119px]${gi === 0 ? ' pt-[119px]' : ''}`}
           style={{ backgroundColor: group.bg ?? '#E6EBF0' }}
         >
-          <div className="mx-auto max-w-[1760px] border-t border-[#1C1F2A] px-6 py-14 md:px-14 md:py-20">
+          <div className="mx-auto max-w-[1760px] border-t border-[#1C1F2A] px-6 pt-[70px] pb-0 md:px-[38px]">
             <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,2.55fr)] md:gap-16">
               {/* Title column */}
               <div data-feat-item>
                 <h2
-                  className="m-0 whitespace-pre-line text-[40px] md:text-[52px] font-normal leading-[1.05] tracking-[-0.01em] text-[#1C1F2A]"
-                  style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+                  className="m-0 whitespace-pre-line text-[40px] md:text-[50px] font-[420] leading-[1] tracking-[-0.04em] text-[#1C1F2A]"
+                  style={{
+                    fontFamily: "'Season Mix VF', serif",
+                    textBoxTrim: 'trim-both',
+                    textBoxEdge: 'cap alphabetic',
+                  }}
                 >
                   {group.title}
                 </h2>
@@ -67,14 +75,20 @@ function ProjectFeatures({ groups = [] }) {
                   <div
                     key={row.feature ?? ri}
                     data-feat-item
-                    className="grid grid-cols-1 justify-between gap-3 border-b border-[#1C1F2A] py-8 first:pt-0 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:first:pt-0"
+                    className="grid grid-cols-1 justify-between gap-3 border-b border-[#1C1F2A] pt-[46px] pb-[46px] first:pt-0 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:first:pt-0"
                   >
-                    <h3 className="group m-0 self-start text-[24px] md:text-[34px] font-normal leading-[1.15] tracking-[-0.01em] text-[#1C1F2A]">
+                    <h3
+                      className="group m-0 self-start text-[24px] md:text-[38px] font-normal leading-[1.15] tracking-[-0.02em] text-[#1C1F2A]"
+                      style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
+                    >
                       <span className="cursor-default decoration-[#5B8DBF] decoration-2 underline-offset-[10px] transition-all duration-200 group-hover:underline">
                         {row.feature}
                       </span>
                     </h3>
-                    <p className="m-0 ml-auto w-full max-w-[312px] self-start text-[14px] md:text-[15px] leading-[1.5] text-[#5A6472]">
+                    <p
+                      className="m-0 ml-auto w-full max-w-[312px] self-start text-[16px] md:text-[18px] leading-[1] tracking-[0] text-[#5A6472]"
+                      style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
+                    >
                       {row.description.map((seg, si) => {
                         const cls = [
                           seg.bold && 'font-semibold text-[#1C1F2A]',

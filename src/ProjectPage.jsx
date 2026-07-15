@@ -74,7 +74,7 @@ function ProjectPage() {
       <>
         <Seo title={project.title} description={project.description} />
         <main
-          className="min-h-screen bg-[#E6EBF0] text-[#1C1F2A]"
+          className="min-h-screen bg-[#E2EAF2] text-[#1C1F2A]"
           style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
         >
           <ProjectSections sections={project.sections} project={project} />

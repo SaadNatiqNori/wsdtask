@@ -45,16 +45,22 @@ function ProjectGallery({
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist py-10"
     >
       <div className="px-6 md:px-10 flex flex-col items-center text-center">
+        {/* Same pill as the Contact page badge, recoloured for the dark section
+            (light ink + soft light border instead of the dark-on-light ink). */}
         <span
           data-gallery-item
-          className="inline-flex items-center rounded-full border border-white/35 px-3 py-1 font-['Akkurat_Mono',monospace] text-[14px] font-extrabold uppercase tracking-[0.12em] text-mist"
+          className="inline-flex h-[24px] items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-mist/40 px-[9px] pb-[7px] pt-[10px] text-center font-['Akkurat_Mono',monospace] text-[14px] font-medium uppercase leading-[1.15] tracking-[-0.28px] text-mist"
         >
           {eyebrow}
         </span>
         <h2
           data-gallery-item
-          className="m-0 mt-7 text-[40px] md:text-[60px] font-[420] leading-[1.15] tracking-[-0.02em] text-mist"
-          style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+          className="m-0 mt-7 text-center text-[40px] md:text-[50px] font-[420] leading-[1] tracking-[-0.04em] text-mist"
+          style={{
+            fontFamily: "'Season Mix VF', serif",
+            textBoxTrim: 'trim-both',
+            textBoxEdge: 'cap alphabetic',
+          }}
         >
           {title}
         </h2>

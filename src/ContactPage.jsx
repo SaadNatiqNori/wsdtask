@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
@@ -10,6 +11,13 @@ gsap.registerPlugin(ScrollTrigger)
 
 // Brand blue used across the light pages (About, Hero) for text on light bg.
 const INK = '#1C2D4F'
+
+// reCAPTCHA v2 ("I'm not a robot") site key — public, safe to ship in the
+// client. Set VITE_RECAPTCHA_SITE_KEY to the real key; falls back to Google's
+// official test key (always passes on localhost) so the form works in dev.
+const RECAPTCHA_SITE_KEY =
+  import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+  '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MdD9Sxn'
 
 const CONTACT_FALLBACK = {
   header: {
@@ -77,6 +85,65 @@ function Field({ label, type = 'text', value, onChange, trailing, error }) {
   )
 }
 
+// Load Google's reCAPTCHA script once (explicit-render mode) and resolve when
+// the API is ready. Shared across mounts so the <script> is injected only once.
+let recaptchaScriptPromise = null
+function loadRecaptcha() {
+  if (recaptchaScriptPromise) return recaptchaScriptPromise
+  recaptchaScriptPromise = new Promise((resolve) => {
+    if (window.grecaptcha?.render) return resolve()
+    const s = document.createElement('script')
+    s.src = 'https://www.google.com/recaptcha/api.js?render=explicit'
+    s.async = true
+    s.defer = true
+    s.onload = () => {
+      const ready = () =>
+        window.grecaptcha?.render ? resolve() : setTimeout(ready, 50)
+      ready()
+    }
+    document.head.appendChild(s)
+  })
+  return recaptchaScriptPromise
+}
+
+// "I'm not a robot" checkbox. Reports the solved token (or '' when it
+// expires/errors) via onChange, and exposes reset() through resetRef. The
+// render is guarded so StrictMode's double-invoke can't mount it twice.
+function Recaptcha({ onChange, resetRef }) {
+  const containerRef = useRef(null)
+  const widgetIdRef = useRef(null)
+
+  useEffect(() => {
+    let cancelled = false
+    loadRecaptcha().then(() => {
+      if (
+        cancelled ||
+        !containerRef.current ||
+        widgetIdRef.current !== null ||
+        containerRef.current.childNodes.length > 0
+      )
+        return
+      widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
+        sitekey: RECAPTCHA_SITE_KEY,
+        callback: (token) => onChange(token),
+        'expired-callback': () => onChange(''),
+        'error-callback': () => onChange(''),
+      })
+      if (resetRef) {
+        resetRef.current = () => {
+          if (widgetIdRef.current !== null)
+            window.grecaptcha.reset(widgetIdRef.current)
+        }
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [onChange, resetRef])
+
+  return <div ref={containerRef} className="flex justify-center" />
+}
+
 function ContactPage() {
   const content = useContent('contact', CONTACT_FALLBACK)
   const header = content.header ?? CONTACT_FALLBACK.header
@@ -91,6 +158,16 @@ function ContactPage() {
   const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const recaptchaReset = useRef(null)
+
+  // Stable so the reCAPTCHA callback (bound once on mount) always sees it.
+  const handleCaptcha = useCallback((token) => {
+    setCaptchaToken(token)
+    setErrors((prev) =>
+      prev.recaptcha || prev.form ? { ...prev, recaptcha: undefined, form: undefined } : prev
+    )
+  }, [])
 
   // Clear a field's error (and any general error) as soon as the user edits it.
   const update = (key) => (e) => {
@@ -120,6 +197,7 @@ function ContactPage() {
     if (sending || sent) return
 
     const clientErrors = validate(form)
+    if (!captchaToken) clientErrors.recaptcha = 'Please confirm you are not a robot.'
     if (Object.keys(clientErrors).length > 0) {
       setErrors(clientErrors)
       return
@@ -127,8 +205,13 @@ function ContactPage() {
 
     setErrors({})
     setSending(true)
-    const res = await postContact(form)
+    const res = await postContact({ ...form, recaptcha_token: captchaToken })
     setSending(false)
+
+    // The token is single-use (consumed by the server's verification), so clear
+    // it after every round-trip — the user re-checks the box for another try.
+    recaptchaReset.current?.()
+    setCaptchaToken('')
 
     if (res.ok) {
       setSent(true)
@@ -192,21 +275,21 @@ function ContactPage() {
       {/* Form area — the header pins while the card scrolls up over it.
           The section's top padding matches the sticky offset so the header
           doesn't jump on first paint. */}
-      <section className="relative px-4 pt-[128px] md:pt-[140px] pb-[16vh]">
+      <section className="relative px-4 pt-[128px] md:pt-[140px] pb-[150px]">
         <div
           ref={headerRef}
           className="sticky top-[128px] md:top-[140px] z-0 flex flex-col items-center text-center"
         >
-          <span className="inline-flex items-center rounded-full border border-[#1C2D4F]/35 px-3 py-1 font-['Akkurat_Mono',monospace] text-[14px] font-extrabold uppercase tracking-[0.12em] text-[#1C2D4F]">
-            <span className="relative font-['Akkurat_Mono',monospace]">{header.badge}</span>
+          <span className="inline-flex items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-[#1C2D4F] px-[9px] pb-[7px] pt-[10px] font-['Akkurat_Mono',monospace] text-[14px] font-medium leading-[1.15] tracking-[-0.28px] text-center uppercase text-[#1C2D4F] h-[24px]">
+            {header.badge}
           </span>
           <h1
-            className="m-0 mt-7 text-[54px] md:text-[92px] font-normal leading-[0.95] tracking-[-0.02em] text-[#1C2D4F]"
-            style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
+            className="m-0 mt-[22px] text-center text-[40px] md:text-[50px] font-normal leading-[1.05] tracking-[-1px] text-[#1C2D4F]"
+            style={{ fontFamily: "'Season Mix VF', 'Season Mix-TRIAL', serif" }}
           >
             {header.title}
           </h1>
-          <p className="m-0 mt-5 w-full max-w-[460px] text-[15px] md:text-[18px] leading-[120%] tracking-[0] text-[#1C2D4F]">
+          <p className="m-0 mt-[22px] text-center text-[16px] leading-[1.15] tracking-[-0.16px] max-w-[374px] text-[#1C2D4F]">
             {header.subtitle}
           </p>
         </div>
@@ -215,9 +298,9 @@ function ContactPage() {
           ref={cardRef}
           onSubmit={handleSubmit}
           noValidate
-          className="relative z-10 mx-auto mt-[72px] md:mt-[96px] w-full max-w-[666px] rounded-[8px] bg-[#D7E0E8] px-6 py-10 md:min-h-[486px] md:px-[72px] md:pt-[68px] md:pb-[56px]"
+          className="relative z-10 mx-auto mt-[72px] md:mt-[96px] w-full max-w-[616px] rounded-[8px] bg-[#D7E0E8] px-6 py-10 md:min-h-[446px] md:px-[72px] md:pt-[68px] md:pb-[56px]"
         >
-          <div className="flex flex-col gap-[34px] md:gap-[40px]">
+          <div className="flex flex-col gap-[40px]">
             <Field label={formLabels.nameLabel} value={form.name} onChange={update('name')} error={errors.name} />
             <Field label={formLabels.emailLabel} type="email" value={form.email} onChange={update('email')} error={errors.email} />
             <Field
@@ -240,15 +323,25 @@ function ContactPage() {
           </div>
 
           <p
-            className="mx-auto mt-8 max-w-[280px] text-center text-[16px] font-normal leading-[1.2] tracking-[-0.01em] text-[#1C2D4F]/45"
+            className="mx-auto mt-10 max-w-[274px] text-center text-[16px] font-normal leading-[1.15] tracking-[-0.01em] text-[#1C2D4F]/45"
             style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
           >
             By clicking send message, you acknowledge your data will be processed
             according to our{' '}
-            <a href="#" className="text-[#1C2D4F]/75 underline underline-offset-2">
+            <Link
+              to="/privacy-policy"
+              className="text-[#1C2D4F]/75 underline underline-offset-2"
+            >
               Privacy Policy
-            </a>
+            </Link>
           </p>
+
+          <div className="mt-8 flex flex-col items-center">
+            <Recaptcha onChange={handleCaptcha} resetRef={recaptchaReset} />
+            {errors.recaptcha && (
+              <p className="mt-2 text-center text-[13px] text-red-600">{errors.recaptcha}</p>
+            )}
+          </div>
 
           {errors.form && (
             <p className="mt-4 text-center text-[13px] text-red-600">{errors.form}</p>
@@ -304,8 +397,8 @@ function ContactPage() {
           lines flush at the corners (no overshoot); first/last hug the left/right
           edges. Text is left-aligned; columns vertically centered. Dashes are an
           exact 2px-on / 2px-off, 1px stroke. */}
-      <footer ref={footerRef} className="px-4 pb-16 md:pb-24">
-        <div className="relative mx-auto max-w-[1168px] py-12 md:py-16">
+      <footer ref={footerRef} className="px-4 md:px-[145px] pb-[137px]">
+        <div className="relative w-full py-12 md:py-16">
           {/* top + bottom frame lines — overshoot the outer verticals by 10px
               so the corners read as crossings, not closed joins */}
           <span
@@ -340,7 +433,7 @@ function ContactPage() {
                 data-col
                 className="flex flex-col justify-center px-4 md:px-[30px]"
               >
-                <p className="m-0 font-['Akkurat_Mono',monospace] text-[12px] font-medium uppercase leading-none text-[#1C1F2A]">
+                <p className="m-0 font-['Akkurat_Mono',monospace] text-[12px] font-medium uppercase leading-none text-[#8A8FA0]">
                   {col.label}
                 </p>
                 <div className="mt-4 space-y-1.5">

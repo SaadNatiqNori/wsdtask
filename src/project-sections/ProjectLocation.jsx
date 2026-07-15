@@ -75,7 +75,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
       ref={rootRef}
       className="relative flex min-h-screen items-center overflow-hidden bg-[#161A24] text-mist"
     >
-      <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center gap-16 px-6 py-24 md:flex-row md:justify-between md:gap-10 md:px-16 md:py-0">
+      <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center gap-16 px-6 py-24 md:flex-row md:justify-between md:gap-0 md:px-[38px] md:py-0">
         {/* Title */}
         <h2
           data-loc-item
@@ -85,11 +85,11 @@ function ProjectLocation({ title = 'Location', items = [] }) {
           {title}
         </h2>
 
-        {/* Centre illustration stage — one line-art illustration per tab; they
-            slide through the section's space (the section itself clips). */}
+        {/* Centre illustration stage — 339×339; one line-art illustration
+            per tab slides through it (the section clips). */}
         <div
           data-loc-item
-          className="relative aspect-square w-[300px] shrink-0 md:w-[380px] 2xl:w-[440px]"
+          className="relative aspect-square w-[300px] shrink-0 md:ml-[214px] md:h-[339px] md:w-[339px]"
           aria-hidden="true"
         >
           {items.map((item, i) => {
@@ -105,7 +105,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
                   <img
                     src={item.image}
                     alt=""
-                    className="h-[323px] w-full object-contain"
+                    className="h-full w-full object-contain"
                   />
                 ) : (
                   Illustration && <Illustration className="h-full w-full" />
@@ -115,8 +115,8 @@ function ProjectLocation({ title = 'Location', items = [] }) {
           })}
         </div>
 
-        {/* Accordion */}
-        <div className="w-full shrink-0 border-t border-white/12 md:w-[440px] 2xl:w-[560px]">
+        {/* Accordion — 455px cards; the open tab drives the centre illustration */}
+        <div className="w-full shrink-0 border-t border-white/12 md:ml-[173px] md:w-[455px]">
           {items.map((item, i) => {
             const isOpen = open === i
             return (
@@ -125,14 +125,17 @@ function ProjectLocation({ title = 'Location', items = [] }) {
                   type="button"
                   onClick={() => setOpen(isOpen ? -1 : i)}
                   aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-6 py-6 text-left"
+                  className="flex w-full items-center justify-between gap-6 pt-4 pb-4 text-left"
                 >
-                  <span className="text-[22px] md:text-[26px] font-normal leading-tight text-[#E8ECF1]">
+                  <span
+                    className="text-[22px] md:text-[26px] font-normal leading-[1.15] tracking-[-0.02em] text-[#E8ECF1]"
+                    style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
+                  >
                     {item.label}
                   </span>
                   {/* Plus that rotates 45° into a cross — same transition as the tab */}
                   <span
-                    className="relative block h-4 w-4 shrink-0 text-white/60"
+                    className="relative block h-[16.5px] w-[16.5px] shrink-0 text-[#E2EAF2]"
                     style={{
                       transform: `rotate(${isOpen ? 45 : 0}deg)`,
                       transition: TRANSITION('transform'),
@@ -150,7 +153,10 @@ function ProjectLocation({ title = 'Location', items = [] }) {
                   }}
                 >
                   <div className="overflow-hidden">
-                    <p className="m-0 max-w-[420px] pb-7 text-[14px] md:text-[15px] leading-[1.6] text-[#98A2B2]">
+                    <p
+                      className="m-0 max-w-[349px] pt-6 pb-7 text-[14px] leading-[1] tracking-[0] text-[#E2EAF2]"
+                      style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
+                    >
                       {item.body}
                     </p>
                   </div>

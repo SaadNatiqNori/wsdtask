@@ -50,7 +50,7 @@ function ProjectHero({ title, description, ornament = true, project }) {
               aria-hidden="true"
               className={
                 icon
-                  ? 'mx-auto h-[46px] md:h-[56px] w-auto select-none object-contain'
+                  ? 'mx-auto h-[46px] w-auto select-none object-contain'
                   : 'mx-auto h-[46px] w-[88px] select-none'
               }
               draggable="false"
@@ -58,7 +58,7 @@ function ProjectHero({ title, description, ornament = true, project }) {
           )}
           <h1
             data-hero-item
-            className="m-0 mt-9 text-[54px] md:text-[84px] font-normal leading-[0.98] tracking-[-0.02em] text-[#1C1F2A]"
+            className="m-0 mt-9 text-[54px] md:text-[88px] font-normal leading-[1.15] tracking-[-0.03em] text-[#1C1F2A]"
             style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
           >
             {title}
@@ -67,7 +67,7 @@ function ProjectHero({ title, description, ornament = true, project }) {
         {description && (
           <p
             data-hero-item
-            className="m-0 mt-9 max-w-[640px] text-[15px] md:text-[16px] leading-[1.55] tracking-[0] text-[#5B6473]"
+            className="m-0 mt-9 max-w-[631px] text-[15px] md:text-[16px] leading-[1.55] tracking-[0] text-[#5B6473]"
           >
             {description}
           </p>

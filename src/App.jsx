@@ -9,6 +9,7 @@ import ProjectPage from './ProjectPage'
 import SubsidiariesPage from './SubsidiariesPage'
 import AboutPage from './AboutPage'
 import ContactPage from './ContactPage'
+import PrivacyPolicyPage from './PrivacyPolicyPage'
 import './App.css'
 
 function App() {
@@ -73,6 +74,18 @@ function App() {
                   description="Get in touch with Alcove — visit our office on Baharka Road, Erbil, or send a message about projects, sales and partnerships."
                 />
                 <ContactPage />
+              </>
+            }
+          />
+          <Route
+            path="/privacy-policy"
+            element={
+              <>
+                <Seo
+                  title="Privacy Policy"
+                  description="How Alcove collects, uses and protects the information you share with us."
+                />
+                <PrivacyPolicyPage />
               </>
             }
           />
