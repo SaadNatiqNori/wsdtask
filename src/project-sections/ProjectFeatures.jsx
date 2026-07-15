@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
@@ -90,16 +91,43 @@ function ProjectFeatures({ groups = [] }) {
                       style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
                     >
                       {row.description.map((seg, si) => {
+                        // A segment with a URL renders as a link. Links are always
+                        // underlined (a URL is only set with the underline toggle on)
+                        // and pick up a hover colour to read as interactive.
+                        const isLink = Boolean(seg.url)
                         const cls = [
                           seg.bold && 'font-semibold text-[#1C1F2A]',
-                          seg.underline && 'underline underline-offset-2',
+                          (seg.underline || isLink) && 'underline underline-offset-2',
+                          isLink &&
+                            'text-[#5B8DBF] transition-colors duration-200 hover:text-[#1C1F2A]',
                         ]
                           .filter(Boolean)
                           .join(' ')
-                        return (
-                          <span key={si} className={cls || undefined}>
+
+                        if (!isLink) {
+                          return (
+                            <span key={si} className={cls || undefined}>
+                              {seg.text}
+                            </span>
+                          )
+                        }
+
+                        // Internal paths use the router (same tab, no reload);
+                        // external URLs open in a new tab.
+                        return seg.url.startsWith('/') ? (
+                          <Link key={si} to={seg.url} className={cls}>
                             {seg.text}
-                          </span>
+                          </Link>
+                        ) : (
+                          <a
+                            key={si}
+                            href={seg.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cls}
+                          >
+                            {seg.text}
+                          </a>
                         )
                       })}
                     </p>
