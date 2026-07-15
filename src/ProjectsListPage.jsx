@@ -146,7 +146,7 @@ function ProjectsListPage() {
   return (
     <>
     <main className="relative min-h-screen bg-[#E6EBF0] px-6 md:px-12 pb-24 overflow-hidden">
-      <div className="max-w-[1440px] mx-auto pt-[150px] md:pt-[190px]">
+      <div className="mx-auto pt-[150px] md:pt-[190px]">
         {/* Heading */}
         <div ref={headingRef} className="md:pl-[13%]">
           <p
