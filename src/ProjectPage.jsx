@@ -8,6 +8,7 @@ import ProjectSections from './project-sections'
 import { getProjectBySlug } from './projects'
 import { useProject } from './api'
 import { cubicEase } from './easings'
+import { useScrollMode } from './SmoothScroll'
 
 function ProjectPage() {
   const { slug } = useParams()
@@ -17,15 +18,16 @@ function ProjectPage() {
   const metaRef = useRef(null)
   const descriptionRef = useRef(null)
 
-  // Project pages scroll like every other content page: the route-default
-  // Lenis 'smooth' mode (continuous smooth wheel scrolling, no section snap).
-  // Scroll-driven section animations (e.g. the opening scale reveal) are
-  // ScrollTrigger scrubs, which the SmoothScrollProvider keeps in sync with
-  // Lenis — so they progress in parallel with the browser scroll.
+  // Project pages use a slightly snappier smooth-scroll than the rest of the
+  // site ('smoothFast' = shorter Lenis duration), so the opening scale reveal
+  // tracks the wheel more responsively. Scroll-driven section animations (e.g.
+  // that reveal) are ScrollTrigger scrubs, which the SmoothScrollProvider keeps
+  // in sync with Lenis — so they progress in parallel with the browser scroll.
+  useScrollMode('smoothFast')
 
   useLayoutEffect(() => {
-    // Legacy template animation only — section-based projects animate themselves.
-    if (!project || project.sections) return
+    // Empty-state entrance animation — section-based projects animate themselves.
+    if (project?.sections) return
     const ctx = gsap.context(() => {
       gsap.set(
         [titleRef.current, metaRef.current, descriptionRef.current],
@@ -46,30 +48,8 @@ function ProjectPage() {
     return () => ctx.revert()
   }, [slug, project])
 
-  if (!project) {
-    return (
-      <main className="min-h-screen bg-navy text-mist flex flex-col items-center justify-center px-4">
-        {/* Unknown slugs render with 200 (SPA), so tell crawlers not to index. */}
-        <Seo title="Project not found" noindex />
-        <h1
-          className="text-[42px] md:text-[58px] font-normal leading-none tracking-[-0.01em]"
-          style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
-        >
-          Project not found
-        </h1>
-        <Link
-          to="/"
-          className="mt-8 inline-flex items-center gap-2 rounded-[28px] bg-mist px-5 py-4 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-[#191f2f] no-underline"
-        >
-          <IoArrowBack className="text-sm" aria-hidden="true" />
-          <span className="relative top-[1px]">BACK HOME</span>
-        </Link>
-      </main>
-    )
-  }
-
   // Dynamic, section-driven layout (the CMS-fed path).
-  if (project.sections) {
+  if (project && project.sections) {
     return (
       <>
         <Seo title={project.title} description={project.description} />
@@ -85,11 +65,17 @@ function ProjectPage() {
     )
   }
 
-  // The project exists but has no page sections yet — a creative, on-brand
-  // empty state instead of a bare fallback layout.
+  // No published page yet: either the project exists but has no sections, or
+  // the slug matched nothing at all (unknown/removed). Both render the same
+  // creative, on-brand empty state instead of a bare fallback layout.
   return (
     <>
-      <Seo title={project.title} description={project.description} />
+      {project ? (
+        <Seo title={project.title} description={project.description} />
+      ) : (
+        // Unknown slugs render with 200 (SPA), so tell crawlers not to index.
+        <Seo title="Project not found" noindex />
+      )}
       <main className="relative min-h-screen overflow-hidden bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
         {/* Blueprint-grid backdrop — a nod to the architecture/construction craft. */}
         <div
@@ -120,7 +106,7 @@ function ProjectPage() {
               className="inline-flex items-center gap-2 font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase tracking-[0.18em] text-gold"
             >
               <span className="inline-block w-[6px] h-[6px] rounded-full bg-gold" />
-              {project.status || 'Coming soon'}
+              {project?.status || 'Coming soon'}
             </span>
 
             <h1
@@ -137,10 +123,16 @@ function ProjectPage() {
               ref={descriptionRef}
               className="m-0 mt-7 max-w-[440px] text-[15px] md:text-[16px] leading-[165%] tracking-[0] text-[#A8B0BD]"
             >
-              We haven’t published the details for{' '}
-              <span className="text-mist">{project.title}</span> yet. This one’s
-              still taking shape — check back soon, or explore the developments
-              that are ready now.
+              {project ? (
+                <>
+                  We haven’t published the details for{' '}
+                  <span className="text-mist">{project.title}</span> yet.
+                </>
+              ) : (
+                'We haven’t published these details yet.'
+              )}{' '}
+              This one’s still taking shape, check back soon, or explore the
+              developments that are ready now.
             </p>
 
             <Link

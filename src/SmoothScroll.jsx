@@ -15,6 +15,10 @@ const easing = (t) => 1 - Math.pow(1 - t, 3)
 const MODE_OPTIONS = {
   // Standard content pages: real continuous smooth scrolling.
   smooth: { duration: 1.2, easing, smoothWheel: true, syncTouch: false },
+  // Snappier variant for the project pages, whose opening scale-reveal reads
+  // better with a slightly quicker scroll response (shorter Lenis duration =
+  // less lag catching up to the wheel).
+  smoothFast: { duration: 0.7, easing, smoothWheel: true, syncTouch: false },
 }
 
 // One global Lenis instance for the whole app. Its mode is derived from the
