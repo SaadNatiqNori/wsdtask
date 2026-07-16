@@ -125,7 +125,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
                   type="button"
                   onClick={() => setOpen(isOpen ? -1 : i)}
                   aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-6 pt-4 pb-4 text-left"
+                  className="flex w-full items-center justify-between gap-6 pt-5 pb-5 text-left"
                 >
                   <span
                     className="text-[22px] md:text-[26px] font-normal leading-[1.15] tracking-[-0.02em] text-[#E8ECF1]"
