@@ -198,11 +198,16 @@ function ProjectOpening({ hero, banner }) {
 
   return (
     <section ref={rootRef} className="relative h-[300vh]">
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
+      <div className="sticky top-0 h-screen overflow-hidden">
         <div ref={heroWrapRef} className="overflow-visible">
           {hero}
         </div>
-        <div className="mt-auto">{banner}</div>
+        {/* Pinned to the stage bottom (not stacked via mt-auto): the banner box
+            grows upward from here, and its bottom — where the illustration's
+            ground line sits — stays on the fold at any viewport height or zoom.
+            With mt-auto the box slid below the fold once hero + banner exceeded
+            the screen height, pushing the illustration off-screen. */}
+        <div className="absolute inset-x-0 bottom-0">{banner}</div>
       </div>
     </section>
   )

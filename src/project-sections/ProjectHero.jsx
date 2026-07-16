@@ -33,7 +33,11 @@ function ProjectHero({ title, description, ornament = true, project }) {
   return (
     <section
       ref={rootRef}
-      className="px-6 md:px-10 pt-[150px] md:pt-[188px]"
+      // Top padding rests at the designed 188px on tall screens, then eases up
+      // as the viewport shortens (or the browser is zoomed in) so the copy
+      // clears the fold-pinned banner box below instead of being grazed by it.
+      // clamp floor keeps the logo clear of the fixed navbar at extreme zoom.
+      className="px-6 md:px-10 pt-[150px] md:pt-[clamp(110px,calc(100vh-668px),188px)]"
       aria-label={title}
     >
       <div className="mx-auto flex max-w-[900px] flex-col items-center text-center">

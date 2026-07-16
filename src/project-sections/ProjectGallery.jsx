@@ -42,7 +42,7 @@ function ProjectGallery({
   return (
     <section
       ref={rootRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist py-10"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist pt-28 pb-10 md:pt-36"
     >
       <div className="px-6 md:px-10 flex flex-col items-center text-center">
         {/* Same pill as the Contact page badge, recoloured for the dark section

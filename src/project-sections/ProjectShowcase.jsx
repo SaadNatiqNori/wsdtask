@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import ArrowIcon from '../ArrowIcon'
 import { cubicBezier, cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
 
@@ -304,18 +305,44 @@ function ProjectShowcase({ slides = [] }) {
           <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 md:grid-cols-2 md:gap-16">
             <div className="hidden md:block" aria-hidden="true" />
             <div className="flex justify-center md:justify-end">
-              <div className="mt-10 flex w-full max-w-[520px] items-center justify-center gap-2.5 md:mt-14">
-                {slides.map((_, i) => (
+              <div className="mt-10 flex w-full max-w-[520px] flex-col items-center gap-8 md:mt-14">
+                <div className="flex items-center justify-center gap-2.5">
+                  {slides.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => goTo(i)}
+                      aria-label={`Go to slide ${i + 1}`}
+                      aria-current={i === active}
+                      className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${i === active ? 'bg-mist' : 'bg-white/30'
+                        }`}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center justify-center gap-4">
                   <button
-                    key={i}
                     type="button"
-                    onClick={() => goTo(i)}
-                    aria-label={`Go to slide ${i + 1}`}
-                    aria-current={i === active}
-                    className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${i === active ? 'bg-mist' : 'bg-white/30'
-                      }`}
-                  />
-                ))}
+                    onClick={() => goTo(current - 1)}
+                    disabled={active === 0}
+                    aria-label="Previous slide"
+                    // opacity fades (450ms) so the enabled/disabled swap eases
+                    // in alongside the slide's match-cut; border stays snappy on hover.
+                    className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-white/25 text-mist hover:border-white/70 disabled:opacity-30 disabled:hover:border-white/25"
+                    style={{ transition: 'opacity 450ms ease, border-color 200ms ease' }}
+                  >
+                    <ArrowIcon size={16} className="rotate-180" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => goTo(current + 1)}
+                    disabled={active === count - 1}
+                    aria-label="Next slide"
+                    className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-white/25 text-mist hover:border-white/70 disabled:opacity-30 disabled:hover:border-white/25"
+                    style={{ transition: 'opacity 450ms ease, border-color 200ms ease' }}
+                  >
+                    <ArrowIcon size={16} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

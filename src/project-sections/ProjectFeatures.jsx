@@ -79,7 +79,7 @@ function ProjectFeatures({ groups = [] }) {
                     className="grid grid-cols-1 justify-between gap-3 border-b border-[#1C1F2A] pt-[46px] pb-[46px] first:pt-0 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:first:pt-0"
                   >
                     <h3
-                      className="group m-0 self-start text-[24px] md:text-[38px] font-normal leading-[1.15] tracking-[-0.02em] text-[#1C1F2A]"
+                      className="group m-0 self-center text-[24px] md:text-[38px] font-normal leading-[1.15] tracking-[-0.02em] text-[#1C1F2A]"
                       style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
                     >
                       <span className="cursor-default decoration-[#5B8DBF] decoration-2 underline-offset-[10px] transition-all duration-200 group-hover:underline">
@@ -87,7 +87,7 @@ function ProjectFeatures({ groups = [] }) {
                       </span>
                     </h3>
                     <p
-                      className="m-0 ml-auto w-full max-w-[312px] self-start text-[16px] md:text-[18px] leading-[1] tracking-[0] text-[#5A6472]"
+                      className="m-0 ml-auto w-full max-w-[312px] self-center text-[16px] md:text-[18px] leading-[1.2] tracking-[0] text-[#5A6472]"
                       style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
                     >
                       {row.description.map((seg, si) => {

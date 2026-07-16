@@ -45,11 +45,11 @@ const ABOUT_FALLBACK = {
 
 function Strength({ title, description, index }) {
   return (
-    <div className={`relative ${index > 0 ? "md:ml-[61px] md:pl-[61px] md:before:absolute md:before:left-0 md:before:top-0 md:before:h-[192px] md:before:w-[0.5px] md:before:bg-white md:before:content-['']" : ''}`}>
+    <div className={`relative ${index > 0 ? "md:ml-[61px] md:pl-[61px] md:before:absolute md:before:left-0 md:before:top-0 md:before:h-full md:before:w-[0.5px] md:before:bg-white md:before:content-['']" : ''}`}>
       <h3 className="m-0 text-[24px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.6px] text-gold md:whitespace-nowrap">
         {title}
       </h3>
-      <p className="mt-8 text-[15px] md:text-[16px] leading-normal tracking-[0] text-mist md:w-[356px]">
+      <p className="mt-6 text-[15px] md:text-[16px] leading-5 tracking-[0] text-mist md:w-[356px]">
         {description}
       </p>
     </div>
@@ -65,6 +65,7 @@ function AboutPage() {
   const strengthItems = strengths.items ?? ABOUT_FALLBACK.strengths.items
   const goalsSectionRef = useRef(null)
   const overlayRef = useRef(null)
+  const heroImageRef = useRef(null)
   const heroBadgeRef = useRef(null)
   const heroTitleRef = useRef(null)
   const heroSubtitleRef = useRef(null)
@@ -86,6 +87,26 @@ function AboutPage() {
           delay: 0.2,
         }
       )
+
+      if (heroImageRef.current) {
+        // Blur-up reveal: start blurred + slightly scaled (the scale hides the
+        // blurred edges so they don't expose the background) then ease to sharp.
+        gsap.set(heroImageRef.current, {
+          yPercent: 8,
+          opacity: 0,
+          scale: 1.08,
+          filter: 'blur(24px)',
+        })
+        gsap.to(heroImageRef.current, {
+          yPercent: 0,
+          opacity: 1,
+          scale: 1,
+          filter: 'blur(0px)',
+          duration: 1.6,
+          ease: cubicEase,
+          delay: 0.15,
+        })
+      }
 
     })
     return () => ctx.revert()
@@ -118,20 +139,24 @@ function AboutPage() {
 
         <section
           ref={goalsSectionRef}
-          className="relative h-[200vh] bg-navy"
+          className="relative bg-navy"
         >
-          <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <div className="sticky top-0 h-screen w-full overflow-hidden bg-mist">
             <img
+              ref={heroImageRef}
               src={hero.image || avenueImage}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
             />
           </div>
 
-          <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none flex flex-col">
-            <div className="h-screen shrink-0" />
+          {/* Content is pulled back over the sticky image with -mt-[100vh]; the
+              section then grows to 100vh + text height, so the blur overlay always
+              ends at the section boundary and never bleeds into the next section. */}
+          <div className="relative -mt-[100vh] pointer-events-none">
+            <div className="h-screen" />
 
-            <div className="relative flex-1">
+            <div className="relative">
               <div
                 ref={overlayRef}
                 className="absolute left-0 right-0 bottom-0 -top-[70vh] pointer-events-none"
@@ -204,7 +229,7 @@ function AboutPage() {
               {strengths.eyebrow}
             </p>
             <h2
-              className="m-0 mt-[30px] text-[28px] md:text-[36px] font-normal leading-normal tracking-[-1.44px] text-mist md:w-[780px]"
+              className="m-0 mt-[30px] text-[28px] md:text-[36px] font-normal leading-[42px] tracking-[-1.44px] text-mist md:w-[780px]"
             >
               {strengths.title}
             </h2>
