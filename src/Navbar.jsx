@@ -251,7 +251,9 @@ function Navbar() {
 
         <Link
           to="/contact"
-          className="inline-flex h-9 items-center whitespace-nowrap rounded-[22px] bg-mist px-[10px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px]"
+          onMouseEnter={() => setHoveredLink('contact')}
+          onMouseLeave={() => setHoveredLink(null)}
+          className="inline-flex h-9 items-center whitespace-nowrap rounded-[22px] border border-transparent bg-mist px-[10px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px] transition-colors duration-300 ease-out hover:bg-transparent hover:border-mist hover:text-mist"
         >
           <p className="m-0 font-['Akkurat_Mono',monospace] relative top-[1px]">{nav.contactLabel}</p>
         </Link>

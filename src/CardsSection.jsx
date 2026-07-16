@@ -73,6 +73,7 @@ function CardsSection() {
   const cardsKey = CARDS.map((c) => c.title).join('|')
   const accentKey = [...ACCENT_WORDS].join('|')
   const sectionRef = useRef(null)
+  const stickyRef = useRef(null)
   const wordRefs = useRef([])
   const accentWordMap = useRef({})
   const heroTextRef = useRef(null)
@@ -87,14 +88,16 @@ function CardsSection() {
   cardLineRefs.current = []
 
   // Choreography: the word-rise entrance plays once as the section scrolls in,
-  // so the description is readable the moment the user arrives. The section
-  // then pins and the rest — non-accent dissolve, accent words flying into the
-  // card titles, lines/descriptions growing in — is scrubbed by scroll.
-  // Scrolling back rewinds it; the flying words are absolutely-positioned
-  // clones inside the pinned section (not fixed to the viewport), so they can
-  // never be stranded over a neighboring section.
+  // so the description is readable the moment the user arrives. A tall outer
+  // section then holds a `sticky top-0 h-screen` wrapper in place while the
+  // rest — non-accent dissolve, accent words flying into the card titles,
+  // lines/descriptions growing in — is scrubbed by scroll. Scrolling back
+  // rewinds it; the flying words are absolutely-positioned clones inside the
+  // sticky wrapper (which stays in the viewport, not the scrolling outer
+  // section), so they can never be stranded over a neighboring section.
   useLayoutEffect(() => {
     const sectionEl = sectionRef.current
+    const stickyEl = stickyRef.current
     const allWordEls = wordRefs.current.filter(Boolean)
     const accentEls = Object.values(accentWordMap.current).filter(Boolean)
     const nonAccentEls = allWordEls.filter((el) => !accentEls.includes(el))
@@ -104,7 +107,7 @@ function CardsSection() {
     const contentEls = cardContentRefs.current.filter(Boolean)
     const lineEls = cardLineRefs.current.filter(Boolean)
 
-    if (!sectionEl || !allWordEls.length) return
+    if (!sectionEl || !stickyEl || !allWordEls.length) return
 
     let cancelled = false
     let mm = null
@@ -145,7 +148,9 @@ function CardsSection() {
         // Flight geometry, measured up front (fonts are loaded by now). The
         // overflow wrappers are untransformed, so their rects give the words'
         // settled positions even while the entrance still holds them shifted.
-        const sectionRect = sectionEl.getBoundingClientRect()
+        // Offsets are relative to the sticky wrapper (where the clones live),
+        // so they stay valid as it sticks — the outer section scrolls past.
+        const stickyRect = stickyEl.getBoundingClientRect()
         const flights = CARDS.map((card) => {
           const accentEl = accentWordMap.current[card.title]
           const targetEl = cardTitleRefs.current[card.title]
@@ -160,8 +165,8 @@ function CardsSection() {
           clone.textContent = card.title
           Object.assign(clone.style, {
             position: 'absolute',
-            left: `${from.left - sectionRect.left}px`,
-            top: `${from.top - sectionRect.top}px`,
+            left: `${from.left - stickyRect.left}px`,
+            top: `${from.top - stickyRect.top}px`,
             fontFamily: "'Season Mix-TRIAL', serif",
             color: 'var(--color-gold)',
             fontSize: `${fromSize}px`,
@@ -173,7 +178,7 @@ function CardsSection() {
             pointerEvents: 'none',
             willChange: 'transform',
           })
-          sectionEl.appendChild(clone)
+          stickyEl.appendChild(clone)
           clones.push(clone)
           // The clone lives outside the scale wrapper; mirror its scale so the
           // rendered size matches the word it replaces.
@@ -193,8 +198,8 @@ function CardsSection() {
 
         // The white words dissolve on their own clock, not the scroll's —
         // scrubbing them shows half-clipped glyphs tracking the wheel. The
-        // first scroll inside the pin dissolves them; returning to the pin
-        // start brings them back. Explicit to-tweens with overwrite (rather
+        // first scroll inside the sticky range dissolves them; returning to
+        // its start brings them back. Explicit to-tweens with overwrite (rather
         // than one reversed tween) because fully reversing a from/fromTo
         // reverts to pre-tween inline values — the entrance's offscreen state.
         let dissolved = false
@@ -212,18 +217,20 @@ function CardsSection() {
         const tl = gsap.timeline({
           defaults: { ease: cubicEase },
           scrollTrigger: {
+            // The outer section is taller than the viewport, so the sticky
+            // wrapper stays put from 'top top' until 'bottom bottom' — the
+            // scrub spans that travel (250vh - 100vh = 150vh desktop, 100vh
+            // mobile). The section height carries the desktop/mobile split.
             trigger: sectionEl,
             start: 'top top',
-            end: window.innerWidth >= 768 ? '+=150%' : '+=100%',
-            pin: true,
+            end: 'bottom bottom',
             scrub: 1,
-            anticipatePin: 1,
-            // A fast scroller can reach the pin mid-entrance; hand the words
+            // A fast scroller can reach the sticky range mid-entrance; hand the words
             // over to the scrub settled so the two tweens don't fight.
             onEnter: () => entrance.progress(1),
             onUpdate: (self) => {
-              // How far into the pin (0..1) the user scrolls before the
-              // description starts to dissolve.
+              // How far into the sticky range (0..1) the user scrolls before
+              // the description starts to dissolve.
               if (self.progress > 0.13) {
                 // The entrance must be settled before the dissolve touches
                 // the same words, or the two tweens trade renders.
@@ -275,12 +282,11 @@ function CardsSection() {
         tl.to(cardsEl, { autoAlpha: 1, duration: 0.4, ease: 'none' }, '<')
       })
 
-      // The pin spacer changes the positions of everything below. This pin is
-      // built async (after fonts.ready), i.e. AFTER the later sections created
-      // their triggers — and refresh() processes triggers in creation order,
-      // only offsetting triggers that refresh after the pin. Without sort()
-      // everything below would be measured pin-less and fire ~150vh too early.
-      ScrollTrigger.sort()
+      // Built async (after fonts.ready), i.e. AFTER the later sections created
+      // their triggers, so re-measure everything now that the clones/timeline
+      // exist. The section's height is static CSS (present from first render),
+      // so unlike the old pin spacer it needs no sort() to offset triggers
+      // below — they already measured the tall section.
       ScrollTrigger.refresh()
     }
 
@@ -318,20 +324,24 @@ function CardsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-navy"
+      className="relative w-full h-[200vh] md:h-[250vh] bg-navy"
       aria-label="Subsidiaries"
     >
       <div
-        className="scale-wrapper"
-        style={{
-          transform: `scale(${scale})`,
-          transformOrigin: 'top center',
-          width: scale >= 1 ? '100%' : `${100 / scale}%`,
-          marginLeft: scale >= 1 ? '0' : `${(100 - 100 / scale) / 2}%`,
-          height: `${100 / scale}vh`,
-        }}
+        ref={stickyRef}
+        className="sticky top-0 h-screen w-full overflow-hidden bg-navy"
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-8 pt-[88px] text-[#d6deea] md:px-8 md:py-12">
+        <div
+          className="scale-wrapper"
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top center',
+            width: scale >= 1 ? '100%' : `${100 / scale}%`,
+            marginLeft: scale >= 1 ? '0' : `${(100 - 100 / scale) / 2}%`,
+            height: `${100 / scale}vh`,
+          }}
+        >
+          <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-8 pt-[88px] text-[#d6deea] md:px-8 md:py-12">
           <div className="relative mx-auto flex flex-1 items-center max-w-[1440px] w-full">
             <section ref={heroTextRef} aria-label="Company introduction">
               <p className="m-0 text-[32px] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
@@ -364,7 +374,7 @@ function CardsSection() {
 
             <section
               ref={cardsContainerRef}
-              className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:-translate-y-1/2 md:gap-0 md:grid-cols-3 mt-4 md:mt-0"
+              className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:translate-y-[calc(-50%+48px)] md:gap-0 md:grid-cols-3 mt-4 md:mt-0"
               aria-label="Subsidiaries"
             >
               {CARDS.map((card) => (
@@ -414,6 +424,7 @@ function CardsSection() {
             </section>
           </div>
         </main>
+        </div>
       </div>
     </section>
   )

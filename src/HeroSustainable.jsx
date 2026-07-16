@@ -171,7 +171,7 @@ function HeroSustainable() {
               {...(featured.slug
                 ? { to: `/projects/${featured.slug}`, 'aria-label': `View project: ${featured.title}` }
                 : {})}
-              className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-6 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px] group transition-[backdrop-filter] duration-500 ease-out hover:backdrop-blur-[90px]"
+              className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-3 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px] group transition-[backdrop-filter,background-color] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#13294B]/20 hover:backdrop-blur-[100px]"
             >
               <div className="flex justify-between items-start relative -top-2">
                <div>

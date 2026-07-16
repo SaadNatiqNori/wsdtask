@@ -446,7 +446,7 @@ function PortfolioSlider() {
                     {project.title}
                   </h3>
                   <p
-                    className="mt-[18px] text-[12px] leading-5 text-mist"
+                    className="mt-[18px] text-[12px] leading-4 text-mist"
                     style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
                   >
                     {project.short || project.description}

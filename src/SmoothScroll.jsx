@@ -9,16 +9,20 @@ gsap.registerPlugin(ScrollTrigger)
 const LenisContext = createContext(null)
 const ScrollModeContext = createContext(() => {})
 
-// Cubic ease-out, shared across modes (matches the home page's original feel).
-const easing = (t) => 1 - Math.pow(1 - t, 3)
-
 const MODE_OPTIONS = {
-  // Standard content pages: real continuous smooth scrolling.
-  smooth: { duration: 1.2, easing, smoothWheel: true, syncTouch: false },
+  // Standard content pages: real continuous smooth scrolling. Lerp-based
+  // interpolation (glide toward the target every frame) reads as more fluid
+  // than fixed-duration tweens, which stack per wheel event and feel choppy.
+  // lerp stays moderate — low enough to feel smooth, high enough that Lenis's
+  // position keeps up with the real scroll so ScrollTrigger pins (the pinned
+  // subsidiaries section) engage without jumping against the top of the
+  // screen. A gentler wheelMultiplier does the "extra smooth" work instead,
+  // softening each wheel tick without slowing the pin-critical catch-up.
+  smooth: { lerp: 0.1, wheelMultiplier: 0.85, smoothWheel: true, syncTouch: false },
   // Snappier variant for the project pages, whose opening scale-reveal reads
-  // better with a slightly quicker scroll response (shorter Lenis duration =
-  // less lag catching up to the wheel).
-  smoothFast: { duration: 0.7, easing, smoothWheel: true, syncTouch: false },
+  // better with a quicker scroll response (higher lerp = catches up to the
+  // wheel faster, less lag).
+  smoothFast: { lerp: 0.14, smoothWheel: true, syncTouch: false },
 }
 
 // One global Lenis instance for the whole app. Its mode is derived from the

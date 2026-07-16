@@ -238,13 +238,15 @@ function MissionVisionValues() {
       tl.to(missionRef.current, { yPercent: -6, ease: 'none', duration: 1 }, 0)
       tl.to(visionRef.current, { yPercent: 12, ease: 'none', duration: 1 }, 0)
       tl.set(missionIllRef.current, { autoAlpha: 0 }, 1)
-      // Values slides in...
-      tl.to(valuesRef.current, { yPercent: 10, ease: 'none', duration: 1 }, 1)
+      // Values slides in — longer duration than the intro tweens so it takes
+      // more scroll to arrive (a slower, gentler handover).
+      tl.to(valuesRef.current, { yPercent: 10, ease: 'none', duration: 1.5 }, 1)
       // ...and as it nears Vision, the stack eases up and out — Mission
       // leaves through the top and Vision becomes the top tab, docked so its
-      // own illustration hides behind Values' sheet.
-      tl.to(missionRef.current, { yPercent: -110, ease: 'power2.inOut', duration: 0.75 }, 1.25)
-      tl.to(visionRef.current, { yPercent: -8, ease: 'power2.inOut', duration: 0.75 }, 1.25)
+      // own illustration hides behind Values' sheet. Longer duration = the exit
+      // spans more scroll, so Mission drifts out slowly instead of snapping.
+      tl.to(missionRef.current, { yPercent: -110, ease: 'power2.inOut', duration: 1.5 }, 1.25)
+      tl.to(visionRef.current, { yPercent: -8, ease: 'power2.inOut', duration: 1.5 }, 1.25)
     })
 
     return () => ctx.revert()
@@ -253,7 +255,7 @@ function MissionVisionValues() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-[300vh] bg-[#E6EBF0]"
+      className="relative w-full h-[450vh] bg-[#E6EBF0]"
       aria-label="Mission, vision, values"
     >
       <div
