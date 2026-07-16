@@ -198,7 +198,7 @@ function SubsidiariesPage() {
             </h1>
             <p
               ref={introRef}
-              className="m-0 mt-4 text-[22px] md:text-[32px] leading-[1.15] tracking-[0] text-mist"
+              className="m-0 mt-0 text-[22px] md:text-[32px] leading-[1.15] tracking-[0] text-mist"
               style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 400 }}
             >
               {intro}
@@ -272,7 +272,7 @@ function SubsidiariesPage() {
             </div>
           </div>
 
-          <div className="mt-24 md:mt-[232px] max-w-[1130px] mx-auto bg-[#22252E] rounded-[6px] px-6 py-12 md:px-[70px] md:py-[80px] flex flex-col gap-12 md:gap-[70px]">
+          <div className="mt-24 md:mt-[232px] max-w-[1130px] mx-auto bg-[#FFFFFF05] rounded-[6px] px-6 py-12 md:px-[70px] md:py-[80px] flex flex-col gap-12 md:gap-[70px]">
             <div className="flex gap-[28px]">
               <div
                 aria-hidden="true"
