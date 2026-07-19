@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ArrowIcon from '../ArrowIcon'
 import { cubicBezier, cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -68,10 +69,20 @@ function Slide({ heading, bodyLeft, bodyRight, image }) {
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 md:h-full md:grid-cols-2 md:gap-16">
         {/* Copy — flows from the stage top so the title position never shifts */}
         <div>
-          <div className="border-l border-white/40 pb-1 pl-6 md:pl-8">
+          <div className="relative pt-[6px] pb-1 md:pt-[9px]">
+            {/* The accent line rides a black backdrop that extends past it on
+                both sides and is layered ABOVE the heading. On a slide change
+                the heading slides horizontally UNDER this backdrop, so it's
+                occluded at the line instead of visibly passing across it. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 -translate-x-10 bg-black md:w-14 md:-translate-x-12"
+            >
+              <span className="absolute inset-y-0 left-10 w-px bg-white/40 md:left-12" />
+            </div>
             <h2
               data-anim
-              className="m-0 whitespace-pre-line text-[34px] md:text-[52px] font-normal leading-[1.05] tracking-[-0.01em] text-mist"
+              className="m-0 whitespace-pre-line pl-6 md:pl-8 text-[34px] md:text-[52px] font-normal leading-[1.05] tracking-[-0.01em] text-mist"
               style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
             >
               {heading}
@@ -262,9 +273,10 @@ function ProjectShowcase({ slides = [] }) {
   }
 
   return (
-    <section
-      ref={rootRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black text-mist"
+    <ScaleLock
+      viewport="min"
+      innerRef={rootRef}
+      className="relative flex flex-col items-center justify-center overflow-hidden bg-black text-mist"
     >
       <div
         data-showcase-reveal
@@ -348,7 +360,7 @@ function ProjectShowcase({ slides = [] }) {
           </div>
         </div>
       )}
-    </section>
+    </ScaleLock>
   )
 }
 

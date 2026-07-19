@@ -140,7 +140,7 @@ function ContactSection() {
                 to="/contact"
                 className="group inline-flex h-[46px] items-center gap-[5px] rounded-[48px] border border-mist bg-mist px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-navy no-underline transition-colors duration-300 ease-out hover:bg-navy hover:text-mist"
               >
-                <span className="relative top-[0px]">{cta.buttonLabel}</span>
+                <span className="relative top-[1px]">{cta.buttonLabel}</span>
                 <ArrowIcon
                   size={14}
                   className="transition-transform duration-300 ease-out group-hover:translate-x-[3px]"
@@ -149,7 +149,10 @@ function ContactSection() {
             </div>
           </div>
 
-          <div className="relative mt-auto pt-[161px]">
+          {/* mt-auto bottom-pins the logo; no fixed top gap, or on
+              short/wide viewports the 161px gap would push the ALCOVE
+              mask past the section's overflow-hidden edge and clip it. */}
+          <div className="relative mt-auto">
             <div
               ref={alcoveRef}
               className="w-full aspect-[64/13]"

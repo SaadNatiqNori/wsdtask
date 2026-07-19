@@ -112,6 +112,11 @@ html.lenis body {
     --color-gold: #ECD898;
     --color-deep: #13294B;
 
+    /* Page content width — full-bleed up to the "big" breakpoint, then capped
+       so wide screens center the content instead of piling space on one side. */
+    --breakpoint-big: 110rem;
+    --content-width: min(100vw, var(--breakpoint-big));
+
     font-family: 'Season Sans-TRIAL', 'Inter', 'Avenir Next', 'Segoe UI',
       sans-serif;
     font-synthesis: none;

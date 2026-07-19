@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { cubicEase } from './easings'
 import ContactSection from './ContactSection'
+import { ScaleLock } from './ScaleLock'
 import { useProjects } from './api'
 import { PROJECTS_DATA } from './projects'
 import { ProjectIllustration } from './PortfolioSlider'
@@ -145,7 +146,12 @@ function ProjectsListPage() {
 
   return (
     <>
-    <main className="relative min-h-screen bg-[#E6EBF0] px-6 md:px-12 pb-24 overflow-hidden">
+    <main className="relative min-h-screen bg-[#E6EBF0] overflow-hidden">
+      {/* The page content is locked to the 1440 canvas. The mouse-follow preview
+          card below is intentionally left OUTSIDE this wrapper: it is
+          position: fixed and driven by real-viewport pointer coords, which a
+          transform ancestor would break. */}
+      <ScaleLock as="div" className="px-6 md:px-12 pb-24">
       <div className="mx-auto pt-[150px] md:pt-[190px]">
         {/* Heading */}
         <div ref={headingRef} className="md:pl-[13%]">
@@ -221,6 +227,7 @@ function ProjectsListPage() {
           />
         </ul>
       </div>
+      </ScaleLock>
 
       {/* Mouse-following preview card */}
       <div
@@ -230,7 +237,7 @@ function ProjectsListPage() {
       >
         <div
           ref={cardInnerRef}
-          className="rounded-[10px] border border-[#FFFFFF12] bg-navy p-9 text-mist shadow-[0_30px_80px_-24px_rgba(10,14,24,0.55)] will-change-transform"
+          className="rounded-[5px] border border-[#FFFFFF12] bg-navy p-9 text-mist shadow-[0_30px_80px_-24px_rgba(10,14,24,0.55)] will-change-transform"
         >
           <h2
             className="m-0 text-[26px] md:text-[28px] font-[420] leading-[1.1] tracking-[-0.02em] text-mist"

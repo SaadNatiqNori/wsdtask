@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { prefersReducedMotion } from './motion'
+import { useScale } from '../useScale'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -18,6 +20,7 @@ gsap.registerPlugin(ScrollTrigger)
 function ProjectOpening({ hero, banner }) {
   const rootRef = useRef(null)
   const heroWrapRef = useRef(null)
+  const scale = useScale()
 
   const [cinematic, setCinematic] = useState(
     () => window.matchMedia('(min-width: 768px)').matches && !prefersReducedMotion()
@@ -38,8 +41,13 @@ function ProjectOpening({ hero, banner }) {
       if (!box) return
       const bannerSection = box.closest('section')
 
-      const vw = () => window.innerWidth
-      const vh = () => window.innerHeight
+      // The reveal geometry lives inside the scale-wrapper (canvas units), so
+      // "viewport" for it is the real viewport divided by scale. Redefining these
+      // two helpers makes every downstream use (restBoxH, imgH, the box
+      // maxWidth/height targets, the image bottom) reach true full-bleed once
+      // scaled back up — no other timeline edits needed.
+      const vw = () => window.innerWidth / scale
+      const vh = () => window.innerHeight / scale
       // Target image size: large but still contained (art aspect from the
       // loaded file; falls back to the banner's 16/5-ish shape until then).
       const artAspect = () =>
@@ -54,7 +62,6 @@ function ProjectOpening({ hero, banner }) {
       // ≥768px, so the md: variants apply (px-10, mt-[68px]).
       const sidePad = 40
       const restBoxH = () => (Math.min(1200, vw() - sidePad * 2) * 5) / 16
-      const midBoxH = () => vh() * 0.58
 
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
@@ -67,41 +74,29 @@ function ProjectOpening({ hero, banner }) {
         },
       })
 
-      // Choreography (timeline 0 → 1, scrubbed continuously; KF2 = 0.5 and
-      // KF3 = 1). By KF2 the box is already full-bleed but only ~58% of the
-      // viewport tall, so the title stays readable above its edge; by KF3
-      // it owns the whole stage.
+      // Choreography (timeline 0 → 1, scrubbed continuously). Width and
+      // height grow together over the whole scroll, so the box scales
+      // uniformly and reaches full-bleed at the same moment — at the end of
+      // the scroll (scrub 1). Padding/margin and corners ease out over the
+      // same window so the box can actually reach the viewport edges.
       // The box is w-full clamped by max-width; raising the clamp (rather
       // than setting an explicit width) grows it while keeping the resting
       // 1200px clamp intact when the scrub returns to 0. Every tween uses
       // fromTo with deterministic from-values (see note above).
-      tl.fromTo(box, { maxWidth: 1200 }, { maxWidth: vw, duration: 0.5 }, 0)
-      // Corners stay rounded through KF2; they only flatten while the box
-      // takes over the full stage in the second half.
-      tl.fromTo(
-        box,
-        { borderRadius: 8 },
-        { borderRadius: 0, duration: 0.5, immediateRender: false },
-        0.5
-      )
+      tl.fromTo(box, { maxWidth: 1200 }, { maxWidth: vw, duration: 1 }, 0)
+      tl.fromTo(box, { height: restBoxH }, { height: vh, duration: 1 }, 0)
       tl.fromTo(
         bannerSection,
         { paddingLeft: sidePad, paddingRight: sidePad, marginTop: 68 },
-        { paddingLeft: 0, paddingRight: 0, marginTop: 0, duration: 0.5 },
+        { paddingLeft: 0, paddingRight: 0, marginTop: 0, duration: 1 },
         0
       )
-      tl.fromTo(box, { height: restBoxH }, { height: midBoxH, duration: 0.5 }, 0)
-      tl.fromTo(
-        box,
-        { height: midBoxH },
-        { height: vh, duration: 0.5, immediateRender: false },
-        0.5
-      )
-      // The copy never moves during the first half — the banner is an opaque
-      // layer sliding over the resting description. Collapsing the hero
-      // wrapper's layout footprint (its content keeps painting through the
-      // collapsed box) is what lets the bottom-pinned banner rise through
-      // the stage.
+      tl.fromTo(box, { borderRadius: 8 }, { borderRadius: 0, duration: 1 }, 0)
+      // The hero copy (emblem, title, description) stays completely fixed —
+      // no scale, slide, or fade. The opaque banner simply rises over it and
+      // covers it. Collapsing the hero wrapper's layout footprint (its content
+      // keeps painting through the collapsed box via overflow-visible) is what
+      // lets the bottom-pinned banner rise through the stage.
       const heroWrap = heroWrapRef.current
       tl.fromTo(
         heroWrap,
@@ -109,73 +104,16 @@ function ProjectOpening({ hero, banner }) {
         { height: 0, duration: 1 },
         0
       )
-      // Second half only: as the box scales to own the full screen, the
-      // logo + title are pushed up with it and fade out ("fade-up" exit).
-      const titleWrap = heroWrap.querySelector('[data-hero-title-wrap]')
-      if (titleWrap) {
-        tl.fromTo(
-          titleWrap,
-          { y: 0, autoAlpha: 1 },
-          {
-            y: () => -vh() * 0.35,
-            autoAlpha: 0,
-            duration: 0.5,
-            immediateRender: false,
-          },
-          0.5
-        )
-      }
-      // The title (and the logo above it) swell ~+8px-equivalent in parallel
-      // with the banner's scale — done with a transform (GPU-composited)
-      // rather than font-size, which re-rasterizes the glyphs every pixel
-      // step and reads as stutter. The swell completes by KF2: during the
-      // second-half push/fade they keep their size.
-      const title = heroWrap.querySelector('h1')
-      if (title) {
-        const restSize = parseFloat(window.getComputedStyle(title).fontSize)
-        const swell = (restSize + 8) / restSize
-        tl.fromTo(
-          title,
-          { scale: 1, transformOrigin: '50% 100%' },
-          { scale: swell, duration: 0.5 },
-          0
-        )
-        const logo = heroWrap.querySelector('[data-hero-title-wrap] img')
-        if (logo) {
-          tl.fromTo(
-            logo,
-            { scale: 1, transformOrigin: '50% 100%' },
-            { scale: swell, duration: 0.5 },
-            0
-          )
-        }
-        const lead = heroWrap.querySelector('p')
-        if (lead) {
-          tl.fromTo(
-            lead,
-            { scale: 1, transformOrigin: '50% 100%' },
-            { scale: swell, duration: 0.5 },
-            0
-          )
-          // The description also eases down a touch, meeting the rising
-          // banner (yPercent — its plain y belongs to the entrance stagger).
-          tl.fromTo(lead, { yPercent: 0 }, { yPercent: 30, duration: 0.5 }, 0)
-        }
-      }
       if (img) {
-        // The art grows for the whole ride but stays seated on the banner's
-        // bottom edge through KF2; it only lifts to the vertical center
-        // during the second half, as the box takes over the full stage.
+        // The art grows and lifts to the vertical center over the same whole
+        // window as the box, so it rides up in step with the uniform scale
+        // instead of handing off at a mid-point.
         tl.fromTo(img, { height: 250 }, { height: imgH, duration: 1 }, 0)
         tl.fromTo(
           img,
           { bottom: 0 },
-          {
-            bottom: () => (vh() - imgH()) / 2,
-            duration: 0.5,
-            immediateRender: false,
-          },
-          0.5
+          { bottom: () => (vh() - imgH()) / 2, duration: 1 },
+          0
         )
       }
 
@@ -185,29 +123,44 @@ function ProjectOpening({ hero, banner }) {
       }
     }, rootRef)
     return () => ctx.revert()
-  }, [cinematic])
+  }, [cinematic, scale])
 
   if (!cinematic) {
     return (
-      <section className="flex min-h-screen flex-col">
+      <ScaleLock viewport="min" scale={scale} className="flex flex-col">
         {hero}
         <div className="mt-auto">{banner}</div>
-      </section>
+      </ScaleLock>
     )
   }
 
   return (
     <section ref={rootRef} className="relative h-[300vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        <div ref={heroWrapRef} className="overflow-visible">
-          {hero}
+        {/* Only the stage content is scaled; the tall outer section and this
+            sticky stage stay unscaled so they drive the scroll/pin unchanged.
+            The wrapper is one real viewport tall (100/scale vh), and — being a
+            transform — it becomes the containing block for the absolutely
+            positioned banner, so the banner still pins to the fold. */}
+        <div
+          className="scale-wrapper"
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top center',
+            width: `${100 / scale}%`,
+            marginLeft: `${(100 - 100 / scale) / 2}%`,
+            height: `${100 / scale}vh`,
+            '--scale': scale,
+          }}
+        >
+          <div ref={heroWrapRef} className="overflow-visible">
+            {hero}
+          </div>
+          {/* Pinned to the stage bottom (not stacked via mt-auto): the banner box
+              grows upward from here, and its bottom — where the illustration's
+              ground line sits — stays on the fold at any viewport height or zoom. */}
+          <div className="absolute inset-x-0 bottom-0">{banner}</div>
         </div>
-        {/* Pinned to the stage bottom (not stacked via mt-auto): the banner box
-            grows upward from here, and its bottom — where the illustration's
-            ground line sits — stays on the fold at any viewport height or zoom.
-            With mt-auto the box slid below the fold once hero + banner exceeded
-            the screen height, pushing the illustration off-screen. */}
-        <div className="absolute inset-x-0 bottom-0">{banner}</div>
       </div>
     </section>
   )

@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
 import logoYellow from '../assets/LogoYellow.svg'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -30,9 +31,10 @@ function ProjectOverview({ eyebrow = 'Project Overview', heading, body, image })
   }, [])
 
   return (
-    <section
-      ref={rootRef}
-      className="bg-[#161A24] text-mist h-screen px-[38px]"
+    <ScaleLock
+      viewport="full"
+      innerRef={rootRef}
+      className="bg-[#161A24] text-mist px-[38px]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
       <div className="mx-auto flex h-full flex-col justify-center py-[69px]">
@@ -76,7 +78,7 @@ function ProjectOverview({ eyebrow = 'Project Overview', heading, body, image })
           </div>
         </div>
       </div>
-    </section>
+    </ScaleLock>
   )
 }
 

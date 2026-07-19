@@ -4,6 +4,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
 import { OrbitSVG, ShieldSVG, CirclesSVG } from './LocationIllustrations'
+import { useScale } from '../useScale'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -23,6 +25,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
   const rootRef = useRef(null)
   const [open, setOpen] = useState(0)
   const didInit = useRef(false)
+  const scale = useScale()
 
   // Entrance
   useLayoutEffect(() => {
@@ -47,7 +50,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
     const slides = gsap.utils.toArray('[data-loc-slide]', rootRef.current)
     if (!slides.length) return
     const reduce = prefersReducedMotion()
-    const travel = (typeof window !== 'undefined' ? window.innerHeight : 900) * 0.6
+    const travel = ((typeof window !== 'undefined' ? window.innerHeight : 900) * 0.6) / scale
     slides.forEach((el, i) => {
       const y = (i - open) * travel
       const opacity = i === open ? 1 : 0
@@ -68,12 +71,14 @@ function ProjectLocation({ title = 'Location', items = [] }) {
       }
     })
     didInit.current = true
-  }, [open])
+  }, [open, scale])
 
   return (
-    <section
-      ref={rootRef}
-      className="relative flex min-h-screen items-center overflow-hidden bg-[#161A24] text-mist"
+    <ScaleLock
+      viewport="min"
+      scale={scale}
+      innerRef={rootRef}
+      className="relative flex items-center overflow-hidden bg-[#161A24] text-mist"
     >
       <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center gap-16 px-6 py-24 md:flex-row md:justify-between md:gap-0 md:px-[38px] md:py-0">
         {/* Title */}
@@ -166,7 +171,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
           })}
         </div>
       </div>
-    </section>
+    </ScaleLock>
   )
 }
 

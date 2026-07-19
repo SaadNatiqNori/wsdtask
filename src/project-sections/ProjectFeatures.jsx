@@ -4,6 +4,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -33,8 +34,8 @@ function ProjectFeatures({ groups = [] }) {
   }, [])
 
   return (
-    <section
-      ref={rootRef}
+    <ScaleLock
+      innerRef={rootRef}
       className="bg-[#E6EBF0] text-[#1C1F2A]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
@@ -138,7 +139,7 @@ function ProjectFeatures({ groups = [] }) {
           </div>
         </div>
       ))}
-    </section>
+    </ScaleLock>
   )
 }
 

@@ -425,8 +425,8 @@ function PortfolioSlider() {
                 to="/projects"
                 className="inline-flex w-fit h-[46px] items-center gap-[5px] rounded-[48px] bg-navy px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
               >
-                <span className="relative top-[0px]">{portfolio.ctaLabel}</span>
-                <ArrowIcon size={14} />
+                <span className="relative top-[1.5px]">{portfolio.ctaLabel}</span>
+                <ArrowIcon size={14} className='relative top-[0.5px]' />
               </Link>
             </div>
 
@@ -446,7 +446,7 @@ function PortfolioSlider() {
                     {project.title}
                   </h3>
                   <p
-                    className="mt-[18px] text-[12px] leading-4 text-mist"
+                    className="mt-[18px] text-[12px] leading-4 text-mist line-clamp-2"
                     style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
                   >
                     {project.short || project.description}

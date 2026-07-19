@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowBack, IoArrowForward } from 'react-icons/io5'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -40,9 +41,10 @@ function ProjectGallery({
   }, [])
 
   return (
-    <section
-      ref={rootRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist pt-28 pb-10 md:pt-36"
+    <ScaleLock
+      viewport="min"
+      innerRef={rootRef}
+      className="relative flex flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist pt-28 pb-10 md:pt-36"
     >
       <div className="px-6 md:px-10 flex flex-col items-center text-center">
         {/* Same pill as the Contact page badge, recoloured for the dark section
@@ -71,7 +73,7 @@ function ProjectGallery({
         <div
           className="flex"
           style={{
-            '--slw': 'min(1120px, 64vw)',
+            '--slw': 'min(1120px, calc(64vw / var(--scale)))',
             '--gap': '20px',
             gap: 'var(--gap)',
             transform: `translateX(calc((100% - var(--slw)) / 2 - ${index} * (var(--slw) + var(--gap))))`,
@@ -121,7 +123,7 @@ function ProjectGallery({
           </button>
         </div>
       )}
-    </section>
+    </ScaleLock>
   )
 }
 

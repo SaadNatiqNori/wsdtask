@@ -7,6 +7,7 @@ import arrowRight from './assets/arrow-right.svg'
 import { cubicEase } from './easings'
 import { PROJECTS_DATA } from './projects'
 import { useProjects, useContent } from './api'
+import { useScale } from './useScale'
 
 const NAVBAR_FALLBACK = {
   links: [
@@ -126,6 +127,12 @@ function ProjectsDropdown({ open, onClose, projects, heading, onMouseEnter, onMo
 
 function Navbar() {
   const navbarRef = useRef(null)
+  // Locked to the same 1440 canvas as the page content so the header scales in
+  // step with the rest of the site above 768px. The scale sits on the <header>
+  // (not the <nav>, whose transform the entrance animation owns); it scales the
+  // pill and the projects dropdown together so they stay aligned. scale is 1
+  // below 768px (mobile untouched).
+  const scale = useScale()
   const [projectsOpen, setProjectsOpen] = useState(false)
   const [hoveredLink, setHoveredLink] = useState(null)
   const projectsTriggerRef = useRef(null)
@@ -190,6 +197,7 @@ function Navbar() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center px-4 pt-4 md:px-8 md:pt-5 pointer-events-none"
+      style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}
       aria-label="Site header"
     >
       <nav

@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
 import { ServiceIcon } from './ServiceIcons'
+import { useScale } from '../useScale'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -18,6 +19,11 @@ function ProjectServices({
   items = [],
 }) {
   const rootRef = useRef(null)
+  // This section is locked to the 1440 canvas via CSS `zoom` (a layout-level
+  // scale) instead of the transform-based ScaleLock the other sections use.
+  // Its intro column is `md:sticky`, and sticky drifts inside a scrolling
+  // transform; under `zoom` it pins correctly. zoom is 1 below 768px.
+  const scale = useScale()
 
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return
@@ -37,9 +43,16 @@ function ProjectServices({
   return (
     <section
       ref={rootRef}
-      className="bg-[#E6EBF0] text-[#1C2D4F] px-6 py-24 md:px-[38px] md:py-32"
+      className="bg-[#E6EBF0] text-[#1C2D4F]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
+      {/* zoom locks the 1440 canvas to the viewport while keeping the sticky
+          intro drift-free (see note above). w-[1440px] is the canvas; zoom
+          scales it to fill. Mobile (<768, zoom 1) stays fluid. */}
+      <div
+        style={{ zoom: scale }}
+        className="mx-auto w-full max-w-[1440px] px-6 py-24 md:w-[1440px] md:px-[38px] md:py-32"
+      >
       <div className="mx-auto grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16 lg:grid-cols-[1fr_546px] lg:gap-24">
         {/* Sticky intro */}
         <div className="md:sticky md:top-[120px] md:self-start">
@@ -105,6 +118,7 @@ function ProjectServices({
           ))}
           <div className="border-t border-[#1C2D4F]/25" />
         </div>
+      </div>
       </div>
     </section>
   )
