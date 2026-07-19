@@ -120,10 +120,10 @@ function HeroSustainable() {
         }}
       >
         <main
-          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 pb-[24px] pt-[88px] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[var(--hero-pt)]"
-          // The navbar is fixed and unscaled, but this content is inside the scale
-          // wrapper — divide by the scale so the rendered navbar→content gap stays 125.69px.
-          style={{ '--hero-pt': `${(75 + 125.69) / scale}px` }}
+          // The navbar now scales with the same 1440 lock as this content, so the
+          // top padding is a plain canvas value (75px navbar + 125.69px gap) that
+          // scales uniformly with everything else — no /scale compensation.
+          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 pb-[24px] pt-[88px] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[200.69px]"
         >
           <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 md:gap-8">
             <h1

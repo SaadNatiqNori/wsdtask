@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -29,7 +30,7 @@ function ProjectStatement({ segments = [] }) {
   }, [])
 
   return (
-    <section className="flex min-h-screen items-center px-6 md:px-10">
+    <ScaleLock viewport="min" className="flex items-center px-6 md:px-10">
       <p
         ref={rootRef}
         className="m-0 max-w-[1128px] text-[32px] md:text-[60px] font-[420] leading-[1.15] tracking-[-0.02em] text-[#AAB2C0]"
@@ -49,7 +50,7 @@ function ProjectStatement({ segments = [] }) {
           </span>
         ))}
       </p>
-    </section>
+    </ScaleLock>
   )
 }
 

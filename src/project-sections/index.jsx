@@ -27,6 +27,8 @@ const SECTION_COMPONENTS = {
 
 // Renders an ordered list of section objects (as returned by the CMS/backend).
 export function ProjectSections({ sections = [], project }) {
+  const isOpening =
+    sections[0]?.type === 'hero' && sections[1]?.type === 'banner'
   const rendered = sections.map((section, index) => {
     const Component = SECTION_COMPONENTS[section.type]
     if (!Component) {
@@ -40,6 +42,7 @@ export function ProjectSections({ sections = [], project }) {
         key={section.id ?? `${section.type}-${index}`}
         index={index}
         project={project}
+        locked={!(isOpening && index < 2)}
         {...section}
       />
     )

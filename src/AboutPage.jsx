@@ -5,6 +5,7 @@ import ContactSection from './ContactSection'
 import avenueImage from './assets/AVENUE.jpg'
 import { cubicEase } from './easings'
 import { useContent } from './api'
+import { useScale } from './useScale'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -69,6 +70,11 @@ function AboutPage() {
   const heroBadgeRef = useRef(null)
   const heroTitleRef = useRef(null)
   const heroSubtitleRef = useRef(null)
+  // Locked to the 1440 canvas via CSS `zoom` rather than the transform-based
+  // ScaleLock: this page has two sticky mechanisms (the pinned parallax image
+  // and the "why" intro column), and sticky drifts inside a scrolling transform
+  // but pins correctly under zoom. zoom is 1 below 768px (mobile untouched).
+  const scale = useScale()
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -115,6 +121,13 @@ function AboutPage() {
   return (
     <>
       <main className="bg-mist text-navy">
+       {/* zoom locks the 1440 canvas to the viewport while keeping both sticky
+           mechanisms below drift-free. --zoom is exposed so the parallax vh
+           units can stay full-viewport (÷zoom) instead of scaling down. */}
+       <div
+         style={{ zoom: scale, '--zoom': scale }}
+         className="mx-auto w-full max-w-[1440px] md:w-[1440px]"
+       >
         <section className="flex flex-col items-center pt-[140px] md:pt-[180px] pb-16 md:pb-24 px-4 w-full max-w-[1440px] mx-auto">
           <span
             ref={heroBadgeRef}
@@ -141,7 +154,7 @@ function AboutPage() {
           ref={goalsSectionRef}
           className="relative bg-navy"
         >
-          <div className="sticky top-0 h-screen w-full overflow-hidden bg-mist">
+          <div className="sticky top-0 h-[calc(100vh/var(--zoom))] w-full overflow-hidden bg-mist">
             <img
               ref={heroImageRef}
               src={hero.image || avenueImage}
@@ -153,13 +166,13 @@ function AboutPage() {
           {/* Content is pulled back over the sticky image with -mt-[100vh]; the
               section then grows to 100vh + text height, so the blur overlay always
               ends at the section boundary and never bleeds into the next section. */}
-          <div className="relative -mt-[100vh] pointer-events-none">
-            <div className="h-screen" />
+          <div className="relative -mt-[calc(100vh/var(--zoom))] pointer-events-none">
+            <div className="h-[calc(100vh/var(--zoom))]" />
 
             <div className="relative">
               <div
                 ref={overlayRef}
-                className="absolute left-0 right-0 bottom-0 -top-[70vh] pointer-events-none"
+                className="absolute left-0 right-0 bottom-0 -top-[calc(70vh/var(--zoom))] pointer-events-none"
                 style={{
                   backdropFilter: 'blur(32px) brightness(0.55)',
                   WebkitBackdropFilter: 'blur(32px) brightness(0.55)',
@@ -195,7 +208,7 @@ function AboutPage() {
         </section>
 
         <section className="bg-[#D7DEE6] px-[38px] pt-24 md:pt-[195px] pb-24 md:pb-32">
-          <div className="flex flex-col gap-10 md:flex-row md:gap-[208px] max-w-[1440px] mx-auto">
+          <div className="flex flex-col gap-10 md:flex-row md:gap-[208px] max-w-[var(--content-width)] mx-auto">
             <div className="shrink-0 md:sticky md:top-[140px] md:self-start md:w-[259px]">
               <h2
                 className="m-0 text-[24px] md:text-[28px] leading-none tracking-[-1.12px] text-navy"
@@ -221,7 +234,7 @@ function AboutPage() {
         </section>
 
         <section className="bg-navy text-mist px-[38px] pt-24 md:pt-[95px] pb-24 md:pb-32">
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-[var(--content-width)] mx-auto">
             <p
               className="m-0 text-[18px] md:text-[22px] leading-none tracking-[-0.88px] text-mist"
               style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 550 }}
@@ -246,6 +259,7 @@ function AboutPage() {
             </div>
           </div>
         </section>
+       </div>
       </main>
       <ContactSection />
     </>

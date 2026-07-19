@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
 import { prefersReducedMotion } from './motion'
+import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -15,6 +16,7 @@ function ProjectBanner({
   alt = '',
   aspect = '16 / 5',
   overlay = 0.72,
+  locked = true,
 }) {
   const rootRef = useRef(null)
 
@@ -32,29 +34,36 @@ function ProjectBanner({
     return () => ctx.revert()
   }, [])
 
+  const inner = (
+    <div
+      ref={rootRef}
+      data-banner-box
+      className="relative mx-auto w-full max-w-[1200px] overflow-hidden rounded-[8px] bg-navy"
+      style={{ aspectRatio: aspect }}
+    >
+      {image && (
+        <img
+          src={image}
+          alt={alt}
+          data-banner-img
+          // Fixed 8vw side inset so the art never runs flush to the edges
+          // once the box goes full-bleed. Divided by --scale so it stays a
+          // constant 8% of the real viewport inside the scaled canvas. Within
+          // the resting letterbox slack so the small banner is unaffected.
+          className="absolute bottom-0 left-0 h-[250px] w-full px-[calc(8vw/var(--scale))] object-contain object-bottom"
+        />
+      )}
+    </div>
+  )
+
+  const cls = 'px-6 md:px-10 mt-[52px] md:mt-[68px]'
+  if (!locked) {
+    return <section className={cls}>{inner}</section>
+  }
   return (
-    <section className="px-6 md:px-10 mt-[52px] md:mt-[68px]">
-      <div
-        ref={rootRef}
-        data-banner-box
-        className="relative mx-auto w-full max-w-[1200px] overflow-hidden rounded-[8px] bg-navy"
-        style={{ aspectRatio: aspect }}
-      >
-        {image && (
-          <img
-            src={image}
-            alt={alt}
-            data-banner-img
-            // Fixed 8vw side inset so the art never runs flush to the edges
-            // once the box goes full-bleed. Viewport-based (not scroll-driven),
-            // and within the resting letterbox slack so the small banner is
-            // unaffected.
-            className="absolute bottom-0 left-0 h-[250px] w-full px-[8vw] object-contain object-bottom"
-          />
-        )}
-        
-      </div>
-    </section>
+    <ScaleLock className={cls}>
+      {inner}
+    </ScaleLock>
   )
 }
 

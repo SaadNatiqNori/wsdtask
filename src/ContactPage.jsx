@@ -4,6 +4,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
 import ContactSection from './ContactSection'
+import { ScaleLock } from './ScaleLock'
 import { cubicEase } from './easings'
 import { useContent, useSettings, postContact } from './api'
 
@@ -268,7 +269,8 @@ function ContactPage() {
 
   return (
     <>
-    <main
+    <ScaleLock
+      as="main"
       className="bg-[#E6EBF0] text-[#1C2D4F]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
@@ -451,7 +453,7 @@ function ContactPage() {
           </div>
         </div>
       </footer>
-    </main>
+    </ScaleLock>
     <ContactSection />
     </>
   )
