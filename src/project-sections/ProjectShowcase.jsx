@@ -95,7 +95,7 @@ function Slide({ heading, bodyLeft, bodyRight, image }) {
                 <p
                   data-anim
                   data-anim-speed="1.2"
-                  className="m-0 text-[14px] md:text-[15px] leading-[1.7] tracking-[0] text-[#E2EAF2]"
+                  className="m-0 text-[14px] md:text-[15px] leading-[1.2] tracking-[0] text-[#E2EAF2]"
                 >
                   {bodyLeft}
                 </p>
@@ -105,7 +105,7 @@ function Slide({ heading, bodyLeft, bodyRight, image }) {
                   data-anim
                   data-anim-speed="1.2"
                   data-anim-shift="1.5"
-                  className="m-0 text-[14px] md:text-[15px] leading-[1.7] tracking-[0] text-[#E2EAF2]"
+                  className="m-0 text-[14px] md:text-[15px] leading-[1.2] tracking-[0] text-[#E2EAF2]"
                 >
                   {bodyRight}
                 </p>
