@@ -134,15 +134,33 @@ function CardsSection() {
         gsap.set(contentEls, { autoAlpha: 0, y: 20 })
         gsap.set(lineEls, { scaleY: 0, transformOrigin: 'top' })
 
-        const entrance = gsap.to(allWordEls, {
-          yPercent: 0,
-          duration: 2,
-          ease: cubicEase,
+        // Group the masked word spans into visual lines by their wrapper's
+        // offsetTop (words sharing a top sit on the same wrapped line). Measured
+        // here, where layout is stable (fonts ready, correct scale), so it
+        // re-derives whenever wrapping changes on a rebuild.
+        const lines = []
+        let lastTop = null
+        allWordEls.forEach((el) => {
+          const top = el.parentElement.offsetTop
+          if (lastTop === null || Math.abs(top - lastTop) > 1) {
+            lines.push([])
+            lastTop = top
+          }
+          lines[lines.length - 1].push(el)
+        })
+
+        // Entrance stays a single timeline so the scrub's `entrance.progress(1)`
+        // snap-to-settled (onEnter/onUpdate) keeps working. Each line rises from
+        // its mask in sequence — top line first — with a small inter-line stagger.
+        const entrance = gsap.timeline({
           scrollTrigger: {
             trigger: sectionEl,
             start: 'top bottom',
             toggleActions: 'play none none none',
           },
+        })
+        lines.forEach((line, i) => {
+          entrance.to(line, { yPercent: 0, duration: 1.1, ease: cubicEase }, i * 0.12)
         })
 
         // Flight geometry, measured up front (fonts are loaded by now). The
