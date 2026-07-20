@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ArrowIcon from '../ArrowIcon'
@@ -160,12 +160,22 @@ const shiftOf = (el) => Number(el.dataset.animShift) || 1
 // height is always the tallest slide's — nothing shifts vertically on a swap.
 function ProjectShowcase({ slides = [] }) {
   const rootRef = useRef(null)
+  const stageRef = useRef(null) // the drag/wheel surface holding the slide stack
   const layersRef = useRef([]) // one wrapper per slide, all stacked in one grid cell
   const drag = useRef({ x: 0, active: false })
   const dir = useRef(1) // 1 = forward (out-left / in-right), -1 = backward
   const [current, setCurrent] = useState(0) // stable slide when idle
   const [transition, setTransition] = useState(null) // { from, to } while animating
   const count = slides.length
+
+  // Latest-value refs so the native wheel listener (bound once) reads live state
+  // instead of the values captured when it was attached.
+  const currentRef = useRef(0)
+  const transitionRef = useRef(null)
+  useEffect(() => {
+    currentRef.current = current
+    transitionRef.current = transition
+  })
 
   // One-time scroll-in reveal for the whole section.
   useLayoutEffect(() => {
@@ -249,16 +259,70 @@ function ProjectShowcase({ slides = [] }) {
     return () => tl.kill()
   }, [transition])
 
+  // Horizontal wheel / trackpad swipe advances one slide, matching the home
+  // portfolio's "swipe with horizontal scroll" feel. Only horizontal-dominant
+  // gestures are consumed — vertical wheel falls through so the page keeps
+  // scrolling. A single flick fires once: the accumulator is locked after a
+  // step and only releases once wheel events pause (the momentum tail settles).
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el || count <= 1) return
+
+    const THRESHOLD = 40 // px of horizontal delta to commit a slide change
+    let accum = 0
+    let locked = false
+    let settleTimer = 0
+
+    const release = () => {
+      locked = false
+      accum = 0
+    }
+
+    const stepBy = (d) => {
+      const cur = currentRef.current
+      const next = Math.min(count - 1, Math.max(0, cur + d))
+      if (transitionRef.current || next === cur) return
+      dir.current = d
+      setTransition({ from: cur, to: next })
+    }
+
+    const onWheel = (e) => {
+      // Let vertical scrolling reach the page (Lenis); only steal horizontal.
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
+      e.preventDefault() // stop the browser's horizontal back/forward gesture
+      e.stopPropagation()
+      if (transitionRef.current) return
+
+      clearTimeout(settleTimer)
+      settleTimer = setTimeout(release, 140)
+      if (locked) return
+
+      accum += e.deltaX
+      if (Math.abs(accum) >= THRESHOLD) {
+        locked = true
+        stepBy(accum > 0 ? 1 : -1)
+        accum = 0
+      }
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      clearTimeout(settleTimer)
+    }
+  }, [count])
+
   if (!count) return null
 
   const active = transition ? transition.to : current
   const shown = Math.max(0, Math.min(active, count - 1))
 
   const goTo = (i) => {
+    const cur = currentRef.current
     const next = Math.min(count - 1, Math.max(0, i))
-    if (transition || next === current) return
-    dir.current = next > current ? 1 : -1
-    setTransition({ from: current, to: next })
+    if (transitionRef.current || next === cur) return
+    dir.current = next > cur ? 1 : -1
+    setTransition({ from: cur, to: next })
   }
 
   // Pointer drag to change slides.
@@ -279,6 +343,7 @@ function ProjectShowcase({ slides = [] }) {
       className="relative flex flex-col items-center justify-center overflow-hidden bg-black text-mist"
     >
       <div
+        ref={stageRef}
         data-showcase-reveal
         className="w-full py-24 md:py-0"
         onPointerDown={onDown}

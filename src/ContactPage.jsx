@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowForward } from 'react-icons/io5'
 import ContactSection from './ContactSection'
 import { ScaleLock } from './ScaleLock'
+import { useScale } from './useScale'
 import { cubicEase } from './easings'
 import { useContent, useSettings, postContact } from './api'
 
@@ -152,6 +153,13 @@ function ContactPage() {
   const settings = useSettings({ contact_details: DETAILS_FALLBACK })
   const details = settings.contact_details ?? DETAILS_FALLBACK
 
+  // Kept live for the sticky-header drift compensation below (see the layout
+  // effect): the header pins via position:sticky, but ScaleLock wraps the page
+  // in transform:scale, and a sticky element under a scaled ancestor drifts down
+  // by (scale-1)*scrollY instead of holding still.
+  const scale = useScale()
+  const scaleRef = useRef(scale)
+
   const headerRef = useRef(null)
   const cardRef = useRef(null)
   const footerRef = useRef(null)
@@ -262,10 +270,34 @@ function ContactPage() {
         stagger: 0.08,
         scrollTrigger: { trigger: footerRef.current, start: 'top 85%' },
       })
+
+      // Cancel the sticky-header drift. Under transform:scale(k) the pinned
+      // header renders (k-1)*scrollY lower than it should; translate it back up
+      // by the same amount so it stays truly fixed. No-op at scale 1 (mobile),
+      // and once the header scrolls past its section it is off-screen anyway.
+      const setHeaderY = gsap.quickSetter(headerRef.current, 'y', 'px')
+      const compensate = () => {
+        const k = scaleRef.current
+        setHeaderY(k > 1 ? (-window.scrollY * (k - 1)) / k : 0)
+      }
+      compensate()
+      ScrollTrigger.create({ onUpdate: compensate, invalidateOnRefresh: true })
     })
 
     return () => ctx.revert()
   }, [])
+
+  // Keep the compensation reading the current scale after a resize, and re-run
+  // it once so the header snaps to the corrected offset immediately.
+  useEffect(() => {
+    scaleRef.current = scale
+    if (headerRef.current) {
+      const k = scale
+      gsap.set(headerRef.current, {
+        y: k > 1 ? (-window.scrollY * (k - 1)) / k : 0,
+      })
+    }
+  }, [scale])
 
   return (
     <>
