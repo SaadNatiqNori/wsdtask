@@ -87,10 +87,18 @@ function ProjectsDropdown({ open, onClose, projects, heading, onMouseEnter, onMo
           <Link
             to="/projects"
             onClick={() => onClose()}
-            className="mt-[18px] inline-flex h-[28px] w-[32px] shrink-0 self-start items-center justify-center rounded-[48px] border-[0.25px] border-solid border-mist/30 text-mist no-underline"
+            className="group mt-[18px] inline-flex w-fit shrink-0 self-start items-center gap-[8px] font-['Akkurat_Mono',monospace] text-[8px] font-medium uppercase tracking-normal leading-none text-mist no-underline"
             aria-label="See all projects"
           >
-            <img src={arrowRight} alt="" className="h-[10px] w-[10px]" aria-hidden="true" />
+            <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-[0.25px] border-solid border-mist transition-colors duration-300 ease-out group-hover:bg-mist">
+              <img
+                src={arrowRight}
+                alt=""
+                className="h-[10px] w-[10px] transition-[filter] duration-300 ease-out group-hover:invert"
+                aria-hidden="true"
+              />
+            </span>
+            <span className="relative top-[0.5px]">Check all</span>
           </Link>
         </div>
 

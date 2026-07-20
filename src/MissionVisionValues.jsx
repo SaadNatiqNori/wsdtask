@@ -1,11 +1,9 @@
 import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Observer } from 'gsap/Observer'
 import { useContent } from './api'
-import { useLenis } from './SmoothScroll'
 
-gsap.registerPlugin(ScrollTrigger, Observer)
+gsap.registerPlugin(ScrollTrigger)
 
 const MVV_FALLBACK = {
   mission: {
@@ -166,16 +164,16 @@ function ValuesContent({ intro, items }) {
   )
 }
 
-function Card({ refProp, illRef, title, description, isValues, values, illustration }) {
+function Card({ refProp, title, description, isValues, values, illustration, zIndex }) {
   return (
     <div
       ref={refProp}
-      className="absolute inset-0 flex flex-col px-4 pt-[120px] md:px-8 md:pt-[128px]"
+      style={{ zIndex }}
+      className="absolute inset-0 flex flex-col bg-[#E6EBF0] px-4 pt-[120px] md:px-8 md:pt-[0]"
     >
-      {/* Opaque only from the hairline down: when this card slides in as a
-          tab, it covers the previous card's illustration while the previous
-          header stays readable above the line. */}
-      <div className="flex-1 flex flex-col bg-[#E6EBF0] -mx-4 px-4 pb-[40px] md:-mx-8 md:px-8 md:pb-[48px]">
+      {/* Each card is a solid full-viewport panel, so when it rises it covers
+          the card beneath it completely as a fixed layer. */}
+      <div className="flex-1 flex flex-col justify-start bg-[#E6EBF0] -mx-4 px-4 md:-mx-8 md:px-8">
         <div className="w-full h-[1px] bg-[#1C2D4F]/30" />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-[460px_1fr] gap-6 md:gap-16">
           <h3
@@ -192,7 +190,7 @@ function Card({ refProp, illRef, title, description, isValues, values, illustrat
                 {description}
               </p>
             )}
-            <div ref={illRef} className="mt-10">
+            <div className="mt-10">
               {illustration}
             </div>
           </div>
@@ -204,206 +202,83 @@ function Card({ refProp, illRef, title, description, isValues, values, illustrat
 
 function MissionVisionValues() {
   const scale = useScale()
-  const lenis = useLenis()
   const home = useContent('home', { mvv: MVV_FALLBACK })
   const mvv = home.mvv ?? MVV_FALLBACK
   const sectionRef = useRef(null)
   const stickyRef = useRef(null)
   const missionRef = useRef(null)
-  const missionIllRef = useRef(null)
   const visionRef = useRef(null)
   const valuesRef = useRef(null)
 
   useLayoutEffect(() => {
-    const section = sectionRef.current
-    const mission = missionRef.current
-    const vision = visionRef.current
-    const values = valuesRef.current
-    const ill = missionIllRef.current
+    const ctx = gsap.context(() => {
+      // Synchronized scroll-through, fully scrubbed so position is a pure
+      // function of scroll (reversible on scroll-up, correct after a reload
+      // mid-section). The outgoing card scrolls UP and fully OUT the top at the
+      // SAME rate the incoming card rises from the bottom. Because they move in
+      // lockstep, the outgoing card's bottom edge stays flush against the
+      // incoming card's top edge for the whole span — the outgoing tab never
+      // lingers ("sticks") at the top, and no empty band ever opens between
+      // them. Cards share the same opaque bg, so the seam is invisible and it
+      // reads as one continuous sheet of content moving up.
 
-    // Discrete snapshot per tab index, reusing the docked positions the old
-    // scrubbed choreography landed on. Each entry is a self-contained state, so
-    // stepping forward or back is just "tween every card to STATES[i]" — no
-    // scrub, no intermediate reveal. `ill` = Mission's illustration visibility:
-    // shown only on Mission, covered by the arriving tab thereafter.
-    const STATES = [
-      { m: 0, v: 100, va: 100, ill: true }, // Mission
-      { m: -6, v: 12, va: 100, ill: false }, // Vision docked under Mission
-      { m: -110, v: -8, va: 10, ill: false }, // Values docked, Mission gone
-    ]
-    const LAST = STATES.length - 1
-    const DUR = 1.2 // lock window: input is ignored until a step finishes
+      // Two-speed parallax cover, all LINEAR (no easing → nothing decelerates to
+      // a freeze/pin). The incoming card rises to cover while the outgoing drifts
+      // up only DRIFT%, so the incoming visibly rides UP and OVER it (the "above"
+      // animation), opaque + one z-layer up so no gap ever opens, and with pt-0
+      // the outgoing header leaves the top immediately so it never "sticks".
+      //
+      // PEEK gives the next tab a HEAD START: instead of starting fully below the
+      // viewport (yPercent 100), each incoming card begins already PEEK% up, so it
+      // is visible/rising sooner and the dead space before it arrives shrinks —
+      // "the next tab shows a little earlier before the previous scrolls out".
+      const DRIFT = -50 // outgoing lag; smaller = stronger cover, larger = gentler dock
+      const PEEK = 18   // how far up (%) the next tab already is when its turn begins; bigger = less gap / earlier reveal, but shows more of the next tab at the start
 
-    let index = 0
-    let animating = false
-    let armedBelow = false // exited downward into Contact, waiting to re-enter
-    let releasing = false // mid exit-jump; suppress spurious re-engagement
-    let onLenisScroll = null // Lenis 'scroll' handler, detached on cleanup
+      // Mission is docked. Vision starts already peeking PEEK% at the bottom.
+      // Values stays fully below and is brought up to the same PEEK head-start
+      // during Mission→Vision (via an early-starting, slightly-longer rise) so it
+      // too is peeking in by the time Vision begins to leave.
+      gsap.set(missionRef.current, { yPercent: 0 })
+      gsap.set(visionRef.current, { yPercent: 100 - PEEK })
+      gsap.set(valuesRef.current, { yPercent: 100 })
 
-    const setInstant = (i) => {
-      const s = STATES[i]
-      gsap.set(mission, { yPercent: s.m })
-      gsap.set(vision, { yPercent: s.v })
-      gsap.set(values, { yPercent: s.va })
-      gsap.set(ill, { autoAlpha: s.ill ? 1 : 0 })
-      index = i
-    }
-
-    const animateTo = (i) => {
-      const s = STATES[i]
-      animating = true
-      index = i
       const tl = gsap.timeline({
-        defaults: { duration: DUR, ease: 'power2.inOut' },
-        onComplete: () => {
-          animating = false
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true, // Lenis already eases position; a numeric scrub double-smooths
         },
       })
-      tl.to(mission, { yPercent: s.m }, 0)
-      tl.to(vision, { yPercent: s.v }, 0)
-      tl.to(values, { yPercent: s.va }, 0)
-      // Reveal the illustration up front (so it's present as the covering tab
-      // leaves); hide it only once the covering tab has fully docked over it.
-      if (s.ill) tl.set(ill, { autoAlpha: 1 }, 0)
-      else tl.set(ill, { autoAlpha: 0 }, DUR)
-    }
 
-    const ctx = gsap.context(() => {
-      setInstant(0)
+      // T1 — Mission drifts up; Vision rises from its peek position to cover.
+      tl.to(missionRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 0)
+      tl.to(visionRef.current, { yPercent: 0, ease: 'none', duration: 1 }, 0)
+      // Values rises from 100→0 over a slightly longer, EARLIER-starting window so
+      // that by the time Vision docks (t=1) Values is already PEEK% up — same head
+      // start as Vision had, and the same rise rate (100 over 1/(1-PEEK/100)).
+      const valuesDur = 1 / (1 - PEEK / 100)
+      tl.to(valuesRef.current, { yPercent: 0, ease: 'none', duration: valuesDur }, 2 - valuesDur)
+      // T2 — Vision drifts up; Values (already peeking) finishes rising to cover.
+      tl.to(visionRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 1)
 
-      // While pinned, the Observer swallows native scroll and turns each wheel
-      // notch / swipe into exactly one step. wheelSpeed:-1 makes a natural
-      // downward scroll (and an upward swipe) map to onUp = advance.
-      const observer = Observer.create({
-        target: window,
-        type: 'wheel,touch',
-        wheelSpeed: -1,
-        tolerance: 10,
-        preventDefault: true,
-        onUp: () => tryStep(1),
-        onDown: () => tryStep(-1),
-      })
-      observer.disable()
-
-      let st // the pin ScrollTrigger, assigned below
-
-      const scrollTo = (y) => {
-        if (lenis) {
-          lenis.start()
-          lenis.scrollTo(y, { immediate: true })
-        } else {
-          window.scrollTo(0, y)
-        }
-      }
-
-      // Hand the page back to Lenis at the ends.
-      //  - Down (to the footer): a real smooth glide, like normal page scroll.
-      //  - Up (back toward the hero): an instant jump clear of the pin, so the
-      //    eye never travels back through the card's empty lower half (that
-      //    slide is what read as the entrance "replaying").
-      // The upward jump crosses the whole pin range; `releasing` suppresses the
-      // spurious onEnterBack it would otherwise fire until the jump settles.
-      const release = (dir) => {
-        observer.disable()
-        const vh = window.innerHeight
-        armedBelow = false
-        releasing = true
-        setTimeout(() => {
-          releasing = false
-        }, 80)
-        if (!lenis) {
-          window.scrollTo(0, dir < 0 ? st.start - vh : st.end + vh)
-          if (dir > 0) armedBelow = true
-          return
-        }
-        lenis.start()
-        if (dir < 0) {
-          lenis.scrollTo(st.start - vh, { immediate: true })
-        } else {
-          // Glide down to Contact, then arm the re-entry watcher (arming only
-          // after arrival avoids a settle-jitter snapping us back mid-glide).
-          lenis.scrollTo(st.end + vh, {
-            duration: 1,
-            onComplete: () => {
-              armedBelow = true
-            },
-          })
-        }
-      }
-
-      const tryStep = (dir) => {
-        if (animating) return
-        const next = index + dir
-        if (next < 0) return release(-1)
-        if (next > LAST) return release(1)
-        animateTo(next)
-      }
-
-      // Freeze Lenis so the page can't scroll past the pin while the Observer
-      // owns the wheel; the stepper alone advances the tabs from here.
-      const engage = (fromTop) => {
-        if (releasing || observer.isEnabled) return
-        armedBelow = false
-        if (lenis) lenis.stop()
-        setInstant(fromTop ? 0 : LAST)
-        observer.enable()
-      }
-
-      // Pin the tab stack (position:fixed via ScrollTrigger, with a spacer) for
-      // one viewport of travel. Stepping is jacked, so this range is never
-      // actually scrolled through — it just holds the cards fixed with no dead
-      // zone, and hands engagement off based on entry direction.
-      st = ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: () => '+=' + window.innerHeight,
-        pin: true,
-        pinSpacing: true,
-        onEnter: () => engage(true),
-        onEnterBack: () => engage(false),
-        onLeave: () => observer.disable(),
-        onLeaveBack: () => observer.disable(),
-      })
-
-      // Re-entry from below: after exiting downward we sit at Contact (the last
-      // section, so the only way out is up). The instant the user scrolls up,
-      // snap straight to the docked last tab and re-lock — the section never
-      // slides its empty lower half into view before the content arrives. A pin
-      // ScrollTrigger can't catch this cleanly (the immediate jump-out never
-      // registers an enter to leave back from), so we watch Lenis directly.
-      if (lenis) {
-        onLenisScroll = () => {
-          if (!armedBelow) return
-          // Only react to genuine upward intent, not the easing of the
-          // downward exit jump that armed us in the first place.
-          if (lenis.direction !== -1) return
-          if (window.scrollY < st.end + window.innerHeight - 2) {
-            armedBelow = false
-            scrollTo(st.end)
-            engage(false)
-          }
-        }
-        lenis.on('scroll', onLenisScroll)
-      }
+      // Values (last card) settles in place; the sticky stage releases at the
+      // section end, so Values scrolls away with the page into whatever follows.
     })
 
-    return () => {
-      ctx.revert()
-      if (lenis && onLenisScroll) lenis.off('scroll', onLenisScroll)
-      // Never leave the page frozen if we tear down mid-engagement.
-      if (lenis) lenis.start()
-    }
-  }, [lenis])
+    return () => ctx.revert()
+  }, [])
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen bg-[#E6EBF0]"
+      className="relative w-full h-[300vh] bg-[#E6EBF0]"
       aria-label="Mission, vision, values"
     >
       <div
         ref={stickyRef}
-        className="h-screen w-full overflow-hidden bg-[#E6EBF0]"
+        className="sticky top-0 h-screen w-full overflow-hidden bg-[#E6EBF0]"
       >
         <div
           className="scale-wrapper"
@@ -418,7 +293,7 @@ function MissionVisionValues() {
           <div className="relative h-full max-w-[1440px] mx-auto text-[#1C2D4F]">
             <Card
               refProp={missionRef}
-              illRef={missionIllRef}
+              zIndex={10}
               title={mvv.mission.title}
               description={mvv.mission.body}
               illustration={
@@ -431,6 +306,7 @@ function MissionVisionValues() {
             />
             <Card
               refProp={visionRef}
+              zIndex={20}
               title={mvv.vision.title}
               description={mvv.vision.body}
               illustration={
@@ -443,6 +319,7 @@ function MissionVisionValues() {
             />
             <Card
               refProp={valuesRef}
+              zIndex={30}
               title={mvv.values.title}
               isValues
               values={mvv.values}
