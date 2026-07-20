@@ -2,7 +2,6 @@ import HeroSustainable from './HeroSustainable'
 import CardsSection from './CardsSection'
 import PortfolioSlider from './PortfolioSlider'
 import MissionVisionValues from './MissionVisionValues'
-import ContactSection from './ContactSection'
 
 function HomePage() {
   return (
@@ -10,8 +9,9 @@ function HomePage() {
       <HeroSustainable />
       <CardsSection />
       <PortfolioSlider />
+      {/* The navy contact footer is the final rising layer inside
+          MissionVisionValues, so it is not rendered standalone here. */}
       <MissionVisionValues />
-      <ContactSection />
     </>
   )
 }

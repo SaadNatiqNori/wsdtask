@@ -423,7 +423,7 @@ function PortfolioSlider() {
               </p>
               <Link
                 to="/projects"
-                className="inline-flex w-fit h-[46px] items-center gap-[5px] rounded-[48px] bg-navy px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
+                className="group inline-flex w-fit h-[46px] items-center gap-[5px] rounded-[48px] border-[0.25px] border-navy bg-navy px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline transition-colors duration-200 ease-out hover:bg-transparent hover:text-navy"
               >
                 <span className="relative top-[1.5px]">{portfolio.ctaLabel}</span>
                 <ArrowIcon size={14} className='relative top-[0.5px]' />
@@ -469,7 +469,7 @@ function PortfolioSlider() {
 
                 <Link
                   to={`/projects/${project.slug}`}
-                  className="mt-auto inline-flex w-fit h-[46px] flex-shrink-0 items-center gap-[5px] rounded-[48px] border-[0.25px] border-mist px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline"
+                  className="group mt-auto inline-flex w-fit h-[46px] flex-shrink-0 items-center gap-[5px] rounded-[48px] border-[0.25px] border-mist px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline transition-colors duration-200 ease-out hover:bg-mist hover:text-navy"
                 >
                   <span className="relative top-[1px]">DISCOVER</span>
                   <ArrowIcon size={14} />

@@ -2,6 +2,14 @@ import { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useContent } from './api'
+import ContactFooterPanel from './ContactFooterPanel'
+
+const CTA_FALLBACK = {
+  title: "Let's talk",
+  description:
+    'Contact us to explore how Alcove can strengthen engagement, adherence, and between-visit support.',
+  buttonLabel: 'GET IN TOUCH',
+}
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -204,11 +212,14 @@ function MissionVisionValues() {
   const scale = useScale()
   const home = useContent('home', { mvv: MVV_FALLBACK })
   const mvv = home.mvv ?? MVV_FALLBACK
+  const footer = useContent('footer', { cta: CTA_FALLBACK })
+  const cta = footer.cta ?? CTA_FALLBACK
   const sectionRef = useRef(null)
   const stickyRef = useRef(null)
   const missionRef = useRef(null)
   const visionRef = useRef(null)
   const valuesRef = useRef(null)
+  const footerRef = useRef(null)
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -233,15 +244,18 @@ function MissionVisionValues() {
       // is visible/rising sooner and the dead space before it arrives shrinks —
       // "the next tab shows a little earlier before the previous scrolls out".
       const DRIFT = -50 // outgoing lag; smaller = stronger cover, larger = gentler dock
-      const PEEK = 18   // how far up (%) the next tab already is when its turn begins; bigger = less gap / earlier reveal, but shows more of the next tab at the start
+      const PEEK = 33   // how far up (%) the next tab already is when its turn begins; bigger = less gap / earlier reveal, but shows more of the next tab at the start
 
       // Mission is docked. Vision starts already peeking PEEK% at the bottom.
       // Values stays fully below and is brought up to the same PEEK head-start
       // during Mission→Vision (via an early-starting, slightly-longer rise) so it
-      // too is peeking in by the time Vision begins to leave.
+      // too is peeking in by the time Vision begins to leave. The navy footer is
+      // the last layer and gets the identical treatment one beat later, so it is
+      // peeking in by the time Values begins to leave.
       gsap.set(missionRef.current, { yPercent: 0 })
       gsap.set(visionRef.current, { yPercent: 100 - PEEK })
       gsap.set(valuesRef.current, { yPercent: 100 })
+      gsap.set(footerRef.current, { yPercent: 100 })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -252,19 +266,26 @@ function MissionVisionValues() {
         },
       })
 
+      // Rate at which a card rises the full 100% while still arriving at its PEEK
+      // head-start exactly one beat before its cover turn begins.
+      const riseDur = 1 / (1 - PEEK / 100)
+
       // T1 — Mission drifts up; Vision rises from its peek position to cover.
       tl.to(missionRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 0)
       tl.to(visionRef.current, { yPercent: 0, ease: 'none', duration: 1 }, 0)
       // Values rises from 100→0 over a slightly longer, EARLIER-starting window so
       // that by the time Vision docks (t=1) Values is already PEEK% up — same head
       // start as Vision had, and the same rise rate (100 over 1/(1-PEEK/100)).
-      const valuesDur = 1 / (1 - PEEK / 100)
-      tl.to(valuesRef.current, { yPercent: 0, ease: 'none', duration: valuesDur }, 2 - valuesDur)
+      tl.to(valuesRef.current, { yPercent: 0, ease: 'none', duration: riseDur }, 2 - riseDur)
       // T2 — Vision drifts up; Values (already peeking) finishes rising to cover.
       tl.to(visionRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 1)
+      // Footer mirrors Values' early rise, one beat later: PEEK% up by t=2.
+      tl.to(footerRef.current, { yPercent: 0, ease: 'none', duration: riseDur }, 3 - riseDur)
+      // T3 — Values drifts up; the navy footer rises to cover, same as every card.
+      tl.to(valuesRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 2)
 
-      // Values (last card) settles in place; the sticky stage releases at the
-      // section end, so Values scrolls away with the page into whatever follows.
+      // Footer (last layer) settles docked; the sticky stage releases at the
+      // section end, so the footer holds full-screen as the page bottom.
     })
 
     return () => ctx.revert()
@@ -290,7 +311,7 @@ function MissionVisionValues() {
             height: `${100 / scale}vh`,
           }}
         >
-          <div className="relative h-full max-w-[1440px] mx-auto text-[#1C2D4F]">
+          <div className="relative h-full  max-w-[1440px] mx-auto text-[#1C2D4F]">
             <Card
               refProp={missionRef}
               zIndex={10}
@@ -331,6 +352,11 @@ function MissionVisionValues() {
                 )
               }
             />
+            {/* Navy footer as the final rising cover layer — same solid
+                full-panel treatment as the cards, one z-layer above Values. */}
+            <div ref={footerRef} style={{ zIndex: 40 }} className="absolute inset-0 bg-navy">
+              <ContactFooterPanel cta={cta} />
+            </div>
           </div>
         </div>
       </div>
