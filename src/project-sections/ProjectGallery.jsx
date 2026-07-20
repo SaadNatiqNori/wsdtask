@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IoArrowBack, IoArrowForward } from 'react-icons/io5'
@@ -8,9 +8,13 @@ import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
+const GAP = 20 // px between slides — kept in sync with --gap below
+
 // Section type: "gallery"
-// Dark, full-bleed centered carousel: the active slide is centred and its
-// neighbours peek on either side. Controlled by prev/next buttons.
+// Dark, full-bleed centered carousel: the first slide sits centred and its
+// neighbours peek on either side. Free horizontal scroll — mouse drag (with
+// inertia), trackpad/wheel swipe, and touch pan-x — matching the home
+// portfolio slider. The prev/next buttons scroll the native track by one slide.
 // `images: [{ src, alt }]` is a CMS-shaped list. Owns its own scroll reveal.
 function ProjectGallery({
   eyebrow = 'Gallery',
@@ -18,11 +22,9 @@ function ProjectGallery({
   images = [],
 }) {
   const rootRef = useRef(null)
-  const [index, setIndex] = useState(0)
-  const last = Math.max(0, images.length - 1)
-
-  const go = (dir) =>
-    setIndex((i) => Math.min(last, Math.max(0, i + dir)))
+  const scrollRef = useRef(null)
+  const [atStart, setAtStart] = useState(true)
+  const [atEnd, setAtEnd] = useState(images.length <= 1)
 
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return
@@ -39,6 +41,122 @@ function ProjectGallery({
     }, rootRef)
     return () => ctx.revert()
   }, [])
+
+  // Free horizontal scroll — ported from the home PortfolioSlider so the gallery
+  // feels identical to drag/swipe. Native scrolling drives everything; the edge
+  // flags (for the arrow disabled states) are read straight off scrollLeft.
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el || images.length <= 1) return
+
+    const EDGE = 2 // px tolerance for "at the start / at the end"
+    let rafId = 0
+    const paintEdges = () => {
+      rafId = 0
+      const max = el.scrollWidth - el.clientWidth
+      setAtStart(el.scrollLeft <= EDGE)
+      setAtEnd(el.scrollLeft >= max - EDGE)
+    }
+    const handleScroll = () => {
+      if (!rafId) rafId = requestAnimationFrame(paintEdges)
+    }
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    paintEdges()
+
+    // Drag-to-scroll (mouse) with inertia. Touch/trackpad keep native scrolling.
+    let isDown = false
+    let dragScale = 1
+    let startX = 0
+    let startScrollLeft = 0
+    let lastX = 0
+    let lastT = 0
+    let velocity = 0 // local px per ms; scrollLeft moves opposite the cursor
+    let momentumId = 0
+
+    const stopMomentum = () => {
+      if (momentumId) cancelAnimationFrame(momentumId)
+      momentumId = 0
+    }
+
+    const onPointerDown = (e) => {
+      if (e.pointerType !== 'mouse') return
+      stopMomentum()
+      isDown = true
+      startX = lastX = e.clientX
+      startScrollLeft = el.scrollLeft
+      lastT = e.timeStamp
+      velocity = 0
+      // The section is CSS-scaled (ScaleLock); convert cursor pixels into the
+      // element's own pixels so the images track the cursor 1:1.
+      dragScale = el.getBoundingClientRect().width / el.offsetWidth || 1
+      el.style.cursor = 'grabbing'
+      e.preventDefault() // stop the browser starting a native image drag mid-swipe
+    }
+
+    const onPointerMove = (e) => {
+      if (!isDown) return
+      const dxTotal = (e.clientX - startX) / dragScale
+      el.scrollLeft = startScrollLeft - dxTotal
+      const dt = e.timeStamp - lastT
+      if (dt > 0) {
+        velocity = -((e.clientX - lastX) / dragScale) / dt
+        lastX = e.clientX
+        lastT = e.timeStamp
+      }
+    }
+
+    const endDrag = () => {
+      if (!isDown) return
+      isDown = false
+      el.style.cursor = ''
+      // Glide on release, decaying the velocity, instead of stopping dead.
+      const maxScroll = el.scrollWidth - el.clientWidth
+      let prev = performance.now()
+      const glide = (now) => {
+        const dt = now - prev
+        prev = now
+        velocity *= Math.pow(0.95, dt / 16) // frame-rate independent friction
+        el.scrollLeft += velocity * dt
+        if (el.scrollLeft <= 0 || el.scrollLeft >= maxScroll) velocity = 0
+        momentumId = Math.abs(velocity) > 0.02 ? requestAnimationFrame(glide) : 0
+      }
+      if (Math.abs(velocity) > 0.02) momentumId = requestAnimationFrame(glide)
+    }
+
+    // Horizontal wheel / trackpad swipe: keep it a native horizontal scroll and
+    // stop any parent section navigation from hijacking it.
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        stopMomentum()
+        e.stopPropagation()
+      }
+    }
+
+    el.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', endDrag)
+    el.addEventListener('wheel', onWheel, { passive: true })
+
+    return () => {
+      stopMomentum()
+      el.removeEventListener('scroll', handleScroll)
+      el.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', endDrag)
+      el.removeEventListener('wheel', onWheel)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [images.length])
+
+  // Prev/next scroll the native track by one slide (width + gap, in the
+  // element's own unscaled pixels — offsetWidth is layout px, not transformed).
+  const scrollByOne = (dir) => {
+    const el = scrollRef.current
+    if (!el) return
+    const slide = el.querySelector('[data-gallery-slide]')
+    const step = (slide ? slide.offsetWidth : el.clientWidth) + GAP
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }
 
   return (
     <ScaleLock
@@ -68,34 +186,40 @@ function ProjectGallery({
         </h2>
       </div>
 
-      {/* Centered carousel — neighbours peek; clipped at the section edges. */}
-      <div data-gallery-item className="mt-10 md:mt-12 w-full overflow-hidden">
-        <div
-          className="flex"
-          style={{
-            '--slw': 'min(1120px, calc(64vw / var(--scale)))',
-            '--gap': '20px',
-            gap: 'var(--gap)',
-            transform: `translateX(calc((100% - var(--slw)) / 2 - ${index} * (var(--slw) + var(--gap))))`,
-            transition: 'transform 700ms cubic-bezier(0.66, 0, 0.34, 1)',
-          }}
-        >
-          {images.map((img, i) => (
-            <div
-              key={i}
-              className="shrink-0 overflow-hidden rounded-[6px] bg-navy"
-              style={{ width: 'var(--slw)' }}
-              aria-hidden={i !== index}
-            >
-              <img
-                src={img.src}
-                alt={img.alt ?? ''}
-                className="block w-full h-[440px] object-cover"
-                draggable="false"
-              />
-            </div>
-          ))}
-        </div>
+      {/* Centered free-scroll track — the first slide sits centred (via the side
+          padding) and neighbours peek; drag / swipe / wheel scroll it. */}
+      <div
+        ref={scrollRef}
+        data-gallery-item
+        data-horizontal-scroll
+        className="mt-10 md:mt-12 w-full overflow-x-auto overflow-y-hidden flex cursor-grab select-none [&::-webkit-scrollbar]:hidden"
+        style={{
+          '--slw': 'min(1120px, calc(64vw / var(--scale)))',
+          '--gap': `${GAP}px`,
+          gap: 'var(--gap)',
+          paddingLeft: 'calc((100% - var(--slw)) / 2)',
+          paddingRight: 'calc((100% - var(--slw)) / 2)',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-x',
+          overscrollBehavior: 'contain',
+        }}
+      >
+        {images.map((img, i) => (
+          <div
+            key={i}
+            data-gallery-slide
+            className="shrink-0 overflow-hidden rounded-[6px] bg-navy"
+            style={{ width: 'var(--slw)' }}
+          >
+            <img
+              src={img.src}
+              alt={img.alt ?? ''}
+              className="block w-full h-[440px] object-cover"
+              draggable="false"
+            />
+          </div>
+        ))}
       </div>
 
       {images.length > 1 && (
@@ -105,8 +229,8 @@ function ProjectGallery({
         >
           <button
             type="button"
-            onClick={() => go(-1)}
-            disabled={index === 0}
+            onClick={() => scrollByOne(-1)}
+            disabled={atStart}
             aria-label="Previous image"
             className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-white/25 text-mist transition-colors duration-200 hover:border-white/70 disabled:opacity-30 disabled:hover:border-white/25"
           >
@@ -114,8 +238,8 @@ function ProjectGallery({
           </button>
           <button
             type="button"
-            onClick={() => go(1)}
-            disabled={index === last}
+            onClick={() => scrollByOne(1)}
+            disabled={atEnd}
             aria-label="Next image"
             className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-white/25 text-mist transition-colors duration-200 hover:border-white/70 disabled:opacity-30 disabled:hover:border-white/25"
           >
