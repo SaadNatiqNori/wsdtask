@@ -184,7 +184,7 @@ function Card({ refProp, title, description, isValues, values, illustration, zIn
   return (
     <div
       ref={refProp}
-      style={{ zIndex }}
+      style={{ zIndex, willChange: 'transform', backfaceVisibility: 'hidden' }}
       className="absolute inset-0 flex flex-col bg-[#E6EBF0] px-4 pt-[0px] md:px-8 md:pt-[0]"
     >
       {/* Each card is a solid full-viewport panel, so when it rises it covers
@@ -280,6 +280,11 @@ function MissionVisionValues() {
       if (!isMobile) gsap.set(footerRef.current, { yPercent: 100 })
 
       const tl = gsap.timeline({
+        // force3D keeps the moving panels on their own GPU layer for the whole
+        // scrub instead of GSAP reverting them to 2D between frames — on iOS
+        // Safari that's the difference between a compositor-smooth cover and a
+        // per-frame repaint that hitches as the stage pins.
+        defaults: { force3D: true },
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
@@ -385,7 +390,7 @@ function MissionVisionValues() {
                 full-panel treatment as the cards, one z-layer above Values.
                 On mobile it is rendered as a normal block after the stage. */}
             {!isMobile && (
-              <div ref={footerRef} style={{ zIndex: 40 }} className="absolute inset-0 bg-navy">
+              <div ref={footerRef} style={{ zIndex: 40, willChange: 'transform', backfaceVisibility: 'hidden' }} className="absolute inset-0 bg-navy">
                 <ContactFooterPanel cta={cta} fitMobile />
               </div>
             )}
