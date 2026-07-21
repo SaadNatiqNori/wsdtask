@@ -6,6 +6,16 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// iOS Safari (and Chrome Android) show/hide the URL bar on almost every
+// scroll-direction change, which resizes the visual viewport by ~60-120px.
+// Left alone, ScrollTrigger treats each of those as a real resize and refreshes
+// mid-scroll, recomputing every pinned/scrubbed trigger's start/end — which
+// makes the pinned cover stages (subsidiaries, mission/vision/values) jump and
+// glitch on the phone. This flag tells ScrollTrigger to ignore the toolbar band
+// (height-only changes with the width unchanged); genuine orientation changes
+// still refresh.
+ScrollTrigger.config({ ignoreMobileResize: true })
+
 const LenisContext = createContext(null)
 const ScrollModeContext = createContext(() => {})
 

@@ -136,6 +136,11 @@ function CardsSection() {
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         const clones = []
 
+        // Defensive: clear any flight clones a prior build left behind (e.g. an
+        // interrupted/overlapping rebuild) so a rebuild can never stack a second
+        // copy of the gold words over the first.
+        stickyEl.querySelectorAll('[data-flight-clone]').forEach((c) => c.remove())
+
         gsap.set(allWordEls, { yPercent: 100 })
         gsap.set(cardsEl, { autoAlpha: 0 })
         gsap.set(titleEls, { opacity: 0 })
@@ -188,6 +193,7 @@ function CardsSection() {
           const toSize = parseFloat(window.getComputedStyle(targetEl).fontSize)
 
           const clone = document.createElement('span')
+          clone.setAttribute('data-flight-clone', '')
           clone.textContent = card.title
           Object.assign(clone.style, {
             position: 'absolute',
@@ -319,11 +325,26 @@ function CardsSection() {
     // Flight geometry is measured once per build. Width changes re-run this
     // effect via `scale`; height changes move the vertically-centered cards,
     // so rebuild for those here.
+    let lastWidth = window.innerWidth
     let lastHeight = window.innerHeight
     const onResize = () => {
       clearTimeout(resizeTimer)
       resizeTimer = setTimeout(() => {
-        if (window.innerHeight !== lastHeight) {
+        // Width changes already re-run the whole effect via `scale`, so this
+        // handler only needs to catch height changes. On iOS Safari the URL bar
+        // toggling on scroll changes innerHeight by ~60-120px on nearly every
+        // scroll gesture; rebuilding the timeline for that mid-scroll is what
+        // duplicates the flight clones and breaks the animation. So ignore that
+        // toolbar band and only rebuild for a genuine layout change (e.g.
+        // orientation), which moves the vertically-centered cards enough to
+        // matter. Width-driven changes are excluded here since the effect
+        // re-runs for them anyway.
+        if (window.innerWidth !== lastWidth) {
+          lastWidth = window.innerWidth
+          lastHeight = window.innerHeight
+          return
+        }
+        if (Math.abs(window.innerHeight - lastHeight) > 150) {
           lastHeight = window.innerHeight
           build()
         }
