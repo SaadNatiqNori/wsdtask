@@ -8,15 +8,21 @@ import { ProjectIllustration } from './PortfolioSlider'
 
 // Horizontal, scroll-snapping strip of project cards. Native touch scroll does
 // the dragging on mobile (Lenis runs syncTouch:false, so the browser owns touch
-// scroll). Cards sit at ~80% width so the next one peeks at the right edge; the
-// strip stays inside the padded content (no negative-margin bleed) so the first
-// card aligns cleanly with the menu's left margin and never clips — and the
-// last card scrolls fully into view. Each card shows the project's cover image,
-// or the same line-art illustration the home portfolio uses as a fallback.
+// scroll). The wrapper (-mx-6) bleeds the strip to both screen edges so cards
+// scroll flush to the left and right symmetrically; the flex row's px-6 restores
+// a first- and last-card inset so they align with the menu's left margin at rest
+// while still scrolling clean to the edge mid-strip. The row needs w-max: without
+// it the row stays scrollport-wide and the cards overflow past its right edge, so
+// its right padding lands mid-strip instead of after the last card; w-max sizes
+// the row to its content so the trailing inset actually follows the last card.
+// scroll-pl-6 pairs with the left inset: without it, snap-mandatory/snap-start
+// would snap the first card flush to the scrollport edge and eat the inset. Each
+// card shows the project's cover image, or the same line-art illustration the
+// home portfolio uses as a fallback.
 function ProjectSlider({ projects, onNavigate }) {
   return (
-    <div className="no-scrollbar snap-x snap-mandatory overflow-x-auto pb-6">
-      <div className="flex gap-4">
+    <div className="no-scrollbar snap-x snap-mandatory scroll-pl-6 overflow-x-auto pb-6">
+      <div className="flex w-max gap-4 px-6">
         {projects.map((project, i) => (
           <Link
             key={`${project.slug}-${i}`}
@@ -180,18 +186,17 @@ function MobileMenu({ open, onClose, links, projects, projectsLabel, contactLabe
               <img
                 src={arrowDown}
                 alt=""
-                className={`w-[20px] transition-transform duration-300 ${
-                  projectsExpanded ? 'rotate-180' : ''
-                }`}
+                className={`w-[20px] transition-transform duration-300 ${projectsExpanded ? 'rotate-180' : ''
+                  }`}
                 aria-hidden="true"
               />
             </button>
 
-            <div ref={projectsBodyRef} className="-mr-6 overflow-hidden" style={{ height: 0 }}>
+            <div ref={projectsBodyRef} className="-mx-6 overflow-hidden" style={{ height: 0 }}>
               <Link
                 to="/projects"
                 onClick={onClose}
-                className="mb-5 inline-flex items-center gap-3 font-['Akkurat_Mono',monospace] text-[11px] uppercase leading-none tracking-normal text-mist no-underline"
+                className="mb-5 ml-6 inline-flex items-center gap-3 font-['Akkurat_Mono',monospace] text-[11px] uppercase leading-none tracking-normal text-mist no-underline"
                 aria-label="See all projects"
               >
                 <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-solid border-mist">
@@ -209,7 +214,7 @@ function MobileMenu({ open, onClose, links, projects, projectsLabel, contactLabe
       <Link
         to="/contact"
         onClick={onClose}
-        className="pointer-events-auto fixed bottom-[5svh] left-4 z-50 inline-flex h-[42px] w-[81px] items-center justify-center gap-[10px] rounded-[22px] bg-mist px-[10px] py-4 font-['Akkurat_Mono',monospace] text-[14px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline"
+        className="pointer-events-auto fixed bottom-[5svh] left-4 z-50 inline-flex h-[42px] w-[81px] items-center justify-center gap-[10px] rounded-[22px] bg-mist px-[10px] pb-4 pt-[20px] font-['Akkurat_Mono',monospace] text-[14px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline "
       >
         {contactLabel}
       </Link>

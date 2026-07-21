@@ -323,12 +323,12 @@ function MissionVisionValues() {
     <>
       <section
       ref={sectionRef}
-      className="relative w-full h-[300vh] bg-[#E6EBF0]"
+      className="relative w-full h-[300svh] bg-[#E6EBF0]"
       aria-label="Mission, vision, values"
     >
       <div
         ref={stickyRef}
-        className="sticky top-0 h-screen w-full overflow-hidden bg-[#E6EBF0]"
+        className="sticky top-0 h-[100svh] w-full overflow-hidden bg-[#E6EBF0]"
       >
         <div
           className="scale-wrapper"
@@ -337,7 +337,7 @@ function MissionVisionValues() {
             transformOrigin: 'top center',
             width: scale >= 1 ? '100%' : `${100 / scale}%`,
             marginLeft: scale >= 1 ? '0' : `${(100 - 100 / scale) / 2}%`,
-            height: `${100 / scale}vh`,
+            height: `${100 / scale}svh`,
           }}
         >
           <div className="relative h-full  max-w-[1440px] mx-auto text-[#1C2D4F]">
