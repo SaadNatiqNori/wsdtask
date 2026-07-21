@@ -185,7 +185,7 @@ function Card({ refProp, title, description, isValues, values, illustration, zIn
     <div
       ref={refProp}
       style={{ zIndex }}
-      className="absolute inset-0 flex flex-col bg-[#E6EBF0] px-4 pt-[0px] md:px-8 md:pt-[0]"
+      className="absolute inset-0 flex flex-col bg-[#E6EBF0] px-4 pt-[0px] md:px-8 md:pt-[0] will-change-transform"
     >
       {/* Each card is a solid full-viewport panel, so when it rises it covers
           the card beneath it completely as a fixed layer. */}
@@ -267,6 +267,12 @@ function MissionVisionValues() {
       // "the next tab shows a little earlier before the previous scrolls out".
       const DRIFT = -50 // outgoing lag; smaller = stronger cover, larger = gentler dock
       const PEEK = 33   // how far up (%) the next tab already is when its turn begins; bigger = less gap / earlier reveal, but shows more of the next tab at the start
+      const layers = [missionRef.current, visionRef.current, valuesRef.current].filter(Boolean)
+      if (!isMobile && footerRef.current) layers.push(footerRef.current)
+
+      // Prime each layer before the first scrubbed frame so transforms begin on
+      // the compositor and do not introduce a one-frame hitch at section entry.
+      gsap.set(layers, { force3D: true })
 
       // Mission is docked. Vision starts already peeking PEEK% at the bottom.
       // Values stays fully below and is brought up to the same PEEK head-start
@@ -280,10 +286,12 @@ function MissionVisionValues() {
       if (!isMobile) gsap.set(footerRef.current, { yPercent: 100 })
 
       const tl = gsap.timeline({
+        defaults: { ease: 'none', force3D: true },
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
           end: 'bottom bottom',
+          invalidateOnRefresh: true,
           scrub: true, // Lenis already eases position; a numeric scrub double-smooths
         },
       })
@@ -293,23 +301,23 @@ function MissionVisionValues() {
       const riseDur = 1 / (1 - PEEK / 100)
 
       // T1 — Mission drifts up; Vision rises from its peek position to cover.
-      tl.to(missionRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 0)
-      tl.to(visionRef.current, { yPercent: 0, ease: 'none', duration: 1 }, 0)
+      tl.to(missionRef.current, { yPercent: DRIFT, duration: 1 }, 0)
+      tl.to(visionRef.current, { yPercent: 0, duration: 1 }, 0)
       // Values rises from 100→0 over a slightly longer, EARLIER-starting window so
       // that by the time Vision docks (t=1) Values is already PEEK% up — same head
       // start as Vision had, and the same rise rate (100 over 1/(1-PEEK/100)).
-      tl.to(valuesRef.current, { yPercent: 0, ease: 'none', duration: riseDur }, 2 - riseDur)
+      tl.to(valuesRef.current, { yPercent: 0, duration: riseDur }, 2 - riseDur)
       // T2 — Vision drifts up; Values (already peeking) finishes rising to cover.
-      tl.to(visionRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 1)
+      tl.to(visionRef.current, { yPercent: DRIFT, duration: 1 }, 1)
 
       // Desktop only: the navy footer is the final rising cover. On mobile the
       // timeline ends here with Values docked (yPercent 0) — the footer is a
       // separate block after the stage — so Values must NOT drift up.
       if (!isMobile) {
         // Footer mirrors Values' early rise, one beat later: PEEK% up by t=2.
-        tl.to(footerRef.current, { yPercent: 0, ease: 'none', duration: riseDur }, 3 - riseDur)
+        tl.to(footerRef.current, { yPercent: 0, duration: riseDur }, 3 - riseDur)
         // T3 — Values drifts up; the navy footer rises to cover, same as every card.
-        tl.to(valuesRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 2)
+        tl.to(valuesRef.current, { yPercent: DRIFT, duration: 1 }, 2)
       }
 
       // Footer (last layer) settles docked; the sticky stage releases at the
@@ -322,76 +330,80 @@ function MissionVisionValues() {
   return (
     <>
       <section
-      ref={sectionRef}
-      className="relative w-full h-[300vh] bg-[#E6EBF0]"
-      aria-label="Mission, vision, values"
-    >
-      <div
-        ref={stickyRef}
-        className="sticky top-0 h-screen w-full overflow-hidden bg-[#E6EBF0]"
+        ref={sectionRef}
+        className="relative w-full h-[300vh] bg-[#E6EBF0]"
+        aria-label="Mission, vision, values"
       >
         <div
-          className="scale-wrapper"
-          style={{
-            transform: `scale(${scale})`,
-            transformOrigin: 'top center',
-            width: scale >= 1 ? '100%' : `${100 / scale}%`,
-            marginLeft: scale >= 1 ? '0' : `${(100 - 100 / scale) / 2}%`,
-            height: `${100 / scale}vh`,
-          }}
+          ref={stickyRef}
+          className="sticky top-0 h-screen w-full overflow-hidden bg-[#E6EBF0]"
         >
-          <div className="relative h-full  max-w-[1440px] mx-auto text-[#1C2D4F]">
-            <Card
-              refProp={missionRef}
-              zIndex={10}
-              title={mvv.mission.title}
-              description={mvv.mission.body}
-              illustration={
-                mvv.mission.image ? (
-                  <img src={mvv.mission.image} alt="" className="w-full max-w-[313px] h-auto" />
-                ) : (
-                  <MissionIllustration className="w-[280px] h-[300px] max-w-full" />
-                )
-              }
-            />
-            <Card
-              refProp={visionRef}
-              zIndex={20}
-              title={mvv.vision.title}
-              description={mvv.vision.body}
-              illustration={
-                mvv.vision.image ? (
-                  <img src={mvv.vision.image} alt="" className="w-full max-w-[313px] h-auto" />
-                ) : (
-                  <VisionIllustration className="w-[480px] h-[240px] max-w-full" />
-                )
-              }
-            />
-            <Card
-              refProp={valuesRef}
-              zIndex={30}
-              title={mvv.values.title}
-              isValues
-              values={mvv.values}
-              illustration={
-                mvv.values.image ? (
-                  <img src={mvv.values.image} alt="" className="w-full max-w-[313px] h-auto" />
-                ) : (
-                  <ValuesIllustration className="w-[480px] h-[320px] max-w-full" />
-                )
-              }
-            />
-            {/* Desktop: navy footer is the final rising cover layer — same solid
+          <div
+            className="scale-wrapper"
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: 'top center',
+              width: scale >= 1 ? '100%' : `${100 / scale}%`,
+              marginLeft: scale >= 1 ? '0' : `${(100 - 100 / scale) / 2}%`,
+              height: `${100 / scale}vh`,
+            }}
+          >
+            <div className="relative h-full  max-w-[1440px] mx-auto text-[#1C2D4F]">
+              <Card
+                refProp={missionRef}
+                zIndex={10}
+                title={mvv.mission.title}
+                description={mvv.mission.body}
+                illustration={
+                  mvv.mission.image ? (
+                    <img src={mvv.mission.image} alt="" className="w-full max-w-[313px] h-auto" />
+                  ) : (
+                    <MissionIllustration className="w-[280px] h-[300px] max-w-full" />
+                  )
+                }
+              />
+              <Card
+                refProp={visionRef}
+                zIndex={20}
+                title={mvv.vision.title}
+                description={mvv.vision.body}
+                illustration={
+                  mvv.vision.image ? (
+                    <img src={mvv.vision.image} alt="" className="w-full max-w-[313px] h-auto" />
+                  ) : (
+                    <VisionIllustration className="w-[480px] h-[240px] max-w-full" />
+                  )
+                }
+              />
+              <Card
+                refProp={valuesRef}
+                zIndex={30}
+                title={mvv.values.title}
+                isValues
+                values={mvv.values}
+                illustration={
+                  mvv.values.image ? (
+                    <img src={mvv.values.image} alt="" className="w-full max-w-[313px] h-auto" />
+                  ) : (
+                    <ValuesIllustration className="w-[480px] h-[320px] max-w-full" />
+                  )
+                }
+              />
+              {/* Desktop: navy footer is the final rising cover layer — same solid
                 full-panel treatment as the cards, one z-layer above Values.
                 On mobile it is rendered as a normal block after the stage. */}
-            {!isMobile && (
-              <div ref={footerRef} style={{ zIndex: 40 }} className="absolute inset-0 bg-navy">
-                <ContactFooterPanel cta={cta} fitMobile />
-              </div>
-            )}
+              {!isMobile && (
+                <div
+                  ref={footerRef}
+                  style={{ zIndex: 40 }}
+                  className="absolute inset-0 bg-navy will-change-transform"
+                >
+                  <ContactFooterPanel cta={cta} fitMobile />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
       </section>
 
       {/* Mobile: the footer is a normal fit-content block after the pinned
