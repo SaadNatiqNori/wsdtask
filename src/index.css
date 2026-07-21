@@ -25,6 +25,16 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* Hide the scrollbar on horizontal card sliders (e.g. the mobile projects
+   strip) while keeping native scroll/drag. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @font-face {
   font-family: 'Akkurat Mono';
   src: url('/fonts/AkkuratMono-Regular.ttf') format('truetype');

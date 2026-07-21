@@ -25,6 +25,20 @@ function ProjectGallery({
   const scrollRef = useRef(null)
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(images.length <= 1)
+  // Mobile uses a near-full-width card (16px gutters) instead of the centred
+  // 64vw peek-carousel, so the slide width differs by breakpoint.
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    const update = () => setIsDesktop(mq.matches)
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+  // Inter-slide gap: 16px on mobile (matches the 16px left gutter and lets the
+  // next card peek), the wider GAP on desktop.
+  const gap = isDesktop ? GAP : 16
 
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return
@@ -154,28 +168,27 @@ function ProjectGallery({
     const el = scrollRef.current
     if (!el) return
     const slide = el.querySelector('[data-gallery-slide]')
-    const step = (slide ? slide.offsetWidth : el.clientWidth) + GAP
+    const step = (slide ? slide.offsetWidth : el.clientWidth) + gap
     el.scrollBy({ left: dir * step, behavior: 'smooth' })
   }
 
   return (
     <ScaleLock
-      viewport="min"
       innerRef={rootRef}
-      className="relative flex flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist pt-28 pb-10 md:pt-36"
+      className="relative flex flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist pt-[84px] pb-[72px] md:pt-36 md:pb-10 md:min-h-[calc(100vh/var(--scale))]"
     >
       <div className="px-6 md:px-10 flex flex-col items-center text-center">
         {/* Same pill as the Contact page badge, recoloured for the dark section
             (light ink + soft light border instead of the dark-on-light ink). */}
         <span
           data-gallery-item
-          className="inline-flex h-[24px] items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-mist/40 px-[9px] pb-[7px] pt-[10px] text-center font-['Akkurat_Mono',monospace] text-[14px] font-medium uppercase leading-[1.15] tracking-[-0.28px] text-mist"
+          className="inline-flex h-[24px] items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-mist/40 px-[9px] pb-[7px] pt-[10px] text-center font-['Akkurat_Mono',monospace] text-[11px] md:text-[14px] font-medium uppercase leading-[1.15] tracking-[-0.28px] text-mist"
         >
           {eyebrow}
         </span>
         <h2
           data-gallery-item
-          className="m-0 mt-7 text-center text-[40px] md:text-[50px] font-[420] leading-[1] tracking-[-0.04em] text-mist"
+          className="m-0 mt-[23px] md:mt-7 text-center text-[32px] md:text-[50px] font-[420] leading-[1] tracking-[-0.04em] text-mist"
           style={{
             fontFamily: "'Season Mix VF', serif",
             textBoxTrim: 'trim-both',
@@ -194,11 +207,16 @@ function ProjectGallery({
         data-horizontal-scroll
         className="mt-10 md:mt-12 w-full overflow-x-auto overflow-y-hidden flex cursor-grab select-none [&::-webkit-scrollbar]:hidden"
         style={{
-          '--slw': 'min(1120px, calc(64vw / var(--scale)))',
-          '--gap': `${GAP}px`,
+          // Mobile: wide card aligned to a 16px start gutter, with 16px gap and
+          // a 16px peek of the next card (card = 100vw − 16 − 16 − 16). Desktop
+          // keeps the centred 64vw peek-carousel.
+          '--slw': isDesktop
+            ? 'min(1120px, calc(64vw / var(--scale)))'
+            : 'calc(100vw - 48px)',
+          '--gap': `${gap}px`,
           gap: 'var(--gap)',
-          paddingLeft: 'calc((100% - var(--slw)) / 2)',
-          paddingRight: 'calc((100% - var(--slw)) / 2)',
+          paddingLeft: isDesktop ? 'calc((100% - var(--slw)) / 2)' : '16px',
+          paddingRight: isDesktop ? 'calc((100% - var(--slw)) / 2)' : '16px',
           scrollbarWidth: 'none',
           WebkitOverflowScrolling: 'touch',
           touchAction: 'pan-x',
@@ -215,7 +233,7 @@ function ProjectGallery({
             <img
               src={img.src}
               alt={img.alt ?? ''}
-              className="block w-full h-[440px] object-cover"
+              className="block w-full h-[193px] md:h-[440px] object-cover"
               draggable="false"
             />
           </div>

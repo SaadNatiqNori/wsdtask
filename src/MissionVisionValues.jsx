@@ -33,13 +33,21 @@ const MVV_FALLBACK = {
   },
 }
 
-function useScale(referenceWidth = 1440) {
+function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
+  // Below 768px the mobile layout is authored for a 430px-wide reference
+  // (iPhone 14 Pro Max). Scaling by width/430 — capped at 1 so 430px+ stays
+  // pixel-identical to the design — shrinks the whole cover stage uniformly on
+  // narrower phones so each card's title/body/illustration keep their
+  // proportions instead of overflowing. The parallax uses yPercent (relative to
+  // each card's own height), so it is unaffected by the scale value.
+  const mobileScale = (width) => Math.min(1, width / mobileReferenceWidth)
+
   const [state, setState] = useState(() => {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : 1,
+        scale: width >= 768 ? width / referenceWidth : mobileScale(width),
         initialDPR: dpr,
       }
     }
@@ -53,19 +61,19 @@ function useScale(referenceWidth = 1440) {
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
       if (virtualWidth >= 768) setScale(width / referenceWidth)
-      else setScale(1)
+      else setScale(mobileScale(width))
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [referenceWidth, state.initialDPR])
+  }, [referenceWidth, mobileReferenceWidth, state.initialDPR])
 
   return state.scale
 }
 
-function MissionIllustration() {
+function MissionIllustration({ className = 'w-[280px] h-[300px]' }) {
   const stroke = '#1C2D4F'
   return (
-    <svg viewBox="0 0 360 380" className="w-[280px] h-[300px]" aria-hidden="true">
+    <svg viewBox="0 0 360 380" className={className} aria-hidden="true">
       <g stroke={stroke} strokeWidth="0.6" fill="none" strokeDasharray="2 4" opacity="0.55">
         <line x1="40" y1="20" x2="40" y2="360" />
         <line x1="320" y1="20" x2="320" y2="360" />
@@ -88,10 +96,10 @@ function MissionIllustration() {
   )
 }
 
-function VisionIllustration() {
+function VisionIllustration({ className = 'w-[480px] h-[240px]' }) {
   const stroke = '#1C2D4F'
   return (
-    <svg viewBox="0 0 540 280" className="w-[480px] h-[240px]" aria-hidden="true">
+    <svg viewBox="0 0 540 280" className={className} aria-hidden="true">
       <g stroke={stroke} strokeWidth="0.7" fill="none" strokeDasharray="2 3" opacity="0.85">
         <path d="M 40 140 Q 270 30 500 140 Q 270 250 40 140 Z" />
         <ellipse cx="270" cy="140" rx="180" ry="80" />
@@ -113,11 +121,11 @@ function VisionIllustration() {
   )
 }
 
-function ValuesIllustration() {
+function ValuesIllustration({ className = 'w-[480px] h-[320px]' }) {
   const stroke = '#1C2D4F'
   const centers = [180, 240, 300, 360, 420]
   return (
-    <svg viewBox="0 0 600 400" className="w-[480px] h-[320px]" aria-hidden="true">
+    <svg viewBox="0 0 600 400" className={className} aria-hidden="true">
       <g stroke={stroke} strokeWidth="0.6" fill="none" strokeDasharray="2 3" opacity="0.7">
         {centers.map((cx, i) => (
           <circle key={i} cx={cx} cy="200" r="100" />
@@ -177,15 +185,15 @@ function Card({ refProp, title, description, isValues, values, illustration, zIn
     <div
       ref={refProp}
       style={{ zIndex }}
-      className="absolute inset-0 flex flex-col bg-[#E6EBF0] px-4 pt-[120px] md:px-8 md:pt-[0]"
+      className="absolute inset-0 flex flex-col bg-[#E6EBF0] px-4 pt-[0px] md:px-8 md:pt-[0]"
     >
       {/* Each card is a solid full-viewport panel, so when it rises it covers
           the card beneath it completely as a fixed layer. */}
       <div className="flex-1 flex flex-col justify-start bg-[#E6EBF0] -mx-4 px-4 md:-mx-8 md:px-8">
         <div className="w-full h-[1px] bg-[#1C2D4F]/30" />
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-[460px_1fr] gap-6 md:gap-16">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-[460px_1fr] gap-[14px] md:gap-16">
           <h3
-            className="m-0 text-[42px] md:text-[58px] font-normal leading-none tracking-[-0.01em]"
+            className="m-0 text-[44px] md:text-[58px] font-normal leading-none tracking-[-0.01em]"
             style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
           >
             {title}
@@ -194,11 +202,11 @@ function Card({ refProp, title, description, isValues, values, illustration, zIn
             {isValues ? (
               <ValuesContent intro={values.intro} items={values.items} />
             ) : (
-              <p className="m-0 text-[14px] leading-[150%] tracking-[0] max-w-[520px] text-[#1C2D4F]">
+              <p className="m-0 text-[14px] leading-[130%] tracking-[0] max-w-[520px] text-[#1C2D4F]">
                 {description}
               </p>
             )}
-            <div className="mt-10">
+            <div className="mt-10 flex justify-center md:justify-start">
               {illustration}
             </div>
           </div>
@@ -220,6 +228,20 @@ function MissionVisionValues() {
   const visionRef = useRef(null)
   const valuesRef = useRef(null)
   const footerRef = useRef(null)
+
+  // Below md the navy footer leaves the cinematic entirely: the parallax runs
+  // for the three cards, Values docks as the final cover, and the footer renders
+  // as a normal fit-content block after the pinned stage (see the render). So the
+  // footer layer is only mounted/animated on desktop.
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const onChange = () => setIsMobile(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -255,7 +277,7 @@ function MissionVisionValues() {
       gsap.set(missionRef.current, { yPercent: 0 })
       gsap.set(visionRef.current, { yPercent: 100 - PEEK })
       gsap.set(valuesRef.current, { yPercent: 100 })
-      gsap.set(footerRef.current, { yPercent: 100 })
+      if (!isMobile) gsap.set(footerRef.current, { yPercent: 100 })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -279,20 +301,27 @@ function MissionVisionValues() {
       tl.to(valuesRef.current, { yPercent: 0, ease: 'none', duration: riseDur }, 2 - riseDur)
       // T2 — Vision drifts up; Values (already peeking) finishes rising to cover.
       tl.to(visionRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 1)
-      // Footer mirrors Values' early rise, one beat later: PEEK% up by t=2.
-      tl.to(footerRef.current, { yPercent: 0, ease: 'none', duration: riseDur }, 3 - riseDur)
-      // T3 — Values drifts up; the navy footer rises to cover, same as every card.
-      tl.to(valuesRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 2)
+
+      // Desktop only: the navy footer is the final rising cover. On mobile the
+      // timeline ends here with Values docked (yPercent 0) — the footer is a
+      // separate block after the stage — so Values must NOT drift up.
+      if (!isMobile) {
+        // Footer mirrors Values' early rise, one beat later: PEEK% up by t=2.
+        tl.to(footerRef.current, { yPercent: 0, ease: 'none', duration: riseDur }, 3 - riseDur)
+        // T3 — Values drifts up; the navy footer rises to cover, same as every card.
+        tl.to(valuesRef.current, { yPercent: DRIFT, ease: 'none', duration: 1 }, 2)
+      }
 
       // Footer (last layer) settles docked; the sticky stage releases at the
       // section end, so the footer holds full-screen as the page bottom.
     })
 
     return () => ctx.revert()
-  }, [])
+  }, [isMobile])
 
   return (
-    <section
+    <>
+      <section
       ref={sectionRef}
       className="relative w-full h-[300vh] bg-[#E6EBF0]"
       aria-label="Mission, vision, values"
@@ -321,7 +350,7 @@ function MissionVisionValues() {
                 mvv.mission.image ? (
                   <img src={mvv.mission.image} alt="" className="w-full max-w-[313px] h-auto" />
                 ) : (
-                  <MissionIllustration />
+                  <MissionIllustration className="w-[280px] h-[300px] max-w-full" />
                 )
               }
             />
@@ -334,7 +363,7 @@ function MissionVisionValues() {
                 mvv.vision.image ? (
                   <img src={mvv.vision.image} alt="" className="w-full max-w-[313px] h-auto" />
                 ) : (
-                  <VisionIllustration />
+                  <VisionIllustration className="w-[480px] h-[240px] max-w-full" />
                 )
               }
             />
@@ -348,19 +377,32 @@ function MissionVisionValues() {
                 mvv.values.image ? (
                   <img src={mvv.values.image} alt="" className="w-full max-w-[313px] h-auto" />
                 ) : (
-                  <ValuesIllustration />
+                  <ValuesIllustration className="w-[480px] h-[320px] max-w-full" />
                 )
               }
             />
-            {/* Navy footer as the final rising cover layer — same solid
-                full-panel treatment as the cards, one z-layer above Values. */}
-            <div ref={footerRef} style={{ zIndex: 40 }} className="absolute inset-0 bg-navy">
-              <ContactFooterPanel cta={cta} />
-            </div>
+            {/* Desktop: navy footer is the final rising cover layer — same solid
+                full-panel treatment as the cards, one z-layer above Values.
+                On mobile it is rendered as a normal block after the stage. */}
+            {!isMobile && (
+              <div ref={footerRef} style={{ zIndex: 40 }} className="absolute inset-0 bg-navy">
+                <ContactFooterPanel cta={cta} fitMobile />
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </section>
+      </section>
+
+      {/* Mobile: the footer is a normal fit-content block after the pinned
+          cinematic, so it is 553px tall (per the design) instead of a full-screen
+          cover. Desktop keeps it inside the stage as the rising cover above. */}
+      {isMobile && (
+        <div className="bg-navy">
+          <ContactFooterPanel cta={cta} fitMobile />
+        </div>
+      )}
+    </>
   )
 }
 

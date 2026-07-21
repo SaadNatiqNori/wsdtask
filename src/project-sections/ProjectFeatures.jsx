@@ -47,15 +47,15 @@ function ProjectFeatures({ groups = [] }) {
           // pads its top (the section's top edge). So the gap between two groups
           // is the upper group's colour all the way down to the next group's
           // border — the colour switches at the line, not mid-gap.
-          className={`w-full pb-[119px]${gi === 0 ? ' pt-[119px]' : ''}`}
+          className={`w-full pb-[64px] md:pb-[119px]${gi === 0 ? ' pt-[64px] md:pt-[119px]' : ''}`}
           style={{ backgroundColor: group.bg ?? '#E6EBF0' }}
         >
-          <div className="mx-auto max-w-[1760px] border-t border-[#1C1F2A] px-6 pt-[70px] pb-0 md:px-[38px]">
-            <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,2.55fr)] md:gap-16">
+          <div className="mx-auto max-w-[1760px] border-t border-[#1C1F2A] px-[16px] pt-[40px] pb-0 md:px-[38px] md:pt-[70px]">
+            <div className="grid grid-cols-1 gap-[55px] md:grid-cols-[minmax(0,0.9fr)_minmax(0,2.55fr)] md:gap-16">
               {/* Title column */}
               <div data-feat-item>
                 <h2
-                  className="m-0 whitespace-pre-line text-[40px] md:text-[50px] font-[420] leading-[1] tracking-[-0.04em] text-[#1C1F2A]"
+                  className="m-0 whitespace-pre-line text-[42px] md:text-[50px] font-[420] leading-[1] tracking-[-0.04em] text-[#1C1F2A]"
                   style={{
                     fontFamily: "'Season Mix VF', serif",
                     textBoxTrim: 'trim-both',
@@ -77,7 +77,7 @@ function ProjectFeatures({ groups = [] }) {
                   <div
                     key={row.feature ?? ri}
                     data-feat-item
-                    className="grid grid-cols-1 justify-between gap-3 border-b border-[#1C1F2A] pt-[46px] pb-[46px] first:pt-0 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:first:pt-0"
+                    className="grid grid-cols-1 justify-between gap-2 border-b border-[#1C1F2A] pt-[28px] pb-[28px] first:pt-0 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:pt-[46px] md:pb-[46px] md:first:pt-0"
                   >
                     <h3
                       className="group m-0 self-center text-[24px] md:text-[38px] font-normal leading-[1.15] tracking-[-0.02em] text-[#1C1F2A]"
@@ -88,7 +88,7 @@ function ProjectFeatures({ groups = [] }) {
                       </span>
                     </h3>
                     <p
-                      className="m-0 ml-auto w-full max-w-[312px] self-center text-[16px] md:text-[18px] leading-[1.2] tracking-[0] text-[#5A6472]"
+                      className="m-0 w-full self-center text-[13px] leading-[1.4] tracking-[0] text-[#5A6472] md:ml-auto md:max-w-[312px] md:text-[18px] md:leading-[1.2] pt-[6px] md:pt-0"
                       style={{ textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' }}
                     >
                       {row.description.map((seg, si) => {

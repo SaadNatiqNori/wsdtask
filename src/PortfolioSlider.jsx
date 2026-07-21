@@ -189,6 +189,21 @@ export function ProjectIllustration({ variant }) {
 
 function PortfolioSlider() {
   const scale = useScale()
+  // Below md the section stops being a scale-locked, single-viewport horizontal
+  // slider and becomes a naturally-flowing vertical stack. `scale` can't tell us
+  // we're on mobile (desktop at exactly 1440 also yields scale === 1), so track
+  // the breakpoint directly.
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 767px)').matches
+      : false
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const onChange = (e) => setIsMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
   const home = useContent('home', { portfolio: PORTFOLIO_FALLBACK })
   const portfolio = home.portfolio ?? PORTFOLIO_FALLBACK
   // Cards are the CRUD projects flagged "Show on home portfolio". Fall back to
@@ -213,11 +228,20 @@ function PortfolioSlider() {
   const fitCardToImage = (img) => {
     if (!img) return
     const apply = () => {
+      const card = img.closest('article')
+      if (!card) return
+      // On mobile the cards are full-width (w-full); clear any pixel width a
+      // previous desktop fit left behind. `isMobile` is read from render scope,
+      // and this ref callback re-runs on every render (fresh identity), so a
+      // breakpoint change re-applies the correct width.
+      if (isMobile) {
+        card.style.width = ''
+        return
+      }
       const { naturalWidth: nw, naturalHeight: nh } = img
       if (!nw || !nh) return
       const imgW = IMG_HEIGHT * (nw / nh)
-      const card = img.closest('article')
-      if (card) card.style.width = `${Math.round(Math.max(imgW, 340)) + CARD_PAD_X * 2}px`
+      card.style.width = `${Math.round(Math.max(imgW, 340)) + CARD_PAD_X * 2}px`
     }
     if (img.complete && img.naturalWidth) apply()
     else img.addEventListener('load', apply, { once: true })
@@ -374,10 +398,24 @@ function PortfolioSlider() {
     return () => ctx.revert()
   }, [])
 
+  // "CHECK ALL" pill — the same button in two spots: bottom of the intro column
+  // on desktop, and top-right beside the heading on mobile (per the mobile
+  // layout). Rendered twice via responsive visibility so neither position
+  // affects the other.
+  const checkAllCta = (
+    <Link
+      to="/projects"
+      className="group inline-flex w-fit h-[46px] items-center gap-[5px] rounded-[48px] border-[0.25px] border-navy bg-navy px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline transition-colors duration-200 ease-out hover:bg-transparent hover:text-navy"
+    >
+      <span className="relative top-[1.5px]">{portfolio.ctaLabel}</span>
+      <ArrowIcon size={14} className="relative top-[0.5px]" />
+    </Link>
+  )
+
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-[#E6EBF0]"
+      className="relative w-full overflow-hidden bg-[#E6EBF0] md:h-screen"
       aria-label="Portfolio overview"
     >
       <div
@@ -387,47 +425,51 @@ function PortfolioSlider() {
           transformOrigin: 'top center',
           width: scale >= 1 ? '100%' : `${100 / scale}%`,
           marginLeft: scale >= 1 ? '0' : `${(100 - 100 / scale) / 2}%`,
-          height: `${100 / scale}vh`,
+          // Mobile: grow with the stacked content and let the page scroll.
+          // Desktop: locked to one viewport so the slider fills the screen.
+          height: isMobile ? 'auto' : `${100 / scale}vh`,
         }}
       >
-        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col justify-center bg-[#E6EBF0] pt-[88px] pb-8 text-[#1C2D4F] md:pt-[120px] md:pb-10">
+        <main className="relative h-full max-w-[1440px] mx-auto flex flex-col justify-start md:justify-center bg-[#E6EBF0] pt-[88px] pb-14 text-[#1C2D4F] md:pt-[120px] md:pb-10">
           <div
             ref={scrollRef}
             data-horizontal-scroll
-            className="overflow-x-auto overflow-y-hidden flex items-stretch gap-2 pl-4 pr-2 md:pl-[38px] cursor-grab select-none [&::-webkit-scrollbar]:hidden"
+            className="flex flex-col md:flex-row items-stretch gap-4 md:gap-2 px-4 md:pl-[38px] md:pr-2 md:overflow-x-auto md:overflow-y-hidden md:cursor-grab select-none [&::-webkit-scrollbar]:hidden"
             style={{
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
-              touchAction: 'pan-x',
+              // Mobile stacks vertically, so let the page pan vertically; only
+              // the desktop horizontal slider claims the horizontal axis.
+              touchAction: isMobile ? 'auto' : 'pan-x',
               overscrollBehavior: 'contain',
             }}
           >
             {/* mr + the row's gap-2 (8px) = the 227.5px intro-to-cards gap */}
             <div
               ref={introRef}
-              className="flex-shrink-0 w-[240px] flex flex-col gap-[30px] py-4 mr-[219.5px]"
+              className="flex-shrink-0 w-full md:w-[240px] flex flex-col gap-6 md:gap-[30px] py-4 md:mr-[219.5px]"
             >
-              <h2
-                className="m-0 text-[44px] leading-[100%] tracking-[-0.02em] text-navy"
-                style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
-              >
-                {portfolio.heading[0]}
-                <br />
-                {portfolio.heading[1]}
-              </h2>
+              {/* On mobile the heading and CTA share the top row; on desktop the
+                  CTA is hidden here (it lives at the column's foot) and the
+                  heading sits alone. */}
+              <div className="flex items-start justify-between gap-4">
+                <h2
+                  className="m-0 text-[30px] md:text-[44px] leading-[100%] tracking-[-0.02em] text-navy"
+                  style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
+                >
+                  {portfolio.heading[0]}
+                  <br />
+                  {portfolio.heading[1]}
+                </h2>
+                <div className="md:hidden">{checkAllCta}</div>
+              </div>
               <p
                 className="m-0 text-[14px] leading-5 text-navy"
                 style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
               >
                 {portfolio.description}
               </p>
-              <Link
-                to="/projects"
-                className="group inline-flex w-fit h-[46px] items-center gap-[5px] rounded-[48px] border-[0.25px] border-navy bg-navy px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-mist no-underline transition-colors duration-200 ease-out hover:bg-transparent hover:text-navy"
-              >
-                <span className="relative top-[1.5px]">{portfolio.ctaLabel}</span>
-                <ArrowIcon size={14} className='relative top-[0.5px]' />
-              </Link>
+              <div className="hidden md:block">{checkAllCta}</div>
             </div>
 
             {projects.map((project, i) => (
@@ -436,7 +478,7 @@ function PortfolioSlider() {
                 ref={(el) => {
                   if (el) cardRefs.current.push(el)
                 }}
-                className="flex-shrink-0 w-[496px] bg-navy px-[38px] py-10 flex flex-col gap-[70px] text-mist"
+                className="flex-shrink-0 w-full md:w-[496px] bg-navy px-6 py-8 md:px-[38px] md:py-10 flex flex-col gap-10 md:gap-[70px] text-mist"
               >
                 <div>
                   <h3
@@ -460,7 +502,7 @@ function PortfolioSlider() {
                       alt={project.title}
                       draggable={false}
                       ref={fitCardToImage}
-                      className="h-[150px] w-auto max-w-none object-contain"
+                      className="h-[102.79px] w-[317.91px] object-contain md:h-[150px] md:w-auto md:max-w-none"
                     />
                   ) : (
                     <ProjectIllustration variant={i % 4} />
@@ -478,7 +520,7 @@ function PortfolioSlider() {
             ))}
           </div>
 
-          <div className="mt-8 mx-auto w-full max-w-[280px] h-[2px] bg-[#1C2D4F]/15 relative">
+          <div className="mt-8 mx-auto hidden md:block w-full max-w-[280px] h-[2px] bg-[#1C2D4F]/15 relative">
             <div
               ref={progressFillRef}
               className="absolute top-0 h-full bg-[#1C2D4F] transition-[left] duration-150 ease-out"

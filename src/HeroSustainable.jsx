@@ -17,13 +17,20 @@ const HERO_FALLBACK = {
   featured: { eyebrow: 'RECENT PROJECTS', title: 'Second Avenue', slug: 'second-avenue' },
 }
 
-function useScale(referenceWidth = 1440) {
+function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
+  // Below 768px the mobile layout is authored for a 430px-wide reference
+  // (iPhone 14 Pro Max). Scaling by width/430 — capped at 1 so 430px+ stays
+  // pixel-identical to the design — shrinks the whole hero uniformly on
+  // narrower/shorter phones, keeping the same proportions instead of letting
+  // the fixed pt/gap/pb collapse and collide the description into the wordmark.
+  const mobileScale = (width) => Math.min(1, width / mobileReferenceWidth)
+
   const [state, setState] = useState(() => {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : 1,
+        scale: width >= 768 ? width / referenceWidth : mobileScale(width),
         initialDPR: dpr,
       }
     }
@@ -37,11 +44,11 @@ function useScale(referenceWidth = 1440) {
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
       if (virtualWidth >= 768) setScale(width / referenceWidth)
-      else setScale(1)
+      else setScale(mobileScale(width))
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [referenceWidth, state.initialDPR])
+  }, [referenceWidth, mobileReferenceWidth, state.initialDPR])
 
   return state.scale
 }
@@ -123,23 +130,31 @@ function HeroSustainable() {
           // The navbar now scales with the same 1440 lock as this content, so the
           // top padding is a plain canvas value (75px navbar + 125.69px gap) that
           // scales uniformly with everything else — no /scale compensation.
-          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 pb-[24px] pt-[88px] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[200.69px]"
+          // Mobile top/bottom padding is min(designPx, equivalent-vh): it equals
+          // the design values at the 932px reference height (so the iPhone 14 Pro
+          // Max view is untouched) but shrinks on shorter viewports (e.g. iPhone
+          // SE, 667px) so the top nav-clearance yields space instead of collapsing
+          // the description→wordmark gap. Pairs with the width scale-lock above.
+          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 max-md:[padding-bottom:min(108.6px,11.652vh)] max-md:[padding-top:min(196px,21.031vh)] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[200.69px]"
         >
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 md:gap-8">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-[60px] md:gap-8">
             <h1
               ref={headlineRef}
-              className="m-0 text-[36px] not-italic leading-[115%] tracking-[-0.02em] md:text-[48px]"
+              className="m-0 text-[56px] not-italic leading-[104%] tracking-[-0.02em] md:text-[48px] md:leading-[115%]"
               style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
             >
               {hero.headline[0]}
-              <br />
+              {/* Desktop keeps the CMS two-line split; mobile lets the full
+                  headline wrap naturally into a taller stack. */}
+              {' '}
+              <br className="hidden md:block" />
               {hero.headline[1]}
             </h1>
 
-            <div className="max-w-full md:max-w-[200px] md:mr-[114px]">
+            <div className="w-[55%] self-end md:w-auto md:self-auto md:max-w-[200px] md:mr-[114px]">
               <p
                 ref={descriptionRef}
-                className="m-0 text-[14px] font-normal leading-4 tracking-[0] text-[#1C2D4F]"
+                className="m-0 text-[15px] font-normal leading-[1.35] tracking-[0] text-[#1C2D4F] md:text-[14px] md:leading-4"
                 style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
               >
                 {hero.description}
@@ -147,10 +162,14 @@ function HeroSustainable() {
             </div>
           </div>
 
+          {/* The wordmark stays pinned near the hero bottom (108.6px via main's
+              pb); the auto top margin absorbs viewport slack, so the desc→logo
+              gap is 71px at the design's reference height and grows on taller
+              screens rather than leaving dead space under the wordmark. */}
           <div className="relative mt-auto">
             <div
               ref={alcoveRef}
-              className="w-full aspect-[64/13]"
+              className="w-full aspect-[64/13] max-md:aspect-auto max-md:h-[75px]"
               style={{
                 WebkitMaskImage: `url("${logo}")`,
                 maskImage: `url("${logo}")`,
@@ -171,7 +190,7 @@ function HeroSustainable() {
               {...(featured.slug
                 ? { to: `/projects/${featured.slug}`, 'aria-label': `View project: ${featured.title}` }
                 : {})}
-              className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-3 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px] group transition-[backdrop-filter,background-color] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#13294B]/20 hover:backdrop-blur-[100px]"
+              className="hidden md:flex absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex-col gap-3 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px] group transition-[backdrop-filter,background-color] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#13294B]/20 hover:backdrop-blur-[100px]"
             >
               <div className="flex justify-between items-start relative -top-2">
                <div>

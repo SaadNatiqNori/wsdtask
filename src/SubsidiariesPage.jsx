@@ -116,23 +116,23 @@ function PropertiesIcon() {
 function SubsidiaryCard({ icon, title, description }) {
   return (
     <div
-      className="flex flex-col rounded-[4px] p-[38px] w-full max-w-[429px]"
+      className="flex flex-col rounded-[4px] p-[24px] md:p-[38px] w-full max-w-[429px]"
       style={{ background: '#FFFFFF05' }}
     >
-      <div className="h-[28px] flex items-center">{icon}</div>
+      <div className="h-[19px] md:h-[28px] flex items-center">{icon}</div>
       <img
         src={logoYellow}
         alt="Alcove"
-        className="mt-[21px] h-[15px] w-[74px]"
+        className="mt-[16px] md:mt-[21px] h-[11px] md:h-[15px] w-[58px] md:w-[74px]"
       />
       <h3
-        className="m-0 mt-[14px] text-[32px] md:text-[38px] font-normal leading-none tracking-[-0.04em] text-gold"
+        className="m-0 mt-[7px] md:mt-[14px] text-[26px] md:text-[38px] font-normal leading-none tracking-[-0.04em] text-gold"
         style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
       >
         {title}
       </h3>
       <p
-        className="m-0 mt-[32px] text-[16px] leading-[1.15] tracking-[0] max-w-[257px] text-mist"
+        className="m-0 mt-[24px] md:mt-[32px] text-[14px] md:text-[16px] leading-[1.15] tracking-[0] max-w-[257px] text-mist"
         style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 400 }}
       >
         {description}
@@ -160,7 +160,7 @@ function SubsidiariesPage() {
         <img
           src={item.image}
           alt=""
-          className="w-[44px] h-[44px] md:w-[52px] md:h-[52px] object-contain"
+          className="w-[27px] h-[26px] md:w-[52px] md:h-[52px] object-contain"
         />
       )
     }
@@ -189,17 +189,17 @@ function SubsidiariesPage() {
     <>
       <ScaleLock as="main" viewport="min" className="relative bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
         <div className="max-w-[1440px] mx-auto">
-          <div className="text-center max-w-[695px] mx-auto">
+          <div className="text-center max-w-[356px] md:max-w-[695px] mx-auto">
             <h1
               ref={titleRef}
-              className="m-0 text-[32px] md:text-[46px] font-normal leading-none tracking-[-0.04em] text-gold"
+              className="m-0 text-[36px] md:text-[46px] font-normal leading-none tracking-[-0.04em] text-gold"
               style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
             >
               {subs.title}
             </h1>
             <p
               ref={introRef}
-              className="m-0 mt-0 text-[22px] md:text-[32px] leading-[1.15] tracking-[0] text-mist"
+              className="m-0 mt-2 md:mt-0 text-[17px] md:text-[32px] leading-[1.15] tracking-[0] text-mist"
               style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 400 }}
             >
               {intro}
@@ -216,7 +216,7 @@ function SubsidiariesPage() {
               }}
             />
 
-            <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-[260px] gap-y-[60px] md:gap-y-[80px]">
+            <div className="relative grid grid-cols-1 md:grid-cols-2 gap-x-[260px] gap-y-[38px] md:gap-y-[80px]">
               <div
                 className="relative md:w-[429px] md:justify-self-end md:col-start-1 md:row-start-1"
               >
@@ -224,6 +224,14 @@ function SubsidiariesPage() {
                   icon={iconFor(items[0])}
                   title={items[0].title}
                   description={items[0].description}
+                />
+                <div
+                  aria-hidden="true"
+                  className="md:hidden absolute top-full left-1/2 -translate-x-1/2 w-[1px] h-[38px]"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(to bottom, #FFFFFF40 0, #FFFFFF40 6px, transparent 6px, transparent 12px)',
+                  }}
                 />
                 <div
                   aria-hidden="true"
@@ -242,6 +250,14 @@ function SubsidiariesPage() {
                   icon={iconFor(items[1])}
                   title={items[1].title}
                   description={items[1].description}
+                />
+                <div
+                  aria-hidden="true"
+                  className="md:hidden absolute top-full left-1/2 -translate-x-1/2 w-[1px] h-[38px]"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(to bottom, #FFFFFF40 0, #FFFFFF40 6px, transparent 6px, transparent 12px)',
+                  }}
                 />
                 <div
                   aria-hidden="true"
@@ -273,14 +289,14 @@ function SubsidiariesPage() {
             </div>
           </div>
 
-          <div className="mt-24 md:mt-[232px] max-w-[1130px] mx-auto bg-[#FFFFFF05] rounded-[6px] px-6 py-12 md:px-[70px] md:py-[80px] flex flex-col gap-12 md:gap-[70px]">
+          <div className="mt-24 md:mt-[232px] max-w-[1130px] mx-auto bg-[#FFFFFF05] rounded-[6px] px-[16px] py-[54px] md:px-[70px] md:py-[80px] flex flex-col gap-12 md:gap-[70px]">
             <div className="flex gap-[28px]">
               <div
                 aria-hidden="true"
                 className="w-[1px] shrink-0 self-stretch bg-gold"
               />
               <h2
-                className="m-0 text-[32px] md:text-[44px] font-normal leading-[1.2] tracking-[-0.04em] text-gold"
+                className="m-0 text-[28px] md:text-[44px] font-normal leading-[1.2] tracking-[-0.04em] text-gold"
                 style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
               >
                 {what.title[0]}
@@ -290,7 +306,7 @@ function SubsidiariesPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-[50px] max-w-[990px]">
               <p
-                className="m-0 text-[18px] md:text-[22px] leading-[1.25] tracking-[0] text-mist max-w-[470px]"
+                className="m-0 text-[16px] md:text-[22px] leading-[1.25] tracking-[0] text-mist max-w-[470px]"
               >
                 <span className="opacity-80">
                   {(what.left ?? []).map((seg, i) =>
@@ -303,7 +319,7 @@ function SubsidiariesPage() {
                 </span>
               </p>
               <p
-                className="m-0 text-[18px] md:text-[22px] leading-[1.25] tracking-[0] text-mist max-w-[470px]"
+                className="m-0 text-[16px] md:text-[22px] leading-[1.25] tracking-[0] text-mist max-w-[470px]"
               >
                 <span className="opacity-80">{what.right}</span>
               </p>

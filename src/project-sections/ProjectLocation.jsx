@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cubicEase } from '../easings'
@@ -26,6 +26,19 @@ function ProjectLocation({ title = 'Location', items = [] }) {
   const [open, setOpen] = useState(0)
   const didInit = useRef(false)
   const scale = useScale()
+
+  // Below 768px the layout collapses into a single stacked column: the centre
+  // illustration stage is dropped and each item's illustration is shown inline
+  // inside its own accordion body instead.
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && !window.matchMedia('(min-width: 768px)').matches
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    const update = () => setIsMobile(!mq.matches)
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
 
   // Entrance
   useLayoutEffect(() => {
@@ -80,11 +93,11 @@ function ProjectLocation({ title = 'Location', items = [] }) {
       innerRef={rootRef}
       className="relative flex items-center overflow-hidden bg-[#161A24] text-mist"
     >
-      <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center gap-16 px-6 py-24 md:flex-row md:justify-between md:gap-0 md:px-[38px] md:py-0">
+      <div className="mx-auto flex w-full max-w-[1720px] flex-col items-start gap-12 px-[16px] py-[65px] md:flex-row md:items-center md:justify-between md:gap-0 md:px-[38px] md:py-0">
         {/* Title */}
         <h2
           data-loc-item
-          className="m-0 shrink-0 text-[40px] md:text-[52px] font-normal leading-[1] tracking-[-0.01em] text-[#ECD898]"
+          className="m-0 shrink-0 text-[44px] md:text-[52px] font-normal leading-[1] tracking-[-0.01em] text-[#ECD898]"
           style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
         >
           {title}
@@ -94,7 +107,7 @@ function ProjectLocation({ title = 'Location', items = [] }) {
             per tab slides through it (the section clips). */}
         <div
           data-loc-item
-          className="relative aspect-square w-[300px] shrink-0 md:ml-[214px] md:h-[339px] md:w-[339px]"
+          className="relative hidden aspect-square w-[300px] shrink-0 md:ml-[214px] md:block md:h-[339px] md:w-[339px]"
           aria-hidden="true"
         >
           {items.map((item, i) => {
@@ -124,6 +137,8 @@ function ProjectLocation({ title = 'Location', items = [] }) {
         <div className="w-full shrink-0 border-t border-white/12 md:ml-[173px] md:w-[455px]">
           {items.map((item, i) => {
             const isOpen = open === i
+            const Illustration =
+              ILLUSTRATIONS[item.illustration ?? ILLUSTRATION_KEYS[i % 3]]
             return (
               <div key={item.label} data-loc-item className="border-b border-white/12">
                 <button
@@ -153,7 +168,8 @@ function ProjectLocation({ title = 'Location', items = [] }) {
                 <div
                   className="grid"
                   style={{
-                    gridTemplateRows: isOpen ? '1fr' : '0fr',
+                    // On mobile every body stays open; on desktop it toggles.
+                    gridTemplateRows: isMobile || isOpen ? '1fr' : '0fr',
                     transition: TRANSITION('grid-template-rows'),
                   }}
                 >
@@ -164,6 +180,30 @@ function ProjectLocation({ title = 'Location', items = [] }) {
                     >
                       {item.body}
                     </p>
+                  </div>
+                </div>
+                {/* Mobile-only: the illustration lives inside the open item's
+                    body (the centre stage is hidden below 768px). */}
+                <div
+                  className="grid md:hidden"
+                  aria-hidden="true"
+                  style={{
+                    gridTemplateRows: isOpen ? '1fr' : '0fr',
+                    transition: TRANSITION('grid-template-rows'),
+                  }}
+                >
+                  <div className="overflow-hidden">
+                    <div className="mx-auto flex aspect-square w-[174px] md:w-[300px] max-w-full items-center justify-center pb-8">
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        Illustration && <Illustration className="h-full w-full" />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

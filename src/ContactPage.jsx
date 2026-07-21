@@ -318,12 +318,12 @@ function ContactPage() {
             {header.badge}
           </span>
           <h1
-            className="m-0 mt-[22px] text-center text-[40px] md:text-[50px] font-normal leading-[1.05] tracking-[-1px] text-[#1C2D4F]"
+            className="m-0 mt-[22px] text-center text-[44px] md:text-[50px] font-normal leading-[1.05] tracking-[-1px] text-[#1C2D4F]"
             style={{ fontFamily: "'Season Mix VF', 'Season Mix-TRIAL', serif" }}
           >
             {header.title}
           </h1>
-          <p className="m-0 mt-[22px] text-center text-[16px] leading-[1.15] tracking-[-0.16px] max-w-[374px] text-[#1C2D4F]">
+            <p className="m-0 mt-[22px] text-center text-[14px] md:text-[16px] leading-[1.15] tracking-[-0.16px] max-w-[352px] md:max-w-[374px] text-[#1C2D4F]">
             {header.subtitle}
           </p>
         </div>
@@ -357,7 +357,7 @@ function ContactPage() {
           </div>
 
           <p
-            className="mx-auto mt-10 max-w-[274px] text-center text-[16px] font-normal leading-[1.15] tracking-[-0.01em] text-[#1C2D4F]/45"
+            className="mx-auto mt-10 max-w-[274px] text-center text-[12px] md:text-[16px] font-normal leading-[1.15] tracking-[-0.01em] text-[#1C2D4F]/45"
             style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
           >
             By clicking send message, you acknowledge your data will be processed
@@ -437,13 +437,23 @@ function ContactPage() {
               so the corners read as crossings, not closed joins */}
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute -inset-x-[16px] top-0 h-px"
+            className="pointer-events-none absolute -inset-x-[16px] top-0 hidden h-px md:block"
             style={{ backgroundImage: DASH_H }}
           />
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute -inset-x-[16px] bottom-0 h-px"
+            className="pointer-events-none absolute -inset-x-[16px] bottom-0 hidden h-px md:block"
             style={{ backgroundImage: DASH_H }}
+          />
+
+          {/* mobile-only vertical center divider — the grid's two columns meet at
+              50% (gap-x-0), so this line sits on the seam and crosses the row
+              dividers. Tails run into the wrapper's py padding, matching the
+              open cross grid in the design (no outer frame on mobile). */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-1/2 w-px md:hidden"
+            style={{ backgroundImage: DASH_V }}
           />
 
           {/* vertical dividers — overshoot the top/bottom lines by 10px so each
@@ -460,28 +470,42 @@ function ContactPage() {
             />
           ))}
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-14 md:grid-cols-5 md:gap-y-0">
-            {details.map((col) => (
-              <div
-                key={col.label}
-                data-col
-                className="flex flex-col justify-center px-4 md:px-[30px]"
-              >
-                <p className="m-0 font-['Akkurat_Mono',monospace] text-[12px] font-medium uppercase leading-none text-[#8A8FA0]">
-                  {col.label}
-                </p>
-                <div className="mt-4 space-y-1.5">
-                  {col.lines.map((line) => (
-                    <p
-                      key={line}
-                      className="m-0 text-[16px] font-normal leading-none text-black"
-                    >
-                      {line}
-                    </p>
-                  ))}
+          <div className="grid grid-cols-2 gap-x-0 gap-y-14 md:grid-cols-5 md:gap-x-4 md:gap-y-0">
+            {details.map((col, i) => {
+              // Mobile draws a horizontal divider centered in the row gap below
+              // every cell that isn't in the last row, so the two-column grid
+              // reads as a cross with the center vertical line.
+              const notLastRow =
+                Math.floor(i / 2) < Math.ceil(details.length / 2) - 1
+              return (
+                <div
+                  key={col.label}
+                  data-col
+                  className="relative flex h-[213px] flex-col items-center justify-center px-4 text-center md:h-auto md:items-start md:px-[30px] md:text-left"
+                >
+                  {notLastRow && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-x-0 -bottom-7 h-px md:hidden"
+                      style={{ backgroundImage: DASH_H }}
+                    />
+                  )}
+                  <p className="m-0 font-['Akkurat_Mono',monospace] text-[12px] font-medium uppercase leading-none text-[#8A8FA0]">
+                    {col.label}
+                  </p>
+                  <div className="mt-4 space-y-1.5">
+                    {col.lines.map((line) => (
+                      <p
+                        key={line}
+                        className="m-0 text-[16px] font-normal leading-none text-black"
+                      >
+                        {line}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </footer>

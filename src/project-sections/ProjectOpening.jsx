@@ -1,9 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { cloneElement, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { prefersReducedMotion } from './motion'
 import { useScale } from '../useScale'
-import { ScaleLock } from '../ScaleLock'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -126,11 +125,15 @@ function ProjectOpening({ hero, banner }) {
   }, [cinematic, scale])
 
   if (!cinematic) {
+    // Mobile/reduced-motion: a compact dark-navy hero — light copy on top with
+    // the building illustration flowing directly below it (no scroll stage, and
+    // no scale wrapper since scale is 1 below 768px). onDark flips the hero copy
+    // and banner to their light-on-navy treatment.
     return (
-      <ScaleLock viewport="min" scale={scale} className="flex flex-col">
-        {hero}
-        <div className="mt-auto">{banner}</div>
-      </ScaleLock>
+      <div className="bg-navy">
+        {cloneElement(hero, { onDark: true })}
+        {cloneElement(banner, { onDark: true })}
+      </div>
     )
   }
 

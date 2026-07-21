@@ -26,13 +26,21 @@ const INTRO_FALLBACK = {
   ],
 }
 
-function useScale(referenceWidth = 1440) {
+function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
+  // Below 768px the mobile layout is authored for a 430px-wide reference
+  // (iPhone 14 Pro Max). Scaling by width/430 — capped at 1 so 430px+ stays
+  // pixel-identical to the design — shrinks the whole section uniformly on
+  // narrower phones so the intro copy and cards keep their proportions instead
+  // of reflowing/overflowing. The flight geometry below already mirrors `scale`,
+  // so the word-to-title animation stays correct at any mobile scale.
+  const mobileScale = (width) => Math.min(1, width / mobileReferenceWidth)
+
   const [state, setState] = useState(() => {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : 1,
+        scale: width >= 768 ? width / referenceWidth : mobileScale(width),
         initialDPR: dpr,
       }
     }
@@ -46,11 +54,11 @@ function useScale(referenceWidth = 1440) {
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
       if (virtualWidth >= 768) setScale(width / referenceWidth)
-      else setScale(1)
+      else setScale(mobileScale(width))
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [referenceWidth, state.initialDPR])
+  }, [referenceWidth, mobileReferenceWidth, state.initialDPR])
 
   return state.scale
 }
@@ -362,7 +370,7 @@ function CardsSection() {
           <main className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-8 pt-[88px] text-[#d6deea] md:px-8 md:py-12">
           <div className="relative mx-auto flex flex-1 items-center max-w-[1440px] w-full">
             <section ref={heroTextRef} aria-label="Company introduction">
-              <p className="m-0 text-[32px] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
+              <p className="m-0 text-[34px] font-normal not-italic leading-[120%] tracking-[-0.01em] md:text-[58px]">
                 {words.map((word, i) => {
                   const cleanWord = word.replace(/[.,]/g, '')
                   const isAccent = ACCENT_WORDS.has(cleanWord)
@@ -392,13 +400,13 @@ function CardsSection() {
 
             <section
               ref={cardsContainerRef}
-              className="absolute inset-x-0 top-0 grid grid-cols-1 gap-6 md:top-1/2 md:translate-y-[calc(-50%+48px)] md:gap-0 md:grid-cols-3 mt-4 md:mt-0"
+              className="absolute inset-x-0 top-1/2 -translate-y-1/2 grid grid-cols-1 gap-[74px] md:translate-y-[calc(-50%+48px)] md:gap-0 md:grid-cols-3"
               aria-label="Subsidiaries"
             >
               {CARDS.map((card) => (
                 <div
                   key={card.title}
-                  className="relative flex h-[30vh] flex-col py-0 pl-6 md:h-[534px]"
+                  className="relative flex flex-col py-0 pl-6 md:h-[534px]"
                 >
                   <div
                     ref={(el) => {
@@ -421,7 +429,7 @@ function CardsSection() {
                     ref={(el) => {
                       if (el) cardTitleRefs.current[card.title] = el
                     }}
-                    className="m-0 text-[28px] font-normal tracking-[-0.01em] leading-[120%] text-gold md:text-[58px]"
+                    className="m-0 text-[44px] font-normal tracking-[-0.01em] leading-[120%] text-gold md:text-[58px]"
                     style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
                   >
                     {card.title}
@@ -431,7 +439,7 @@ function CardsSection() {
                     ref={(el) => {
                       if (el) cardContentRefs.current.push(el)
                     }}
-                    className="mt-auto"
+                    className="mt-4 md:mt-auto"
                   >
                     <p className=" w-[80%] pe-4 text-[14px] font-normal leading-[140%] tracking-[0] text-mist md:text-[16px] md:leading-[120%]">
                       {card.description}
