@@ -45,6 +45,19 @@ function useScale(referenceWidth = 1440) {
 
 function ContactSection() {
   const scale = useScale()
+  // The scaled-canvas math (100vh wrapper + scale transform) only applies at the
+  // md+ desktop breakpoint. Below it the footer is a natural fit-content block,
+  // so the wrapper must drop the forced 100vh height. Keyed off the 768px query,
+  // not `scale`, because a 1440px desktop also yields scale 1 yet still needs vh.
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    const onChange = () => setIsDesktop(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
   const footer = useContent('footer', { cta: CTA_FALLBACK })
   const cta = footer.cta ?? CTA_FALLBACK
   const sectionRef = useRef(null)
@@ -93,7 +106,7 @@ function ContactSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-navy"
+      className="relative w-full h-auto md:h-screen overflow-hidden bg-navy"
       aria-label="Contact"
     >
       <div
@@ -103,11 +116,12 @@ function ContactSection() {
           transformOrigin: 'top center',
           width: scale >= 1 ? '100%' : `${100 / scale}%`,
           marginLeft: scale >= 1 ? '0' : `${(100 - 100 / scale) / 2}%`,
-          height: `${100 / scale}vh`,
+          height: isDesktop ? `${100 / scale}vh` : 'auto',
         }}
       >
         <ContactFooterPanel
           cta={cta}
+          fitMobile
           titleRef={titleRef}
           descRef={descRef}
           buttonRef={buttonRef}

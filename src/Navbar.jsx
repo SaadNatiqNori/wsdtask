@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { IoChevronDownOutline } from 'react-icons/io5'
 import logo from './assets/Logo.svg'
@@ -8,6 +8,8 @@ import { cubicEase } from './easings'
 import { PROJECTS_DATA } from './projects'
 import { useProjects, useContent } from './api'
 import { useScale } from './useScale'
+import BurgerIcon from './BurgerIcon'
+import MobileMenu from './MobileMenu'
 
 const NAVBAR_FALLBACK = {
   links: [
@@ -142,9 +144,14 @@ function Navbar() {
   // below 768px (mobile untouched).
   const scale = useScale()
   const [projectsOpen, setProjectsOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [hoveredLink, setHoveredLink] = useState(null)
   const projectsTriggerRef = useRef(null)
   const closeTimerRef = useRef(null)
+  const { pathname } = useLocation()
+
+  // Close the mobile menu on any navigation (link tap or browser back/forward).
+  useEffect(() => setMenuOpen(false), [pathname])
 
   const openProjects = () => {
     clearTimeout(closeTimerRef.current)
@@ -173,6 +180,7 @@ function Navbar() {
       slug: p.slug,
       title: p.title,
       description: p.short,
+      coverImage: p.coverImage,
     }))
 
   useLayoutEffect(() => {
@@ -205,16 +213,19 @@ function Navbar() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center px-4 pt-4 md:px-8 md:pt-5 pointer-events-none"
-      style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}
+      // Only apply the scale transform above 768px. At scale 1 (mobile) a
+      // `transform` would still establish a containing block for fixed-position
+      // descendants, trapping the full-screen MobileMenu inside the header box.
+      style={scale === 1 ? { transformOrigin: 'top center' } : { transform: `scale(${scale})`, transformOrigin: 'top center' }}
       aria-label="Site header"
     >
       <nav
         ref={navbarRef}
-        className="pointer-events-auto flex min-w-[420px] h-[55px] w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF0D] bg-navy p-2 md:w-max"
+        className="pointer-events-auto relative z-50 flex h-[55px] w-full justify-between items-center gap-[5px] rounded-[4px] border border-[#FFFFFF1A] md:border-[#FFFFFF0D] bg-navy p-2 md:min-w-[420px] md:w-max"
         aria-label="Main navigation"
       >
         <Link to="/" className="flex h-9 items-center justify-between p-2 no-underline">
-          <img src={logo} alt="Alcove" className="h-[12px] w-auto" />
+          <img src={logo} alt="Alcove" className="h-[13px] w-auto" />
         </Link>
 
         <ul className="hidden list-none items-center gap-[5px] p-0 m-0 md:flex">
@@ -269,10 +280,21 @@ function Navbar() {
           to="/contact"
           onMouseEnter={() => setHoveredLink('contact')}
           onMouseLeave={() => setHoveredLink(null)}
-          className="inline-flex h-9 items-center whitespace-nowrap rounded-[22px] border border-transparent bg-mist px-[10px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px] transition-colors duration-300 ease-out hover:bg-transparent hover:border-mist hover:text-mist"
+          className="hidden md:inline-flex h-9 items-center whitespace-nowrap rounded-[22px] border border-transparent bg-mist px-[10px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline gap-[10px] transition-colors duration-300 ease-out hover:bg-transparent hover:border-mist hover:text-mist"
         >
           <p className="m-0 font-['Akkurat_Mono',monospace] relative top-[1px]">{nav.contactLabel}</p>
         </Link>
+
+        {/* Mobile-only burger; morphs to an X while the overlay is open. */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          className="flex h-9 w-9 items-center justify-center rounded-[3px] border-0 bg-transparent p-0 cursor-pointer md:hidden"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+        >
+          <BurgerIcon open={menuOpen} />
+        </button>
       </nav>
 
       <ProjectsDropdown
@@ -282,6 +304,15 @@ function Navbar() {
         heading={nav.dropdownHeading}
         onMouseEnter={openProjects}
         onMouseLeave={scheduleCloseProjects}
+      />
+
+      <MobileMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        links={nav.links}
+        projects={dropdownProjects}
+        projectsLabel={nav.projectsLabel}
+        contactLabel={nav.contactLabel}
       />
     </header>
   )

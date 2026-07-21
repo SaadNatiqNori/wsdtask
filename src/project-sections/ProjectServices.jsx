@@ -51,7 +51,7 @@ function ProjectServices({
           scales it to fill. Mobile (<768, zoom 1) stays fluid. */}
       <div
         style={{ zoom: scale }}
-        className="mx-auto w-full max-w-[1440px] px-6 py-24 md:w-[1440px] md:px-[38px] md:py-32"
+        className="mx-auto w-full max-w-[1440px] px-[16px] py-24 md:w-[1440px] md:px-[38px] md:py-32"
       >
       <div className="mx-auto grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16 lg:grid-cols-[1fr_546px] lg:gap-24">
         {/* Sticky intro */}
@@ -64,7 +64,7 @@ function ProjectServices({
           </p>
           {heading && (
             <h2
-              className="m-0 mt-6 max-w-[664px] text-[28px] md:text-[34px] font-normal leading-none tracking-normal text-[#1C2D4F]"
+              className="m-0 mt-6 max-w-[664px] text-[24px] md:text-[34px] font-normal leading-none tracking-normal text-[#1C2D4F]"
               style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
             >
               {heading}
@@ -91,19 +91,19 @@ function ProjectServices({
                   src={item.image}
                   alt=""
                   aria-hidden="true"
-                  className="h-[38px] w-[34px] object-contain"
+                  className="h-[24px] md:h-[38px] w-[22px] md:w-[34px] object-contain"
                   draggable="false"
                 />
               ) : (
                 <ServiceIcon name={item.icon} className="h-[38px] w-[34px] text-[#1C2D4F]" />
               )}
               <h3
-                className="m-0 mt-8 text-[28px] md:text-[32px] font-normal leading-none tracking-[-0.04em] text-[#1C2D4F]"
+                className="m-0 mt-[26px] md:mt-8 text-[24px] md:text-[32px] font-normal leading-none tracking-[-0.04em] text-[#1C2D4F]"
                 style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
               >
                 {item.title}
               </h3>
-              <p className="m-0 mt-5 text-[16px] md:text-[18px] font-normal leading-5 tracking-normal text-[#5A6472] max-w-[429px]">
+              <p className="m-0 mt-[18px] md:mt-5 text-[16px] md:text-[18px] font-normal leading-5 tracking-normal text-[#5A6472] max-w-[429px]">
                 {(item.description ?? []).map((seg, si) => (
                   <span
                     key={si}

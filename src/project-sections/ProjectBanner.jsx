@@ -17,6 +17,7 @@ function ProjectBanner({
   aspect = '16 / 5',
   overlay = 0.72,
   locked = true,
+  onDark = false,
 }) {
   const rootRef = useRef(null)
 
@@ -34,7 +35,16 @@ function ProjectBanner({
     return () => ctx.revert()
   }, [])
 
-  const inner = (
+  // On the mobile navy hero (onDark), the box blends into the navy wrapper, so
+  // drop the letterbox crop and render the whole building in-flow at its natural
+  // height with a small (~16px) side margin, per the design.
+  const inner = onDark ? (
+    <div ref={rootRef} data-banner-box className="mx-auto w-full max-w-[1200px]">
+      {image && (
+        <img src={image} alt={alt} data-banner-img className="block h-auto w-full" />
+      )}
+    </div>
+  ) : (
     <div
       ref={rootRef}
       data-banner-box
@@ -56,7 +66,9 @@ function ProjectBanner({
     </div>
   )
 
-  const cls = 'px-6 md:px-10 mt-[52px] md:mt-[68px]'
+  const cls = onDark
+    ? 'px-[16px] mt-[72px] pb-[104px]'
+    : 'px-6 md:px-10 mt-[52px] md:mt-[68px]'
   if (!locked) {
     return <section className={cls}>{inner}</section>
   }

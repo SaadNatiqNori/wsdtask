@@ -123,23 +123,26 @@ function HeroSustainable() {
           // The navbar now scales with the same 1440 lock as this content, so the
           // top padding is a plain canvas value (75px navbar + 125.69px gap) that
           // scales uniformly with everything else — no /scale compensation.
-          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 pb-[24px] pt-[88px] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[200.69px]"
+          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 pb-[108.6px] pt-[196px] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[200.69px]"
         >
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 md:gap-8">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-[60px] md:gap-8">
             <h1
               ref={headlineRef}
-              className="m-0 text-[36px] not-italic leading-[115%] tracking-[-0.02em] md:text-[48px]"
+              className="m-0 text-[56px] not-italic leading-[104%] tracking-[-0.02em] md:text-[48px] md:leading-[115%]"
               style={{ fontFamily: "'Season Mix VF', serif", fontWeight: 420 }}
             >
               {hero.headline[0]}
-              <br />
+              {/* Desktop keeps the CMS two-line split; mobile lets the full
+                  headline wrap naturally into a taller stack. */}
+              {' '}
+              <br className="hidden md:block" />
               {hero.headline[1]}
             </h1>
 
-            <div className="max-w-full md:max-w-[200px] md:mr-[114px]">
+            <div className="w-[55%] self-end md:w-auto md:self-auto md:max-w-[200px] md:mr-[114px]">
               <p
                 ref={descriptionRef}
-                className="m-0 text-[14px] font-normal leading-4 tracking-[0] text-[#1C2D4F]"
+                className="m-0 text-[15px] font-normal leading-[1.35] tracking-[0] text-[#1C2D4F] md:text-[14px] md:leading-4"
                 style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
               >
                 {hero.description}
@@ -147,10 +150,14 @@ function HeroSustainable() {
             </div>
           </div>
 
+          {/* The wordmark stays pinned near the hero bottom (108.6px via main's
+              pb); the auto top margin absorbs viewport slack, so the desc→logo
+              gap is 71px at the design's reference height and grows on taller
+              screens rather than leaving dead space under the wordmark. */}
           <div className="relative mt-auto">
             <div
               ref={alcoveRef}
-              className="w-full aspect-[64/13]"
+              className="w-full aspect-[64/13] max-md:aspect-auto max-md:h-[75px]"
               style={{
                 WebkitMaskImage: `url("${logo}")`,
                 maskImage: `url("${logo}")`,
@@ -171,7 +178,7 @@ function HeroSustainable() {
               {...(featured.slug
                 ? { to: `/projects/${featured.slug}`, 'aria-label': `View project: ${featured.title}` }
                 : {})}
-              className="absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex flex-col gap-3 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px] group transition-[backdrop-filter,background-color] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#13294B]/20 hover:backdrop-blur-[100px]"
+              className="hidden md:flex absolute left-4 right-[52px] bottom-[calc(100%-16px)] max-md:[@media(max-height:700px)]:bottom-4 top-auto md:left-auto md:right-[9%] md:bottom-auto md:top-[-80px] w-auto md:w-[195px] flex-col gap-3 rounded-[4px] px-3 py-[17px] bg-[#13294B]/10 backdrop-blur-[50px] group transition-[backdrop-filter,background-color] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#13294B]/20 hover:backdrop-blur-[100px]"
             >
               <div className="flex justify-between items-start relative -top-2">
                <div>

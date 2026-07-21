@@ -44,13 +44,13 @@ const ABOUT_FALLBACK = {
   },
 }
 
-function Strength({ title, description, index }) {
+function Strength({ title, description, index, mobileDivider }) {
   return (
-    <div className={`relative ${index > 0 ? "md:ml-[61px] md:pl-[61px] md:before:absolute md:before:left-0 md:before:top-0 md:before:h-full md:before:w-[0.5px] md:before:bg-white md:before:content-['']" : ''}`}>
-      <h3 className="m-0 text-[24px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.6px] text-gold md:whitespace-nowrap">
+    <div className={`relative ${mobileDivider ? "mt-[42px] pt-[42px] border-t-[0.5px] border-white md:mt-0 md:pt-0 md:border-t-0" : ''} ${index > 0 ? "md:ml-[61px] md:pl-[61px] md:before:absolute md:before:left-0 md:before:top-0 md:before:h-full md:before:w-[0.5px] md:before:bg-white md:before:content-['']" : ''}`}>
+      <h3 className="m-0 text-[20px] md:text-[30px] font-normal leading-[1.15] tracking-[-0.6px] text-gold md:whitespace-nowrap">
         {title}
       </h3>
-      <p className="mt-6 text-[15px] md:text-[16px] leading-5 tracking-[0] text-mist md:w-[356px]">
+      <p className="mt-[20px] md:mt-6 text-[14px] md:text-[16px] leading-5 tracking-[0] text-mist md:w-[356px]">
         {description}
       </p>
     </div>
@@ -137,14 +137,14 @@ function AboutPage() {
           </span>
           <h1
             ref={heroTitleRef}
-            className="m-0 mt-[22px] text-center text-[40px] md:text-[50px] font-normal leading-[1.05] tracking-[-1px] text-navy"
+            className="m-0 mt-[22px] text-center text-[44px] md:text-[50px] font-normal leading-[1.05] tracking-[-1px] text-navy"
             style={{ fontFamily: "'Season Mix VF', 'Season Mix-TRIAL', serif" }}
           >
             {hero.title}
           </h1>
           <p
             ref={heroSubtitleRef}
-            className="m-0 mt-[22px] text-center text-[16px] leading-[1.15] tracking-[-0.16px] max-w-[374px] text-navy"
+            className="m-0 mt-[22px] text-center text-[14px] md:text-[16px] leading-[1.15] tracking-[-0.16px] max-w-[374px] text-navy"
           >
             {hero.subtitle}
           </p>
@@ -187,14 +187,14 @@ function AboutPage() {
 
               <div className="relative px-4 pt-40 md:pt-52 pb-12 md:pb-16">
                 <div className="max-w-[720px] mx-auto">
-                  <div className="flex flex-col items-start gap-[56px]">
+                  <div className="flex flex-col items-start gap-[28px] md:gap-[56px]">
                     <span className="pointer-events-auto inline-flex items-center justify-center gap-[10px] rounded-[31px] border-[0.5px] border-mist/40 px-[9px] pb-[7px] pt-[10px] font-['Akkurat_Mono',monospace] text-[14px] font-medium leading-[1.15] tracking-[-0.28px] text-center uppercase text-mist bg-transparent h-[24px]">
                       {goals.badge}
                     </span>
                     {goals.paragraphs.map((p, i) => (
                       <p
                         key={i}
-                        className="m-0 text-[30px] md:text-[42px] font-normal leading-[1.2] tracking-[-0.84px] text-white"
+                        className="m-0 text-[28px] md:text-[42px] font-normal leading-[1.2] tracking-[-0.84px] text-white"
                       >
                         {p.lead}{' '}
                         <span className="text-white/60">{p.muted}</span>
@@ -207,11 +207,11 @@ function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-[#D7DEE6] px-[38px] pt-24 md:pt-[195px] pb-24 md:pb-32">
+        <section className="bg-[#D7DEE6] px-[16px] pt-24 md:pt-[195px] pb-24 md:pb-32">
           <div className="flex flex-col gap-10 md:flex-row md:gap-[208px] max-w-[var(--content-width)] mx-auto">
             <div className="shrink-0 md:sticky md:top-[140px] md:self-start md:w-[259px]">
               <h2
-                className="m-0 text-[24px] md:text-[28px] leading-none tracking-[-1.12px] text-navy"
+                  className="m-0 text-[18px] md:text-[28px] leading-none tracking-[-0.5px] md:tracking-[-1.12px] text-navy"
                 style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 550 }}
               >
                 {why.title[0]}
@@ -223,7 +223,7 @@ function AboutPage() {
               {why.paragraphs.map((p, i) => (
                 <p
                   key={i}
-                  className="m-0 text-[24px] md:text-[34px] font-normal leading-[110%] tracking-[-1.36px] text-navy"
+                  className="m-0 text-[20px] md:text-[34px] font-normal leading-[110%] tracking-[-0.5px] md:tracking-[-1.36px] text-navy"
                 >
                   <span className="text-[#8A8FA0]">{p.muted}</span>{' '}
                   {p.rest}
@@ -233,28 +233,28 @@ function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-navy text-mist px-[38px] pt-24 md:pt-[95px] pb-24 md:pb-32">
+        <section className="bg-navy text-mist px-[16px] md:px-[38px] pt-24 md:pt-[95px] pb-24 md:pb-32">
           <div className="max-w-[var(--content-width)] mx-auto">
             <p
-              className="m-0 text-[18px] md:text-[22px] leading-none tracking-[-0.88px] text-mist"
+              className="m-0 text-[16px] md:text-[22px] leading-none tracking-[-0.88px] text-mist"
               style={{ fontFamily: "'Season Sans-TRIAL', sans-serif", fontWeight: 550 }}
             >
               {strengths.eyebrow}
             </p>
             <h2
-              className="m-0 mt-[30px] text-[28px] md:text-[36px] font-normal leading-[42px] tracking-[-1.44px] text-mist md:w-[780px]"
+                className="m-0 mt-[16px] md:mt-[30px] text-[24px] md:text-[36px] font-normal leading-[30px] md:leading-[42px] tracking-[-0.5px] md:tracking-[-1.44px] text-mist md:w-[780px]"
             >
               {strengths.title}
             </h2>
 
-            <div className="mt-16 md:mt-[104px] flex flex-col gap-y-12 md:flex-row md:gap-y-0">
+            <div className="mt-16 md:mt-[104px] flex flex-col md:flex-row md:gap-y-0">
               {strengthItems.slice(0, 3).map((s, i) => (
-                <Strength key={s.title} index={i} {...s} />
+                <Strength key={s.title} index={i} mobileDivider={i > 0} {...s} />
               ))}
             </div>
-            <div className="mt-16 md:mt-[138px] flex flex-col gap-y-12 md:flex-row md:gap-y-0">
+            <div className="md:mt-[138px] flex flex-col md:flex-row md:gap-y-0">
               {strengthItems.slice(3, 5).map((s, i) => (
-                <Strength key={s.title} index={i} {...s} />
+                <Strength key={s.title} index={i} mobileDivider {...s} />
               ))}
             </div>
           </div>

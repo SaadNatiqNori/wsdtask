@@ -65,7 +65,7 @@ function CarIllustration({ className }) {
 // vertically centered on the stage's center line, which is also constant.
 function Slide({ heading, bodyLeft, bodyRight, image }) {
   return (
-    <div className="h-full w-full px-6 md:px-14">
+    <div className="h-full w-full px-[16px] md:px-14">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 md:h-full md:grid-cols-2 md:gap-16">
         {/* Copy — flows from the stage top so the title position never shifts */}
         <div>
@@ -90,12 +90,12 @@ function Slide({ heading, bodyLeft, bodyRight, image }) {
           </div>
 
           {(bodyLeft || bodyRight) && (
-            <div className="mt-10 md:mt-14 grid max-w-[580px] grid-cols-1 gap-8 sm:grid-cols-2 md:gap-10 pl-6 md:pl-8">
+            <div className="mt-10 md:mt-14 grid max-w-[580px] grid-cols-1 gap-8 sm:grid-cols-2 md:gap-10 pl-0 md:pl-8">
               {bodyLeft && (
                 <p
                   data-anim
                   data-anim-speed="1.2"
-                  className="m-0 text-[14px] md:text-[15px] leading-[1.2] tracking-[0] text-[#E2EAF2]"
+                  className="m-0 text-[15px] md:text-[15px] leading-[1.2] tracking-[0] text-[#E2EAF2]"
                 >
                   {bodyLeft}
                 </p>
@@ -105,7 +105,7 @@ function Slide({ heading, bodyLeft, bodyRight, image }) {
                   data-anim
                   data-anim-speed="1.2"
                   data-anim-shift="1.5"
-                  className="m-0 text-[14px] md:text-[15px] leading-[1.2] tracking-[0] text-[#E2EAF2]"
+                  className="m-0 text-[15px] md:text-[15px] leading-[1.2] tracking-[0] text-[#E2EAF2]"
                 >
                   {bodyRight}
                 </p>
@@ -167,6 +167,20 @@ function ProjectShowcase({ slides = [] }) {
   const [current, setCurrent] = useState(0) // stable slide when idle
   const [transition, setTransition] = useState(null) // { from, to } while animating
   const count = slides.length
+
+  // On mobile the section drops the 100vh floor and sizes to its content, so
+  // there's no large empty gap above/below the centered slide.
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 767px)').matches
+      : false
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const onChange = (e) => setIsMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
 
   // Latest-value refs so the native wheel listener (bound once) reads live state
   // instead of the values captured when it was attached.
@@ -338,14 +352,14 @@ function ProjectShowcase({ slides = [] }) {
 
   return (
     <ScaleLock
-      viewport="min"
+      viewport={isMobile ? undefined : 'min'}
       innerRef={rootRef}
       className="relative flex flex-col items-center justify-center overflow-hidden bg-black text-mist"
     >
       <div
         ref={stageRef}
         data-showcase-reveal
-        className="w-full py-24 md:py-0"
+        className="w-full pb-4 pt-8 md:py-0"
         onPointerDown={onDown}
         onPointerUp={onUp}
         onPointerLeave={onUp}
@@ -378,7 +392,7 @@ function ProjectShowcase({ slides = [] }) {
       {/* Pagination mirrors the slide grid so the dots sit centered directly
           under the illustration column (right on desktop, centered when stacked). */}
       {count > 1 && (
-        <div className="w-full px-6 md:px-14">
+        <div className="w-full px-[16px] md:px-14 pb-16 md:pb-0">
           <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 md:grid-cols-2 md:gap-16">
             <div className="hidden md:block" aria-hidden="true" />
             <div className="flex justify-center md:justify-end">

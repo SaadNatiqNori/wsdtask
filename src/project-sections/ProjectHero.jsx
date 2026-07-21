@@ -8,7 +8,7 @@ import { ScaleLock } from '../ScaleLock'
 // Section type: "hero"
 // Ornament page-break + serif title + centered lead paragraph.
 // Owns its own on-mount entrance animation (above the fold, so no ScrollTrigger).
-function ProjectHero({ title, description, ornament = true, project, locked = true }) {
+function ProjectHero({ title, description, ornament = true, project, locked = true, onDark = false }) {
   const rootRef = useRef(null)
   // Use the project's uploaded icon (from the CMS) when set; otherwise the
   // built-in ornament page-break.
@@ -52,17 +52,23 @@ function ProjectHero({ title, description, ornament = true, project, locked = tr
               src={icon || ornamentSrc}
               alt=""
               aria-hidden="true"
-              className={
+              className={[
                 icon
-                  ? 'mx-auto h-[46px] w-auto select-none object-contain'
-                  : 'mx-auto h-[46px] w-[88px] select-none'
-              }
+                  ? 'mx-auto h-[26px] md:h-[46px] w-auto select-none object-contain'
+                  : 'mx-auto h-[46px] w-[88px] select-none',
+                // The emblem SVGs use a fixed dark fill (#1C1F2A); on the mobile
+                // navy hero, lighten them to mist so they read as the light
+                // emblem in the design.
+                onDark ? 'brightness-0 invert' : '',
+              ].join(' ')}
               draggable="false"
             />
           )}
           <h1
             data-hero-item
-            className="m-0 mt-5 text-[54px] md:text-[88px] font-normal leading-[1.15] tracking-[-0.03em] text-[#1C1F2A]"
+          className={`m-0 mt-[20px] md:mt-5 text-[44px] md:text-[88px] font-normal leading-[1.15] tracking-[-0.03em] ${
+              onDark ? 'text-mist' : 'text-[#1C1F2A]'
+            }`}
             style={{ fontFamily: "'Season Mix-TRIAL', serif" }}
           >
             {title}
@@ -71,7 +77,9 @@ function ProjectHero({ title, description, ornament = true, project, locked = tr
         {description && (
           <p
             data-hero-item
-            className="m-0 mt-3 max-w-[631px] text-[15px] md:text-[16px] leading-[1.25] tracking-[0] text-[#5B6473]"
+            className={`m-0 mt-[20px] md:mt-3 max-w-[328px] md:max-w-[631px] text-[13px] md:text-[16px] leading-[1.25] tracking-[0] ${
+              onDark ? 'text-[#A8B0BD]' : 'text-[#E2EAF2]'
+            }`}
           >
             {description}
           </p>
