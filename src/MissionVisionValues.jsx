@@ -33,13 +33,21 @@ const MVV_FALLBACK = {
   },
 }
 
-function useScale(referenceWidth = 1440) {
+function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
+  // Below 768px the mobile layout is authored for a 430px-wide reference
+  // (iPhone 14 Pro Max). Scaling by width/430 — capped at 1 so 430px+ stays
+  // pixel-identical to the design — shrinks the whole cover stage uniformly on
+  // narrower phones so each card's title/body/illustration keep their
+  // proportions instead of overflowing. The parallax uses yPercent (relative to
+  // each card's own height), so it is unaffected by the scale value.
+  const mobileScale = (width) => Math.min(1, width / mobileReferenceWidth)
+
   const [state, setState] = useState(() => {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : 1,
+        scale: width >= 768 ? width / referenceWidth : mobileScale(width),
         initialDPR: dpr,
       }
     }
@@ -53,11 +61,11 @@ function useScale(referenceWidth = 1440) {
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
       if (virtualWidth >= 768) setScale(width / referenceWidth)
-      else setScale(1)
+      else setScale(mobileScale(width))
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [referenceWidth, state.initialDPR])
+  }, [referenceWidth, mobileReferenceWidth, state.initialDPR])
 
   return state.scale
 }

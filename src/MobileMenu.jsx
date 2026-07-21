@@ -209,7 +209,7 @@ function MobileMenu({ open, onClose, links, projects, projectsLabel, contactLabe
       <Link
         to="/contact"
         onClick={onClose}
-        className="pointer-events-auto fixed bottom-[122px] left-4 z-50 inline-flex h-[42px] w-[81px] items-center justify-center gap-[10px] rounded-[22px] bg-mist px-[10px] py-4 font-['Akkurat_Mono',monospace] text-[14px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline"
+        className="pointer-events-auto fixed bottom-[5svh] left-4 z-50 inline-flex h-[42px] w-[81px] items-center justify-center gap-[10px] rounded-[22px] bg-mist px-[10px] py-4 font-['Akkurat_Mono',monospace] text-[14px] font-medium uppercase leading-none tracking-[0] text-[#191f2f] no-underline"
       >
         {contactLabel}
       </Link>

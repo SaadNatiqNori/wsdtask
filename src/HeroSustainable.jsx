@@ -17,13 +17,20 @@ const HERO_FALLBACK = {
   featured: { eyebrow: 'RECENT PROJECTS', title: 'Second Avenue', slug: 'second-avenue' },
 }
 
-function useScale(referenceWidth = 1440) {
+function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
+  // Below 768px the mobile layout is authored for a 430px-wide reference
+  // (iPhone 14 Pro Max). Scaling by width/430 — capped at 1 so 430px+ stays
+  // pixel-identical to the design — shrinks the whole hero uniformly on
+  // narrower/shorter phones, keeping the same proportions instead of letting
+  // the fixed pt/gap/pb collapse and collide the description into the wordmark.
+  const mobileScale = (width) => Math.min(1, width / mobileReferenceWidth)
+
   const [state, setState] = useState(() => {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : 1,
+        scale: width >= 768 ? width / referenceWidth : mobileScale(width),
         initialDPR: dpr,
       }
     }
@@ -37,11 +44,11 @@ function useScale(referenceWidth = 1440) {
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
       if (virtualWidth >= 768) setScale(width / referenceWidth)
-      else setScale(1)
+      else setScale(mobileScale(width))
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [referenceWidth, state.initialDPR])
+  }, [referenceWidth, mobileReferenceWidth, state.initialDPR])
 
   return state.scale
 }
@@ -123,7 +130,12 @@ function HeroSustainable() {
           // The navbar now scales with the same 1440 lock as this content, so the
           // top padding is a plain canvas value (75px navbar + 125.69px gap) that
           // scales uniformly with everything else — no /scale compensation.
-          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 pb-[108.6px] pt-[196px] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[200.69px]"
+          // Mobile top/bottom padding is min(designPx, equivalent-vh): it equals
+          // the design values at the 932px reference height (so the iPhone 14 Pro
+          // Max view is untouched) but shrinks on shorter viewports (e.g. iPhone
+          // SE, 667px) so the top nav-clearance yields space instead of collapsing
+          // the description→wordmark gap. Pairs with the width scale-lock above.
+          className="relative h-full max-w-[1440px] mx-auto flex flex-col bg-[#E2EAF2] px-4 max-md:[padding-bottom:min(108.6px,11.652vh)] max-md:[padding-top:min(196px,21.031vh)] text-[#1C2D4F] md:px-[38px] md:pb-[40px] md:pt-[200.69px]"
         >
           <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-[60px] md:gap-8">
             <h1
