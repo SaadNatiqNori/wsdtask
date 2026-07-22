@@ -25,7 +25,7 @@ function ContactFooterPanel({
   // the container bottom. The mask breaks 7px past the 23px inset each side so
   // it lands ~370px wide (near full-bleed) instead of matching the text column.
   const mainClass = fitMobile
-    ? 'relative h-auto md:h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-[23px] pb-[118px] pt-[116px] text-mist md:px-8 md:pb-[31px] md:pt-[150px]'
+    ? 'relative h-auto md:h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-[16px] pb-[113px] pt-[111px] text-mist md:px-8 md:pb-[31px] md:pt-[150px]'
     : 'relative h-full max-w-[1440px] mx-auto flex flex-col bg-navy px-4 pb-[31px] pt-[150px] text-mist md:px-8'
   const alcoveWrapClass = fitMobile
     ? 'relative mt-[97.4px] mx-[-7px] md:mt-auto md:mx-0'
@@ -51,7 +51,7 @@ function ContactFooterPanel({
         <div className="overflow-hidden">
           <p
             ref={descRef}
-            className="m-0 max-w-[356px] text-[13px] md:text-[16px] leading-[100%] text-mist"
+            className="m-0 max-w-[356px] text-[13px] md:text-[16px] leading-[100%] text-mist tracking-[0.4px] md:tracking-normal"
           >
             {cta.description}
           </p>
@@ -61,7 +61,7 @@ function ContactFooterPanel({
           <Link
             ref={buttonRef}
             to="/contact"
-            className="group inline-flex h-[46px] items-center gap-[5px] rounded-[48px] border border-mist bg-mist px-[14px] font-['Akkurat_Mono',monospace] text-[10px] font-medium uppercase leading-none text-navy no-underline transition-colors duration-300 ease-out hover:bg-navy hover:text-mist mt-2 md:mt-0"
+            className="group inline-flex h-[40px] md:h-[46px] items-center gap-[5px] rounded-[48px] border border-mist bg-mist px-[14px] font-['Akkurat_Mono',monospace] text-[9px] md:text-[10px] font-medium uppercase leading-none text-navy no-underline transition-colors duration-300 ease-out hover:bg-navy hover:text-mist mt-3 md:mt-0"
           >
             <span className="relative top-[1px]">{cta.buttonLabel}</span>
             <ArrowIcon
