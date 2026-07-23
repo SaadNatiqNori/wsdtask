@@ -159,14 +159,14 @@ function MobileMenu({ open, onClose, links, projects, projectsLabel, contactLabe
       aria-modal="true"
       aria-label="Menu"
     >
-      <div className="flex h-full flex-col overflow-y-auto overflow-x-hidden px-[16px] pb-28 pt-[92px]">
+      <div className="flex h-full flex-col overflow-y-auto overflow-x-hidden px-[16px] pb-28 pt-[105px]">
         <nav aria-label="Mobile navigation" className="flex flex-col">
           {links.map((link) => (
             <div key={link.to}>
               <Link
                 to={link.to}
                 onClick={onClose}
-                className="flex items-center justify-between py-6 font-['Akkurat_Mono',monospace] text-[22px] uppercase leading-none tracking-[0.02em] text-mist no-underline"
+                className="flex items-center justify-between py-[34px] font-['Akkurat_Mono',monospace] text-[22px] uppercase leading-none tracking-[0.02em] text-mist no-underline"
               >
                 <span>{link.label}</span>
                 <img src={arrowRight} alt="" className="h-[20px] w-[20px]" aria-hidden="true" />
