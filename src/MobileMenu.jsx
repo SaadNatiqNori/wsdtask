@@ -159,7 +159,7 @@ function MobileMenu({ open, onClose, links, projects, projectsLabel, contactLabe
       aria-modal="true"
       aria-label="Menu"
     >
-      <div className="flex h-full flex-col overflow-y-auto px-6 pb-28 pt-[92px]">
+      <div className="flex h-full flex-col overflow-y-auto overflow-x-hidden px-[16px] pb-28 pt-[92px]">
         <nav aria-label="Mobile navigation" className="flex flex-col">
           {links.map((link) => (
             <div key={link.to}>
@@ -193,10 +193,11 @@ function MobileMenu({ open, onClose, links, projects, projectsLabel, contactLabe
             </button>
 
             <div ref={projectsBodyRef} className="-mx-6 overflow-hidden" style={{ height: 0 }}>
+              <ProjectSlider projects={projects} onNavigate={onClose} />
               <Link
                 to="/projects"
                 onClick={onClose}
-                className="mb-5 ml-6 inline-flex items-center gap-3 font-['Akkurat_Mono',monospace] text-[11px] uppercase leading-none tracking-normal text-mist no-underline"
+                className="mb-6 ml-6 inline-flex items-center gap-3 font-['Akkurat_Mono',monospace] text-[11px] uppercase leading-none tracking-normal text-mist no-underline"
                 aria-label="See all projects"
               >
                 <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-solid border-mist">
@@ -204,9 +205,7 @@ function MobileMenu({ open, onClose, links, projects, projectsLabel, contactLabe
                 </span>
                 <span className="relative top-[0.5px] text-[15px]">Check all</span>
               </Link>
-              <ProjectSlider projects={projects} onNavigate={onClose} />
             </div>
-            <div className="h-px w-full bg-[#FFFFFF1A]" />
           </div>
         </nav>
       </div>
