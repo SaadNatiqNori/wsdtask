@@ -37,7 +37,8 @@ function ProjectOverview({ eyebrow = 'Project Overview', heading, body, image })
       // with 16px side padding — content flows from the top (74px in, 106px
       // below). Desktop keeps the one-viewport full-height layout, so replicate
       // ScaleLock's viewport="full" via the scaled-vh height class here.
-      className="bg-[#161A24] text-mist px-4 md:px-[38px] min-h-[626px] md:min-h-0 md:h-[calc(100vh/var(--scale))]"
+      bg="bg-[#161A24]"
+      className="text-mist px-4 md:px-[38px] min-h-[626px] md:min-h-0 md:h-[calc(100vh/var(--scale))]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
       <div className="mx-auto flex flex-col pt-[74px] pb-[106px] md:h-full md:justify-center md:py-[69px]">

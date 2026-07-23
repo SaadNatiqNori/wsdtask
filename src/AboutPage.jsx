@@ -154,7 +154,18 @@ function AboutPage() {
           ref={goalsSectionRef}
           className="relative bg-navy"
         >
-          <div className="sticky top-0 h-[calc(100vh/var(--zoom))] w-full overflow-hidden bg-mist">
+          <div
+            className="sticky top-0 h-[calc(100vh/var(--zoom))] overflow-hidden bg-mist"
+            /* Break the pinned image out to the full viewport width (centered in
+               the 1440 canvas via negative margin — no transform/inset, so the
+               sticky pin and the blur-up reveal stay intact) so it stays edge-to-
+               edge once the zoom locks. Width is 100vw ÷ zoom so it renders as
+               exactly one viewport after the zoom (no horizontal overflow). */
+            style={{
+              width: 'calc(100vw / var(--zoom))',
+              marginLeft: 'calc((100% - 100vw / var(--zoom)) / 2)',
+            }}
+          >
             <img
               ref={heroImageRef}
               src={hero.image || avenueImage}
@@ -172,8 +183,13 @@ function AboutPage() {
             <div className="relative">
               <div
                 ref={overlayRef}
-                className="absolute left-0 right-0 bottom-0 -top-[calc(70vh/var(--zoom))] pointer-events-none"
+                className="absolute bottom-0 -top-[calc(70vh/var(--zoom))] pointer-events-none"
                 style={{
+                  // Full-bleed to match the now edge-to-edge pinned image, so the
+                  // blur/darken band covers the gutters too (no sharp seam at 1440).
+                  // 100vw ÷ zoom → exactly one viewport after zoom, no overflow.
+                  width: 'calc(100vw / var(--zoom))',
+                  left: 'calc((100% - 100vw / var(--zoom)) / 2)',
                   backdropFilter: 'blur(32px) brightness(0.55)',
                   WebkitBackdropFilter: 'blur(32px) brightness(0.55)',
                   // Smoothstep (S-curve) mask: many stops with no slope kinks so the
@@ -207,7 +223,13 @@ function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-[#D7DEE6] px-[16px] pt-24 md:pt-[195px] pb-24 md:pb-32">
+        <section className="relative isolate bg-[#D7DEE6] px-[16px] pt-24 md:pt-[195px] pb-24 md:pb-32">
+          {/* Full-bleed backdrop: the 1440 canvas centers once the zoom locks, so
+              this 100vw layer (behind the content via -z) keeps the section colour
+              reaching both viewport edges instead of guttering. `isolate` scopes the
+              -z layer to this section — CSS `zoom` (unlike transform) makes no
+              stacking context, so without it the -z layer sinks behind the page bg. */}
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -translate-x-1/2 bg-[#D7DEE6]" style={{ width: 'calc(100vw / var(--zoom))' }} />
           <div className="flex flex-col gap-10 md:flex-row md:gap-[208px] max-w-[var(--content-width)] mx-auto">
             <div className="shrink-0 md:sticky md:top-[140px] md:self-start md:w-[259px]">
               <h2
@@ -233,7 +255,8 @@ function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-navy text-mist px-[16px] md:px-[38px] pt-24 md:pt-[95px] pb-24 md:pb-32">
+        <section className="relative isolate bg-navy text-mist px-[16px] md:px-[38px] pt-24 md:pt-[95px] pb-24 md:pb-32">
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 -translate-x-1/2 bg-navy" style={{ width: 'calc(100vw / var(--zoom))' }} />
           <div className="max-w-[var(--content-width)] mx-auto">
             <p
               className="m-0 text-[16px] md:text-[22px] leading-none tracking-[-0.88px] text-mist"

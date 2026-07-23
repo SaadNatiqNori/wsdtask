@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import logoYellow from './assets/LogoYellow.svg'
 import { cubicEase } from './easings'
 import { useContent } from './api'
+import { MAX_SCALE } from './useScale'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -40,7 +41,7 @@ function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : mobileScale(width),
+        scale: width >= 768 ? Math.min(width / referenceWidth, MAX_SCALE) : mobileScale(width),
         initialDPR: dpr,
       }
     }
@@ -53,7 +54,7 @@ function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
       const width = window.innerWidth
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
-      if (virtualWidth >= 768) setScale(width / referenceWidth)
+      if (virtualWidth >= 768) setScale(Math.min(width / referenceWidth, MAX_SCALE))
       else setScale(mobileScale(width))
     }
     window.addEventListener('resize', handleResize)

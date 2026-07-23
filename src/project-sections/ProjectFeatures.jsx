@@ -36,7 +36,9 @@ function ProjectFeatures({ groups = [] }) {
   return (
     <ScaleLock
       innerRef={rootRef}
-      className="bg-[#E6EBF0] text-[#1C1F2A]"
+      fill
+      bg="bg-[#E6EBF0]"
+      className="text-[#1C1F2A]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
       {groups.map((group, gi) => (
@@ -50,7 +52,7 @@ function ProjectFeatures({ groups = [] }) {
           className={`w-full pb-[64px] md:pb-[119px]${gi === 0 ? ' pt-[64px] md:pt-[119px]' : ''}`}
           style={{ backgroundColor: group.bg ?? '#E6EBF0' }}
         >
-          <div className="mx-auto max-w-[1760px] border-t border-[#1C1F2A] px-[16px] pt-[40px] pb-0 md:px-[38px] md:pt-[70px]">
+          <div className="mx-auto max-w-[1440px] border-t border-[#1C1F2A] px-[16px] pt-[40px] pb-0 md:px-[38px] md:pt-[70px]">
             <div className="grid grid-cols-1 gap-[55px] md:grid-cols-[minmax(0,0.9fr)_minmax(0,2.55fr)] md:gap-16">
               {/* Title column */}
               <div data-feat-item>

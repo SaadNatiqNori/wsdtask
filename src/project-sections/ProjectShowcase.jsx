@@ -354,7 +354,8 @@ function ProjectShowcase({ slides = [] }) {
     <ScaleLock
       viewport={isMobile ? undefined : 'min'}
       innerRef={rootRef}
-      className="relative flex flex-col items-center justify-center overflow-hidden bg-black text-mist"
+      bg="bg-black"
+      className="relative flex flex-col items-center justify-center overflow-hidden text-mist"
     >
       <div
         ref={stageRef}
