@@ -163,8 +163,8 @@ function CardsSection() {
         })
 
         // Entrance stays a single timeline so the scrub's `entrance.progress(1)`
-        // snap-to-settled (onEnter/onUpdate) keeps working. Each line rises from
-        // its mask in sequence — top line first — with a small inter-line stagger.
+        // snap-to-settled (onEnter/onUpdate) keeps working. All lines rise from
+        // their masks together — no inter-line stagger.
         const entrance = gsap.timeline({
           scrollTrigger: {
             trigger: sectionEl,
@@ -172,8 +172,8 @@ function CardsSection() {
             toggleActions: 'play none none none',
           },
         })
-        lines.forEach((line, i) => {
-          entrance.to(line, { yPercent: 0, duration: 1.1, ease: cubicEase }, i * 0.12)
+        lines.forEach((line) => {
+          entrance.to(line, { yPercent: 0, duration: 1.1, ease: cubicEase }, 0)
         })
 
         // Flight geometry, measured up front (fonts are loaded by now). The
