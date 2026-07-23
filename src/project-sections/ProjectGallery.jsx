@@ -175,7 +175,9 @@ function ProjectGallery({
   return (
     <ScaleLock
       innerRef={rootRef}
-      className="relative flex flex-col items-center justify-center overflow-hidden bg-[#0E0E0E] text-mist pt-[84px] pb-[72px] md:pt-36 md:pb-10 md:min-h-[calc(100vh/var(--scale))]"
+      fill
+      bg="bg-[#0E0E0E]"
+      className="relative flex flex-col items-center justify-center overflow-hidden text-mist pt-[84px] pb-[72px] md:pt-36 md:pb-10 md:min-h-[calc(100vh/var(--scale))]"
     >
       <div className="px-6 md:px-10 flex flex-col items-center text-center">
         {/* Same pill as the Contact page badge, recoloured for the dark section

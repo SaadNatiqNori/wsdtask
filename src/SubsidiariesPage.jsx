@@ -187,7 +187,7 @@ function SubsidiariesPage() {
 
   return (
     <>
-      <ScaleLock as="main" viewport="min" className="relative bg-navy text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
+      <ScaleLock as="main" viewport="min" bg="bg-navy" className="relative text-mist px-4 pt-[140px] pb-24 md:px-8 md:pt-[180px] md:pb-32">
         <div className="max-w-[1440px] mx-auto">
           <div className="text-center max-w-[356px] md:max-w-[695px] mx-auto">
             <h1

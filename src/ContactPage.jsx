@@ -303,7 +303,8 @@ function ContactPage() {
     <>
     <ScaleLock
       as="main"
-      className="bg-[#E6EBF0] text-[#1C2D4F]"
+      bg="bg-[#E6EBF0]"
+      className="text-[#1C2D4F]"
       style={{ fontFamily: "'Season Sans-TRIAL', sans-serif" }}
     >
       {/* Form area — the header pins while the card scrolls up over it.

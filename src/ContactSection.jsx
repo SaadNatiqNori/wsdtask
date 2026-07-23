@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ContactFooterPanel from './ContactFooterPanel'
 import { cubicEase } from './easings'
 import { useContent } from './api'
+import { MAX_SCALE } from './useScale'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -20,7 +21,7 @@ function useScale(referenceWidth = 1440) {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : 1,
+        scale: width >= 768 ? Math.min(width / referenceWidth, MAX_SCALE) : 1,
         initialDPR: dpr,
       }
     }
@@ -33,7 +34,7 @@ function useScale(referenceWidth = 1440) {
       const width = window.innerWidth
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
-      if (virtualWidth >= 768) setScale(width / referenceWidth)
+      if (virtualWidth >= 768) setScale(Math.min(width / referenceWidth, MAX_SCALE))
       else setScale(1)
     }
     window.addEventListener('resize', handleResize)

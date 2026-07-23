@@ -78,7 +78,7 @@ function ProjectHero({ title, description, ornament = true, project, locked = tr
           <p
             data-hero-item
             className={`m-0 mt-[20px] md:mt-3 max-w-[328px] md:max-w-[631px] text-[13px] md:text-[16px] leading-[1.25] tracking-[0] ${
-              onDark ? 'text-[#A8B0BD]' : 'text-[#E2EAF2]'
+              onDark ? 'text-[#E2EAF2]' : 'text-[#black]'
             }`}
           >
             {description}

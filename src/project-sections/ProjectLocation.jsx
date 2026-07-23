@@ -91,7 +91,8 @@ function ProjectLocation({ title = 'Location', items = [] }) {
       viewport="min"
       scale={scale}
       innerRef={rootRef}
-      className="relative flex items-center overflow-hidden bg-[#161A24] text-mist"
+      bg="bg-[#161A24]"
+      className="relative flex items-center overflow-hidden text-mist"
     >
       <div className="mx-auto flex w-full max-w-[1720px] flex-col items-start gap-12 px-[16px] py-[65px] md:flex-row md:items-center md:justify-between md:gap-0 md:px-[38px] md:py-0">
         {/* Title */}

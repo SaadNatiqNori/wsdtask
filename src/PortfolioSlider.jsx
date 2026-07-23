@@ -6,6 +6,7 @@ import ArrowIcon from './ArrowIcon'
 import { cubicEase } from './easings'
 import { useProjects, useContent } from './api'
 import { PROJECTS_DATA } from './projects'
+import { MAX_SCALE } from './useScale'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -24,7 +25,7 @@ function useScale(referenceWidth = 1440) {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : 1,
+        scale: width >= 768 ? Math.min(width / referenceWidth, MAX_SCALE) : 1,
         initialDPR: dpr,
       }
     }
@@ -37,7 +38,7 @@ function useScale(referenceWidth = 1440) {
       const width = window.innerWidth
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
-      if (virtualWidth >= 768) setScale(width / referenceWidth)
+      if (virtualWidth >= 768) setScale(Math.min(width / referenceWidth, MAX_SCALE))
       else setScale(1)
     }
     window.addEventListener('resize', handleResize)
@@ -430,6 +431,9 @@ function PortfolioSlider() {
           height: isMobile ? 'auto' : `${100 / scale}vh`,
         }}
       >
+        {/* Content stays in the centered 1440 canvas (heading/intro align with
+            every other section). Only the slider track below bleeds to the right
+            viewport edge so the cards aren't cut short of it. */}
         <main className="relative h-full max-w-[1440px] mx-auto flex flex-col justify-start md:justify-center bg-[#E6EBF0] pt-[88px] pb-14 text-[#1C2D4F] md:pt-[120px] md:pb-10">
           <div
             ref={scrollRef}
@@ -442,6 +446,12 @@ function PortfolioSlider() {
               // the desktop horizontal slider claims the horizontal axis.
               touchAction: isMobile ? 'auto' : 'pan-x',
               overscrollBehavior: 'contain',
+              // Desktop: extend the track's right edge out to the viewport edge
+              // (negative margin = the right gutter, in canvas px) so the cards
+              // run/peek to the edge instead of stopping at the 1440 canvas.
+              marginRight: isMobile
+                ? undefined
+                : `calc((100vw / ${scale} - 1440px) / -2)`,
             }}
           >
             {/* mr + the row's gap-2 (8px) = the 227.5px intro-to-cards gap */}

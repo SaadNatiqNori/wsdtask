@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useContent } from './api'
 import ContactFooterPanel from './ContactFooterPanel'
+import { MAX_SCALE } from './useScale'
 
 const CTA_FALLBACK = {
   title: "Let's talk",
@@ -47,7 +48,7 @@ function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
       const width = window.innerWidth
       const dpr = window.devicePixelRatio || 1
       return {
-        scale: width >= 768 ? width / referenceWidth : mobileScale(width),
+        scale: width >= 768 ? Math.min(width / referenceWidth, MAX_SCALE) : mobileScale(width),
         initialDPR: dpr,
       }
     }
@@ -60,7 +61,7 @@ function useScale(referenceWidth = 1440, mobileReferenceWidth = 430) {
       const width = window.innerWidth
       const currentDPR = window.devicePixelRatio || 1
       const virtualWidth = width * (currentDPR / state.initialDPR)
-      if (virtualWidth >= 768) setScale(width / referenceWidth)
+      if (virtualWidth >= 768) setScale(Math.min(width / referenceWidth, MAX_SCALE))
       else setScale(mobileScale(width))
     }
     window.addEventListener('resize', handleResize)
@@ -396,8 +397,15 @@ function MissionVisionValues() {
                 <div
                   ref={footerRef}
                   style={{ zIndex: 40 }}
-                  className="absolute inset-0 bg-navy will-change-transform"
+                  className="absolute inset-0 will-change-transform"
                 >
+                  {/* The navy backdrop breaks out to the full viewport width so the
+                      footer always reads as a 100vw band — even once the scale locks
+                      and the 1440 content canvas stops filling wide screens. The
+                      rising cover animation stays on this wrapper; only the backdrop
+                      is full-bleed, while ContactFooterPanel keeps its capped,
+                      centered content. */}
+                  <div className="absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 bg-navy" />
                   <ContactFooterPanel cta={cta} fitMobile />
                 </div>
               )}
